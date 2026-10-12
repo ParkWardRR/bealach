@@ -1,0 +1,10 @@
+{
+  "name": "merkle-empty",
+  "description": "The empty Merkle tree.",
+  "asserts": "Root is SHA256(0x02), a third domain tag distinct from leaves and internal nodes.",
+  "merkle": {
+    "root_hex": "dbc1b4c900ffe48d575b5da5c638040125f65db0fe3e24494b76ea986457d986",
+    "leaves_hex": [],
+    "note": "An empty tree must not collide with a tree holding one empty leaf."
+  }
+}

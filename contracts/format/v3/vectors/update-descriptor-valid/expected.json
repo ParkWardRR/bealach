@@ -1,0 +1,14 @@
+{
+  "name": "update-descriptor-valid",
+  "description": "A correctly signed OTA update descriptor.",
+  "asserts": "The signature covers exactly the bytes of descriptor.cbor, verified against an update key that is deliberately separate from the receipt key. A device downloads megabytes on the strength of this check, so it must be made before anything in the descriptor is used.",
+  "update": {
+    "signature_valid": true,
+    "firmware_version": "cairn-v2.1.0",
+    "min_firmware_version": "cairn-v2.0.0",
+    "image_sha256_hex": "101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f",
+    "image_length": 1114112,
+    "update_public_key_hex": "113f57b5cec73a31156c823d29c27a396031e89ca57090b983e216c9a97d46af",
+    "note": "The receipt key says this data is safe to delete; the update key says this code is safe to run. Different authorities, so different keys."
+  }
+}

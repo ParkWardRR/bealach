@@ -1,0 +1,16 @@
+{
+  "name": "manifest-segment-gap",
+  "description": "A manifest whose only capture segment is seg-00000002.seg, with segment_index 2 in its header.",
+  "asserts": "Capture segments must be named contiguously from seg-00000000. A gap means a segment, and the frames chained through it, was removed, and it must be refused even though the name and the header agree with each other and no member is missing from the bytes in hand. The manifest signature, content root and member digests are all valid: a valid signature binds the manifest to the device, not the manifest to its segments.",
+  "binding": {
+    "match": false,
+    "mismatched_field": "segment_index"
+  },
+  "manifest": {
+    "valid": true,
+    "signature_valid": true,
+    "content_root_hex": "9bb37bf916a4f52250e4a9e0e82f40c273f547ea40b7060b728373a77ba82a4f",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "4097b5c63c2f2c38e146673c10490a62231d53335493b80e1f81f4f36c6ec47a"
+  }
+}

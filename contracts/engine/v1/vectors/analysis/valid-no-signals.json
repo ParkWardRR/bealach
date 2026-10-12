@@ -1,0 +1,11 @@
+{
+  "schema": "cairn.engine-analysis/v0",
+  "id": "unknown-engine",
+  "name": "Uncharacterised engine",
+  "status": "stub",
+  "sources": [
+    "an engine nobody has characterised still has an identity"
+  ],
+  "signals": [],
+  "thresholds": {}
+}

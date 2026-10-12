@@ -1,0 +1,12 @@
+{
+  "name": "manifest-missing-mandatory-field",
+  "description": "A manifest with every field but encryption_suite (key 28), correctly signed by the device key.",
+  "asserts": "Keys 24 to 28 are mandatory so that a reader never has to guess how a bundle was bound or protected. A manifest without one is refused outright and the missing field is never defaulted. Valid: false. signature_valid is false because verification is signature and then parse, and the parse fails; the Ed25519 signature itself is correct over these bytes, so a verifier that stops at the signature has accepted a manifest it cannot read.",
+  "manifest": {
+    "valid": false,
+    "signature_valid": false,
+    "content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": ""
+  }
+}

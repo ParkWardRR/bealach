@@ -1,0 +1,9 @@
+{
+  "name": "header-unsupported-format-version",
+  "description": "A well-formed header declaring format_version 4, header CRC recomputed.",
+  "asserts": "A newer format than this implementation reads. It must be refused as unsupported, not parsed as v3 on a guess and not reported as corruption: the bytes are intact, so the segment must not be deleted.",
+  "header": {
+    "parse_error": "unsupported_format_version",
+    "note": "unsupported format version 4 (this implementation reads 3 only)"
+  }
+}

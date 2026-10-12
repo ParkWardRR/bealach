@@ -1,0 +1,13 @@
+{
+  "expect_error": "must be lowercase",
+  "profile": {
+    "id": "BMW-N20",
+    "name": "X",
+    "status": "stub",
+    "sources": [
+      "s"
+    ],
+    "signals": [],
+    "thresholds": {}
+  }
+}

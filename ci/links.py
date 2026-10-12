@@ -20,11 +20,12 @@ LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 
 
 def markdown_files() -> list[Path]:
-    # harvest/ is provenance-pinned staging material: its relative links still
-    # describe the Cairn monorepo layout and are deliberately left untouched.
+    # harvest/ and contracts/ are provenance-pinned Cairn material: their
+    # relative links describe the Cairn monorepo layout and are left untouched.
+    skip = {"harvest", "contracts"}
     return sorted(
         p for p in ROOT.rglob("*.md")
-        if ".git" not in p.parts and "harvest" not in p.relative_to(ROOT).parts
+        if ".git" not in p.parts and skip.isdisjoint(p.relative_to(ROOT).parts)
     )
 
 

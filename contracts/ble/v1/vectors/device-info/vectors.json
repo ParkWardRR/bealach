@@ -1,0 +1,655 @@
+{
+  "description": "Cairn BLE v1 device information, uplink events, home trigger and signed instructions (DRAFT). Every key here is a PUBLIC TEST KEY derived from a published label; none protects anything. Ed25519 signatures are deterministic: must equal.",
+  "instruction_public_key": "c67652c78145e5e9669a58259d2c1f953810bab7a06663c587266ff89ee9739f",
+  "instruction_seed": "3d5f0018071d30d7628c71ca73fc8a8f15c877b5ad922e66b78fd3311c0e9a47",
+  "device_id": "f6193d70484a5fe5f6e8722ad65f02eb",
+  "device_info": [
+    {
+      "name": "full: two engines, three transports, boot timing",
+      "hex": "01008b00ff00000001100003010cabc123456789def0803bb16a0219f6193d70484a5fe5f6e8722ad65f02eb72f402c90201000000030801000300b47400000404011f00000404021f00000404030300000512010036382a0553e0cad707626d772d6e32300512010064af1d58ecda4fb207626d772d62353806103403000006090000ffffffff01000000",
+      "decoded": {
+        "Version": 1,
+        "Minor": 0,
+        "Capabilities": 255,
+        "Firmware": {
+          "Major": 0,
+          "Minor": 3,
+          "Patch": 1,
+          "Flags": 12,
+          "Commit": [
+            171,
+            193,
+            35,
+            69,
+            103,
+            137,
+            222,
+            240
+          ],
+          "BuildUnix": 1790000000
+        },
+        "Identity": {
+          "DeviceID": [
+            246,
+            25,
+            61,
+            112,
+            72,
+            74,
+            95,
+            229,
+            246,
+            232,
+            114,
+            42,
+            214,
+            95,
+            2,
+            235
+          ],
+          "Fingerprint": [
+            114,
+            244,
+            2,
+            201
+          ],
+          "EnrolState": 2,
+          "StorageKeyVersion": 1
+        },
+        "Storage": {
+          "State": 1,
+          "PendingBundles": 3,
+          "FreeMiB": 29876
+        },
+        "Transports": [
+          {
+            "Kind": 1,
+            "State": 31,
+            "LastError": 0
+          },
+          {
+            "Kind": 2,
+            "State": 31,
+            "LastError": 0
+          },
+          {
+            "Kind": 3,
+            "State": 3,
+            "LastError": 0
+          }
+        ],
+        "Engines": [
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              54,
+              56,
+              42,
+              5,
+              83,
+              224,
+              202,
+              215
+            ],
+            "ID": "bmw-n20"
+          },
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              100,
+              175,
+              29,
+              88,
+              236,
+              218,
+              79,
+              178
+            ],
+            "ID": "bmw-b58"
+          }
+        ],
+        "Boot": {
+          "ToBLEms": 820,
+          "ToReadyMs": 2310,
+          "ToFirstFixMs": 4294967295,
+          "ResetReason": 1
+        },
+        "Truncated": false,
+        "Unknown": null
+      }
+    },
+    {
+      "name": "minimal: header only",
+      "hex": "0100080001000000",
+      "decoded": {
+        "Version": 1,
+        "Minor": 0,
+        "Capabilities": 1,
+        "Firmware": null,
+        "Identity": null,
+        "Storage": null,
+        "Transports": null,
+        "Engines": null,
+        "Boot": null,
+        "Truncated": false,
+        "Unknown": null
+      }
+    },
+    {
+      "name": "a newer minor version with an unknown record type 0x42: skipped, the rest read",
+      "hex": "01019000ff00000001100003010cabc123456789def0803bb16a0219f6193d70484a5fe5f6e8722ad65f02eb72f402c90201000000030801000300b47400000404011f00000404021f00000404030300000512010036382a0553e0cad707626d772d6e32300512010064af1d58ecda4fb207626d772d62353806103403000006090000ffffffff010000004203010203",
+      "decoded": {
+        "Version": 1,
+        "Minor": 1,
+        "Capabilities": 255,
+        "Firmware": {
+          "Major": 0,
+          "Minor": 3,
+          "Patch": 1,
+          "Flags": 12,
+          "Commit": [
+            171,
+            193,
+            35,
+            69,
+            103,
+            137,
+            222,
+            240
+          ],
+          "BuildUnix": 1790000000
+        },
+        "Identity": {
+          "DeviceID": [
+            246,
+            25,
+            61,
+            112,
+            72,
+            74,
+            95,
+            229,
+            246,
+            232,
+            114,
+            42,
+            214,
+            95,
+            2,
+            235
+          ],
+          "Fingerprint": [
+            114,
+            244,
+            2,
+            201
+          ],
+          "EnrolState": 2,
+          "StorageKeyVersion": 1
+        },
+        "Storage": {
+          "State": 1,
+          "PendingBundles": 3,
+          "FreeMiB": 29876
+        },
+        "Transports": [
+          {
+            "Kind": 1,
+            "State": 31,
+            "LastError": 0
+          },
+          {
+            "Kind": 2,
+            "State": 31,
+            "LastError": 0
+          },
+          {
+            "Kind": 3,
+            "State": 3,
+            "LastError": 0
+          }
+        ],
+        "Engines": [
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              54,
+              56,
+              42,
+              5,
+              83,
+              224,
+              202,
+              215
+            ],
+            "ID": "bmw-n20"
+          },
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              100,
+              175,
+              29,
+              88,
+              236,
+              218,
+              79,
+              178
+            ],
+            "ID": "bmw-b58"
+          }
+        ],
+        "Boot": {
+          "ToBLEms": 820,
+          "ToReadyMs": 2310,
+          "ToFirstFixMs": 4294967295,
+          "ResetReason": 1
+        },
+        "Truncated": false,
+        "Unknown": [
+          {
+            "Type": 66,
+            "Value": "AQID"
+          }
+        ]
+      }
+    },
+    {
+      "name": "twenty engines do not fit in 512 bytes: the list is cut and TRUNCATED is set",
+      "hex": "0100e801ff00000001100003010cabc123456789def0803bb16a0219f6193d70484a5fe5f6e8722ad65f02eb72f402c90201000000030801000300b47400000404011f00000404021f0000040403030000052901005c88e7a226e11ad11e746573742d656e67696e652d30302d70616464696e672d70616464696e67052901008b5cc4df7eec7d321e746573742d656e67696e652d30312d70616464696e672d70616464696e6705290100ac0f09c0f8bf5e7a1e746573742d656e67696e652d30322d70616464696e672d70616464696e6705290100cef7fc13a38180931e746573742d656e67696e652d30332d70616464696e672d70616464696e6705290100449777124b1466a81e746573742d656e67696e652d30342d70616464696e672d70616464696e670529010043700797e2f9d4ad1e746573742d656e67696e652d30352d70616464696e672d70616464696e6705290100f33422b95e3b98311e746573742d656e67696e652d30362d70616464696e672d70616464696e6705290100f3e2e400523c50681e746573742d656e67696e652d30372d70616464696e672d70616464696e6705290100c33352e36a5298301e746573742d656e67696e652d30382d70616464696e672d70616464696e6706103403000006090000ffffffff010000007f00",
+      "decoded": {
+        "Version": 1,
+        "Minor": 0,
+        "Capabilities": 255,
+        "Firmware": {
+          "Major": 0,
+          "Minor": 3,
+          "Patch": 1,
+          "Flags": 12,
+          "Commit": [
+            171,
+            193,
+            35,
+            69,
+            103,
+            137,
+            222,
+            240
+          ],
+          "BuildUnix": 1790000000
+        },
+        "Identity": {
+          "DeviceID": [
+            246,
+            25,
+            61,
+            112,
+            72,
+            74,
+            95,
+            229,
+            246,
+            232,
+            114,
+            42,
+            214,
+            95,
+            2,
+            235
+          ],
+          "Fingerprint": [
+            114,
+            244,
+            2,
+            201
+          ],
+          "EnrolState": 2,
+          "StorageKeyVersion": 1
+        },
+        "Storage": {
+          "State": 1,
+          "PendingBundles": 3,
+          "FreeMiB": 29876
+        },
+        "Transports": [
+          {
+            "Kind": 1,
+            "State": 31,
+            "LastError": 0
+          },
+          {
+            "Kind": 2,
+            "State": 31,
+            "LastError": 0
+          },
+          {
+            "Kind": 3,
+            "State": 3,
+            "LastError": 0
+          }
+        ],
+        "Engines": [
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              92,
+              136,
+              231,
+              162,
+              38,
+              225,
+              26,
+              209
+            ],
+            "ID": "test-engine-00-padding-padding"
+          },
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              139,
+              92,
+              196,
+              223,
+              126,
+              236,
+              125,
+              50
+            ],
+            "ID": "test-engine-01-padding-padding"
+          },
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              172,
+              15,
+              9,
+              192,
+              248,
+              191,
+              94,
+              122
+            ],
+            "ID": "test-engine-02-padding-padding"
+          },
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              206,
+              247,
+              252,
+              19,
+              163,
+              129,
+              128,
+              147
+            ],
+            "ID": "test-engine-03-padding-padding"
+          },
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              68,
+              151,
+              119,
+              18,
+              75,
+              20,
+              102,
+              168
+            ],
+            "ID": "test-engine-04-padding-padding"
+          },
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              67,
+              112,
+              7,
+              151,
+              226,
+              249,
+              212,
+              173
+            ],
+            "ID": "test-engine-05-padding-padding"
+          },
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              243,
+              52,
+              34,
+              185,
+              94,
+              59,
+              152,
+              49
+            ],
+            "ID": "test-engine-06-padding-padding"
+          },
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              243,
+              226,
+              228,
+              0,
+              82,
+              60,
+              80,
+              104
+            ],
+            "ID": "test-engine-07-padding-padding"
+          },
+          {
+            "ProfileVersion": 1,
+            "Hash": [
+              195,
+              51,
+              82,
+              227,
+              106,
+              82,
+              152,
+              48
+            ],
+            "ID": "test-engine-08-padding-padding"
+          }
+        ],
+        "Boot": {
+          "ToBLEms": 820,
+          "ToReadyMs": 2310,
+          "ToFirstFixMs": 4294967295,
+          "ResetReason": 1
+        },
+        "Truncated": true,
+        "Unknown": null
+      }
+    },
+    {
+      "name": "total_len does not match the bytes read",
+      "hex": "01008c00ff00000001100003010cabc123456789def0803bb16a0219f6193d70484a5fe5f6e8722ad65f02eb72f402c90201000000030801000300b47400000404011f00000404021f00000404030300000512010036382a0553e0cad707626d772d6e32300512010064af1d58ecda4fb207626d772d62353806103403000006090000ffffffff01000000",
+      "must_be_rejected": true
+    },
+    {
+      "name": "unknown major version 2",
+      "hex": "0200080001000000",
+      "must_be_rejected": true
+    },
+    {
+      "name": "a known record with the wrong length",
+      "hex": "01008b00ff000000010f0003010cabc123456789def0803bb16a0219f6193d70484a5fe5f6e8722ad65f02eb72f402c90201000000030801000300b47400000404011f00000404021f00000404030300000512010036382a0553e0cad707626d772d6e32300512010064af1d58ecda4fb207626d772d62353806103403000006090000ffffffff01000000",
+      "must_be_rejected": true
+    }
+  ],
+  "uplink_event": [
+    {
+      "name": "leaving for Wi-Fi, slot 12, back within 90 s",
+      "hex": "010201000c0000005a000000000000000000000000000000",
+      "note": "reason 1 = scheduled"
+    },
+    {
+      "name": "returned after a slot: 2 committed, 1 failed",
+      "hex": "020201010c000000000002000100000000001000d8ef0000",
+      "note": "outcome 1 = partial"
+    },
+    {
+      "name": "slot aborted because a trip started",
+      "hex": "030205000d00000000000000000000000000000000000000",
+      "note": "reason 5 = trip started"
+    },
+    {
+      "name": "23 bytes: rejected",
+      "hex": "010201000c0000005a0000000000000000000000000000",
+      "note": "must be rejected"
+    }
+  ],
+  "home_trigger": [
+    {
+      "name": "home, valid for 600 s, seq 1",
+      "hex": "010058020100"
+    },
+    {
+      "name": "not home (withdraws the permission), seq 2",
+      "hex": "000000000200"
+    },
+    {
+      "name": "valid_seconds 901: rejected",
+      "hex": "010085030300",
+      "note": "must be rejected"
+    },
+    {
+      "name": "a reserved flag bit set: rejected",
+      "hex": "020000000400",
+      "note": "must be rejected"
+    }
+  ],
+  "instruction": [
+    {
+      "name": "upload now, counter 7",
+      "frame": "010100000700000012fa604fc421afdc51225101c0b94dc2a1498e1838cc6758e8c488bf302b8d07940a299eb7f12c8d10496674ec3895cc76c357e2ab69e068b866176673f12700",
+      "counter_floor_before": 0,
+      "want_status": 0,
+      "want_counter_floor_after": 7,
+      "want_result": "0001000007000000",
+      "description": "applies; the floor rises to 7"
+    },
+    {
+      "name": "stop trying for 24 hours, counter 8",
+      "frame": "010202000800000018008e07099ba8d40239d82404af5defc6d24bdbabd7428d4012245e458a15f730203fc97c16e1262c5585bcb09833758764e0b082282b1aa27555db5179f1cf1e0c",
+      "counter_floor_before": 7,
+      "want_status": 0,
+      "want_counter_floor_after": 8,
+      "want_result": "0002000008000000",
+      "description": "applies"
+    },
+    {
+      "name": "config carrying an opaque 100-byte body, counter 9",
+      "frame": "0103640009000000c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5c5fa74e76f7769e54d60f0c2b6671ea4e5acf868610aaf298e1b2436a1d126d5591984b6250c9f0a958034d1d20ae2ad10fdf2d0ef9908e1a5b3993b71e55ce703",
+      "counter_floor_before": 8,
+      "want_status": 0,
+      "want_counter_floor_after": 9,
+      "want_result": "0003000009000000",
+      "description": "applies; the body is handed to config/v1 unread by this layer"
+    },
+    {
+      "name": "the same upload-now frame again (counter 7, floor 9)",
+      "frame": "010100000700000012fa604fc421afdc51225101c0b94dc2a1498e1838cc6758e8c488bf302b8d07940a299eb7f12c8d10496674ec3895cc76c357e2ab69e068b866176673f12700",
+      "counter_floor_before": 9,
+      "want_status": 2,
+      "want_counter_floor_after": 9,
+      "want_result": "0201000009000000",
+      "description": "replay: refused, floor unchanged"
+    },
+    {
+      "name": "an old frame with the floor at its own counter",
+      "frame": "010202000800000018008e07099ba8d40239d82404af5defc6d24bdbabd7428d4012245e458a15f730203fc97c16e1262c5585bcb09833758764e0b082282b1aa27555db5179f1cf1e0c",
+      "counter_floor_before": 8,
+      "want_status": 2,
+      "want_counter_floor_after": 8,
+      "want_result": "0202000008000000",
+      "description": "counter equal to the floor is a replay"
+    },
+    {
+      "name": "one bit of the signature flipped",
+      "frame": "010100000700000012fa604fc421afdc51225101c0b94dc2a1498e1838cc6758e8c488bf302b8d07940a299eb7f12c8d10496674ec3895cc76c357e2ab69e068b866176673f12701",
+      "counter_floor_before": 0,
+      "want_status": 1,
+      "want_counter_floor_after": 0,
+      "want_result": "0101000000000000",
+      "description": "refused before anything else is looked at"
+    },
+    {
+      "name": "the body changed after signing (24 h became 25 h)",
+      "frame": "010202000800000019008e07099ba8d40239d82404af5defc6d24bdbabd7428d4012245e458a15f730203fc97c16e1262c5585bcb09833758764e0b082282b1aa27555db5179f1cf1e0c",
+      "counter_floor_before": 7,
+      "want_status": 1,
+      "want_counter_floor_after": 7,
+      "want_result": "0102000007000000",
+      "description": "signature covers the body"
+    },
+    {
+      "name": "signed for another device id",
+      "frame": "0101000007000000382fe98176d07dda79a02e3f97212e8d3270025d281373d4c9bfb62294396463e6bdf8213fe402da689453398b950e9f0f64e05c58ea725ea30977927d2d8404",
+      "counter_floor_before": 0,
+      "want_status": 1,
+      "want_counter_floor_after": 0,
+      "want_result": "0101000000000000",
+      "description": "the device id is inside the signed bytes"
+    },
+    {
+      "name": "a correctly signed instruction of an unknown type 0x7E",
+      "frame": "017e00000a0000003b17ab12481bbc80ddce98c0190a1350d53368a6041d3c105bbc2dd31d97a8812a528202e94dca267da442d3cbd319d7e92663cd8bbbb835c393e1c4719a8f00",
+      "counter_floor_before": 9,
+      "want_status": 3,
+      "want_counter_floor_after": 9,
+      "want_result": "037e000009000000",
+      "description": "the set is closed: unknown means refused, however well signed"
+    },
+    {
+      "name": "stop trying for 0 hours",
+      "frame": "010202000b0000000000441b036e3467ae8e6cbddb146aeaf5bdb87e4a243afc25e540ef1f95a4851b34fbb229de24bc6fb08ab569eaed02bedba8aa1bf23939aa120fc4826420b6f703",
+      "counter_floor_before": 10,
+      "want_status": 8,
+      "want_counter_floor_after": 10,
+      "want_result": "080200000a000000",
+      "description": "out of range 1..168"
+    },
+    {
+      "name": "stop trying for 169 hours",
+      "frame": "010202000c000000a900d5cd2ae48170a5624f4faf6af1c24628891e45e28fa54ca3212b6e1b3a9577f75a1d68b70b44bd3c91425478cf60705bec32e6eaa64c277e2bf8942d05082606",
+      "counter_floor_before": 11,
+      "want_status": 8,
+      "want_counter_floor_after": 11,
+      "want_result": "080200000b000000",
+      "description": "out of range 1..168"
+    },
+    {
+      "name": "stop trying with a one-byte body",
+      "frame": "010201000d0000001899be7d218e02ca432113dbf103627e0b2061774e172cb0e9b6b8320c8fba9a080194d51a5137d9242a6214ac6668b9fa729ee4cdf9ef7f7fc3f42eeb76f0c30d",
+      "counter_floor_before": 12,
+      "want_status": 4,
+      "want_counter_floor_after": 12,
+      "want_result": "040200000c000000",
+      "description": "bad length for the type"
+    },
+    {
+      "name": "a frame cut off before its signature ends",
+      "frame": "010100000700000012fa604fc421afdc51225101c0b94dc2a1498e1838cc6758e8c488bf302b8d07940a299eb7f12c8d10496674ec3895cc76c357e2ab69e068b866176673f127",
+      "counter_floor_before": 0,
+      "want_status": 4,
+      "want_counter_floor_after": 0,
+      "want_result": "0401000000000000",
+      "description": "bad length"
+    },
+    {
+      "name": "a frame of 513 bytes",
+      "frame": "0103b9010e0000000101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101018faa80d14757516f893e28f0a59489cf3228f9d2fe7fa3f69befb07ee02d2a5916b97340b2b492fdfe32e04df5d4b446c8373e96d977ea652de505706e6cc405",
+      "counter_floor_before": 13,
+      "want_status": 4,
+      "want_counter_floor_after": 13,
+      "want_result": "040300000d000000",
+      "description": "over the 512-byte limit: bad length"
+    }
+  ]
+}

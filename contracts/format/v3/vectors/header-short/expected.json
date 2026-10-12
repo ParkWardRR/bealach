@@ -1,0 +1,9 @@
+{
+  "name": "header-short",
+  "description": "A segment file of 100 bytes, shorter than the 128-byte header.",
+  "asserts": "There is no complete header to check, so there is nothing to trust: refused, with no read past the end of the buffer. The file is not deleted; a torn header is a power-cut shape, not worthless data.",
+  "header": {
+    "parse_error": "short_header",
+    "note": "segment shorter than header"
+  }
+}

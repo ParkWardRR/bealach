@@ -13,7 +13,7 @@ set -u
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-CAIRN_CONTRACTS="${CAIRN_CONTRACTS:-$ROOT/harvest/contracts}"
+CAIRN_CONTRACTS="${CAIRN_CONTRACTS:-$ROOT/contracts}"
 export CAIRN_CONTRACTS
 
 PASS=""
@@ -55,11 +55,9 @@ check_local_ci_policy() {
   note "local-ci policy: ok (no GitHub Actions workflows)"
 }
 
-check_harvest_go() {
+check_tools_go() {
   command -v go >/dev/null 2>&1 || { note "go not installed"; return 1; }
-  # cmd/pin-dashboard and cmd/uplink-vectors reference packages deliberately
-  # left behind in Cairn; the kept libraries are what the harvest carries.
-  (cd "$ROOT/harvest/contracts/tools" && go test ./blevectors ./contractcheck ./enginelang)
+  (cd "$ROOT/tools" && go test ./blevectors ./contractcheck ./enginelang)
 }
 
 check_harvest_rust() {
@@ -93,7 +91,7 @@ ONLY="${1:-}"
 
 if [ -z "$ONLY" ] || [ "$ONLY" = "links" ]; then run "links" check_links; fi
 if [ -z "$ONLY" ] || [ "$ONLY" = "local-ci-policy" ]; then run "local-ci-policy" check_local_ci_policy; fi
-if [ -z "$ONLY" ] || [ "$ONLY" = "harvest-go" ]; then run "harvest-go" check_harvest_go; fi
+if [ -z "$ONLY" ] || [ "$ONLY" = "tools-go" ]; then run "tools-go" check_tools_go; fi
 if [ -z "$ONLY" ] || [ "$ONLY" = "harvest-rust" ]; then run "harvest-rust" check_harvest_rust; fi
 if [ -z "$ONLY" ]; then maybe_mermaid; fi
 

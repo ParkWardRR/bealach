@@ -1,0 +1,24 @@
+{
+  "name": "clock-jump",
+  "description": "A UTC estimate that jumps 30 seconds backwards while monotonic time advances.",
+  "asserts": "EOF with both frames retained and the sequence undisturbed. Ordering truth is (boot_id, seq); UTC is an annotation carrying its own uncertainty, so a jump is not corruption. The affected sample carries FlagEstimatedUTC and utc_acc_ms 0xFFFF.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 2,
+    "stop_offset": 328,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "GNSS_SAMPLE": 2
+    },
+    "first_seq": 0,
+    "last_seq": 1
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "EOF",
+    "frames_retained": 2,
+    "stop_offset": 328,
+    "plaintext_sha256_hex": "1569780f0e00801b18213d20778a148d1165a5b9a9c5c0e1408b61dccd099b03"
+  }
+}

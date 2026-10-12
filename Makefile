@@ -3,7 +3,7 @@
 # CI is local-only by design (no GitHub Actions, no paid hosted runners).
 # Everything goes through ci/check.sh; see ci/README.md.
 
-.PHONY: help ci ci-linux links local-ci-policy harvest-go harvest-rust clean
+.PHONY: help ci ci-linux links local-ci-policy tools-go harvest-rust clean
 
 help:
 	@sed -n '3,8p' Makefile
@@ -23,8 +23,8 @@ links:
 local-ci-policy:
 	@ci/check.sh local-ci-policy
 
-harvest-go:
-	@ci/check.sh harvest-go
+tools-go:
+	@ci/check.sh tools-go
 
 harvest-rust:
 	@ci/check.sh harvest-rust

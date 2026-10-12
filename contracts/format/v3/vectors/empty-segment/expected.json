@@ -1,0 +1,20 @@
+{
+  "name": "empty-segment",
+  "description": "A valid 128-byte header with no frames.",
+  "asserts": "EOF, zero frames, nothing discarded. An empty segment is valid, not damaged.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 0,
+    "stop_offset": 128,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {}
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "EOF",
+    "frames_retained": 0,
+    "stop_offset": 128,
+    "plaintext_sha256_hex": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

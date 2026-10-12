@@ -1,0 +1,92 @@
+{
+  "name": "trip-event-types",
+  "description": "One TRIP_EVENT of every defined type, plus one unknown type.",
+  "asserts": "Each event decodes with its position and detail intact. HARSH_MOTION carries no attribution on purpose: braking and cornering are indistinguishable without the mounting orientation or a speed signal, and a guessed label would be indistinguishable from a measured one. An unknown type is named, never discarded.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 9,
+    "stop_offset": 952,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "TRIP_EVENT": 9
+    },
+    "first_seq": 0,
+    "last_seq": 8
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "EOF",
+    "frames_retained": 9,
+    "stop_offset": 952,
+    "plaintext_sha256_hex": "09e9d1d694dcb794432f70bad3ee2b84c7411823212d3c1cfba8dbb183baef94"
+  },
+  "events": {
+    "events": [
+      {
+        "event_type": 1,
+        "event_type_name": "TRIP_START",
+        "lat_e7": 340000000,
+        "lon_e7": -1185000000,
+        "detail": ""
+      },
+      {
+        "event_type": 3,
+        "event_type_name": "HARSH_BRAKE",
+        "lat_e7": 340000100,
+        "lon_e7": -1185000100,
+        "detail": "rms=1800mg dv=-640cm/s"
+      },
+      {
+        "event_type": 4,
+        "event_type_name": "HARSH_ACCELERATION",
+        "lat_e7": 340000200,
+        "lon_e7": -1185000200,
+        "detail": "dv=+710cm/s"
+      },
+      {
+        "event_type": 5,
+        "event_type_name": "HARSH_CORNERING",
+        "lat_e7": 340000300,
+        "lon_e7": -1185000300,
+        "detail": "lateral"
+      },
+      {
+        "event_type": 6,
+        "event_type_name": "IMPACT",
+        "lat_e7": 0,
+        "lon_e7": 0,
+        "detail": "rms=2400mg"
+      },
+      {
+        "event_type": 7,
+        "event_type_name": "HARSH_MOTION",
+        "lat_e7": 0,
+        "lon_e7": 0,
+        "detail": "no speed signal"
+      },
+      {
+        "event_type": 8,
+        "event_type_name": "CAPTURE_RECOVERED",
+        "lat_e7": 0,
+        "lon_e7": 0,
+        "detail": "state=1 discarded=40"
+      },
+      {
+        "event_type": 2,
+        "event_type_name": "TRIP_END",
+        "lat_e7": 340000400,
+        "lon_e7": -1185000400,
+        "detail": ""
+      },
+      {
+        "event_type": 200,
+        "event_type_name": "UNKNOWN_EVENT(200)",
+        "lat_e7": 340000500,
+        "lon_e7": -1185000500,
+        "detail": "from newer firmware"
+      }
+    ],
+    "note": "lat_e7/lon_e7 are zero when no valid fix was available; position validity travels with the nearest GNSS_SAMPLE."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "expect_error": "is not",
+  "profile": {
+    "schema": "cairn.engine-analysis/v1",
+    "id": "x",
+    "name": "X",
+    "status": "stub",
+    "sources": [
+      "s"
+    ],
+    "signals": [],
+    "thresholds": {}
+  }
+}

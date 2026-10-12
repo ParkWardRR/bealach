@@ -1,0 +1,20 @@
+{
+  "name": "wrong-key-version",
+  "description": "A segment genuinely sealed under storage_key_version 2, scanned by a verifier that holds only version 1.",
+  "asserts": "Structurally clean. Keyed: the provider refuses before deriving anything, with KEY_VERSION_MISMATCH, rather than deriving a version-1 key that would fail every tag. The difference matters: a version mismatch means a key is missing, a tag failure means tampering, and an operator must be told which. The segment is not damaged and must not be deleted.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 3,
+    "stop_offset": 428,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "GNSS_SAMPLE": 3
+    },
+    "first_seq": 0,
+    "last_seq": 2
+  },
+  "keyed": {
+    "error": "KEY_VERSION_MISMATCH"
+  }
+}

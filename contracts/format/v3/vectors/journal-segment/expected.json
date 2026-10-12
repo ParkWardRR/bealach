@@ -1,0 +1,24 @@
+{
+  "name": "journal-segment",
+  "description": "journal.seg: segment_index 0xFFFFFFFF, four STATE_TRANSITION frames, seq 0 and prev_crc32 0.",
+  "asserts": "The journal is its own chain and scans from the zero state. Its reserved segment_index is an input to the segment key, so its key differs from capture segment 0's even though every other header field is the same; compare segment_key_hex with the capture vectors.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 4,
+    "stop_offset": 480,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "STATE_TRANSITION": 4
+    },
+    "first_seq": 0,
+    "last_seq": 3
+  },
+  "keyed": {
+    "segment_key_hex": "b49dff5df69fbb18337332ed516aa2fe2aa008e01e004dcd45b082a70e03667c",
+    "stop_reason": "EOF",
+    "frames_retained": 4,
+    "stop_offset": 480,
+    "plaintext_sha256_hex": "927de900c816f54fe8b6cdb9ee5a7456a075c7bb07bbebb49cc1d916c49f378c"
+  }
+}

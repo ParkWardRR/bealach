@@ -1,0 +1,20 @@
+{
+  "id": "legacy-profile",
+  "name": "Profile written before the identifier existed",
+  "status": "derived",
+  "sources": [
+    "the shipped profiles predate the schema key; the reader accepts its absence while this is draft"
+  ],
+  "signals": [
+    {
+      "key": "boost_psi",
+      "label": "Boost",
+      "unit": "psi",
+      "min": 0,
+      "max": 30,
+      "warn_low": null,
+      "warn_high": 22
+    }
+  ],
+  "thresholds": {}
+}

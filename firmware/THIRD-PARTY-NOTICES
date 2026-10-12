@@ -1,0 +1,27 @@
+Third-Party Notices — Bealach Firmware
+======================================
+
+This firmware carries code from the following sources. Each migrated file
+retains a provenance header (source repository, pinned commit, original path).
+
+1. Cairn ESP32 Device Firmware
+   Repository:  https://github.com/ParkWardRR/cairn-esp32-device-firmware
+   Commit:      ead3532202f7a85e4bcb63a401fdf0f662131566
+   License:     Blue Oak Model License 1.0.0
+   Scope:       cairn_bundle, cairn_fs, cairn_store, cairn_format, cairn_log,
+                cairn_boottime, cairn_offload, cairn_blesec, cairn_prov,
+                cairn_engine, cairn_power, cairn_devinfo, cairn_config,
+                cairn_intake, capture path, host tests
+   Renamed:     cairn_* → bealach_* on landing
+
+2. Freematics Base Library (vendored)
+   Repository:  https://github.com/stanleyhuangyc/Freematics
+   License:     BSD-style (see per-file headers in third_party/freematics-base/)
+   Scope:       Co-processor serial protocol for OBD + GNSS decode on the
+                Freematics ONE+ Model B
+
+3. Cairn Contracts (test vectors and specs)
+   Repository:  https://github.com/ParkWardRR/cairn-driving-log-selfhosted
+   Commit:      7ed8dac3212c504375427bf5690f0efa1349b18d
+   License:     Blue Oak Model License 1.0.0
+   Scope:       format/v3 vectors, BLE v1 vectors, engine v1 vectors

@@ -1,0 +1,24 @@
+{
+  "expect_error": "a stub claims no limit",
+  "note": "The point of `stub`: it names the engine and claims nothing. A stub with a limit is a limit nobody sourced.",
+  "profile": {
+    "id": "bmw-b58",
+    "name": "BMW B58",
+    "status": "stub",
+    "sources": [
+      "s"
+    ],
+    "signals": [
+      {
+        "key": "boost_psi",
+        "label": "Boost",
+        "unit": "psi",
+        "min": 0,
+        "max": 30,
+        "warn_low": null,
+        "warn_high": 22
+      }
+    ],
+    "thresholds": {}
+  }
+}

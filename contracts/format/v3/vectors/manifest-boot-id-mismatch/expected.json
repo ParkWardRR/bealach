@@ -1,0 +1,16 @@
+{
+  "name": "manifest-boot-id-mismatch",
+  "description": "A capture segment from a different boot than the manifest describes.",
+  "asserts": "boot_id in every segment header must equal the manifest's, journal included: ordering truth is (boot_id, seq), so a segment from another boot cannot be spliced into this bundle. The manifest signature, content root and member digests are all valid: a valid signature binds the manifest to the device, not the manifest to its segments.",
+  "binding": {
+    "match": false,
+    "mismatched_field": "boot_id"
+  },
+  "manifest": {
+    "valid": true,
+    "signature_valid": true,
+    "content_root_hex": "37f9d9888803be0d10ffd44972c5bc01f6ee5b8c77256523b4c86aa6622b8784",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "9e407e3a6287fb160e8e02fa6fb104a2d5ec3d18b3b746183a6b626859c97143"
+  }
+}

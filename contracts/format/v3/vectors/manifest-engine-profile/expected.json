@@ -1,0 +1,12 @@
+{
+  "name": "manifest-engine-profile",
+  "description": "A signed manifest that names the engine profile which produced it (key 29).",
+  "asserts": "engine_profile is optional and sorts after key 28, so this manifest has one more field than manifest-valid and must still decode and verify. A reader must not require the key, and must not reject a manifest for having 29 fields. The digest identifies the profile document, so a profile edited without a version bump is a different profile and says so.",
+  "manifest": {
+    "valid": true,
+    "signature_valid": true,
+    "content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "ab524451037907d0b7796e0d189930325a4a44542e82aedeb761628009dedc3f"
+  }
+}

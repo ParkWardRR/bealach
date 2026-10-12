@@ -1,0 +1,16 @@
+{
+  "name": "manifest-key-version-mismatch",
+  "description": "A capture segment whose header declares a different storage_key_version than the manifest.",
+  "asserts": "storage_key_version selects the escrowed root a bundle is decoded with. A segment that names another version than the manifest would be decoded under a key the manifest did not promise. The manifest signature, content root and member digests are all valid: a valid signature binds the manifest to the device, not the manifest to its segments.",
+  "binding": {
+    "match": false,
+    "mismatched_field": "storage_key_version"
+  },
+  "manifest": {
+    "valid": true,
+    "signature_valid": true,
+    "content_root_hex": "3fd7161f03074a15dd0f66b1fcb82314413f5db8ea79a6815b963848db42ddae",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "ff2365e94fdd43aa1af2e853dabf5f038e38d715e3c480c659b170bd617784b7"
+  }
+}

@@ -44,11 +44,12 @@ truth; the phone holds a verified local mirror and is the final verifier and sto
 
 ## Status
 
-**Documentation-first. No code has been migrated yet, and nothing has been
-hardware-validated under the Bealach name.** This repository currently holds the
-architecture, contracts, threat model, budgets and the phased implementation plan.
-Claims below marked *proposed* are targets, not measurements. Migration from Cairn
-is planned and itemised in
+**Phase 0 complete — foundations in place. No product code has been migrated
+yet, and nothing has been hardware-validated under the Bealach name.** Contracts
+are frozen, all blocking questions resolved, test vectors imported, and dev
+tooling runs against them. Product tree scaffolds (`firmware/`, `ios/`) are
+ready for Phase 1 migration. Claims below marked *proposed* are targets, not
+measurements. Migration from Cairn is planned and itemised in
 [docs/migration-from-cairn.md](docs/migration-from-cairn.md); until a component is
 carried over and tested here, it is not part of Bealach.
 
@@ -174,11 +175,14 @@ ROADMAP.md                         step-by-step execution roadmap (phases, track
 LICENSE                            Blue Oak Model License 1.0.0
 Makefile                           make ci — the local CI entry point
 ci/                                local-only check scripts, Linux container
-  README.md                        how to run CI, and why it is local
   check.sh                         runs every check
   links.py                         documentation link integrity
   linux.sh                         run checks in a Linux container (OrbStack)
   Dockerfile                       reproducible CI environment
+contracts/                         carried contract specs + test vectors (from Cairn)
+  format/v3/vectors/               ~60 byte-level recording format fixtures
+  ble/v1/vectors/                  BLE protocol vectors (golden, offload, device-info)
+  engine/v1/vectors/               engine profile validation vectors
 docs/
   migration-from-cairn.md          selective migration and provenance
   hardware-and-research.md         hardware capability inventory + external research
@@ -187,12 +191,20 @@ docs/
   boot-budgets.md                  boot/performance budgets and measurement procedure
   implementation-plan.md           phased plan with acceptance criteria
   acceptance-tests.md              required test matrix
-  open-questions.md                unresolved blocking questions
+  open-questions.md                resolved blocking and non-blocking questions
   contracts/
-    recording.md                   immutable segments, manifests, identities, gaps
-    mirroring.md                   secure resumable BLE mirror to the owner phone
-    reconciliation.md              what “matches” means; mirror screen semantics
-    deletion.md                    deletion, retention, reset and re-download rules
+    recording.md                   immutable segments, manifests, identities, gaps (frozen)
+    mirroring.md                   secure resumable BLE mirror to the owner phone (frozen)
+    reconciliation.md              what “matches” means; mirror screen semantics (frozen)
+    deletion.md                    deletion, retention, reset and re-download rules (frozen)
+firmware/                          product firmware tree (scaffold; migration in Phase 1)
+  THIRD-PARTY-NOTICES              provenance and license attribution
+ios/                               product iOS app tree (scaffold; migration in Phase 1)
+  THIRD-PARTY-NOTICES              provenance and license attribution
+tools/                             dev tooling — never product scope
+  blevectors/                      BLE protocol vector generation (Go)
+  contractcheck/                   contract conformance checks (Go)
+  enginelang/                      engine profile expression language (Go)
 harvest/                           staged Cairn code for later migration (not product)
 ```
 

@@ -1,0 +1,9 @@
+{
+  "name": "bad-header-crc",
+  "description": "A corrupted boot_id byte in the segment header.",
+  "asserts": "The header CRC fails, so the segment is unusable and frame parsing must not be attempted. The segment must still not be deleted: unreadable by the device is not the same as worthless, since the offline salvage tool may yet recover records.",
+  "header": {
+    "parse_error": "bad_header_crc",
+    "note": "segment header CRC mismatch: computed b3cca1ed, stored cc651cd8"
+  }
+}

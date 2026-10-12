@@ -1,0 +1,16 @@
+{
+  "name": "manifest-device-counter-mismatch",
+  "description": "A capture segment carrying a different device_counter than the manifest.",
+  "asserts": "device_counter positions a bundle in the device's monotonic sequence and is what replay and quarantine rules key on. A segment from another position must not ride on this bundle's counter. The manifest signature, content root and member digests are all valid: a valid signature binds the manifest to the device, not the manifest to its segments.",
+  "binding": {
+    "match": false,
+    "mismatched_field": "device_counter"
+  },
+  "manifest": {
+    "valid": true,
+    "signature_valid": true,
+    "content_root_hex": "93ececc3a1d7a45e02b331d76bad9fb9e4c2d9bc618e70b8e2018325c672bdba",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "c8ce2d660c03a6b24bac52e202af586dd7551c5d67ea99213025a029516474c1"
+  }
+}

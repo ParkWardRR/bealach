@@ -1,0 +1,61 @@
+{
+  "name": "health-bitmap",
+  "description": "DEVICE_HEALTH records covering no degradation, one condition, several at once, and a reserved bit.",
+  "asserts": "health_state is a bitmap, not a severity. Several conditions are active simultaneously and every one must be recoverable: a low battery must not hide an unavailable fix. An unknown bit is preserved rather than masked, so a bundle from newer firmware stays interpretable for the conditions this build does understand.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 5,
+    "stop_offset": 548,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "DEVICE_HEALTH": 5
+    },
+    "first_seq": 0,
+    "last_seq": 4
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "EOF",
+    "frames_retained": 5,
+    "stop_offset": 548,
+    "plaintext_sha256_hex": "6361bdb13bbf56fb59180b957afe38d3e91220b01fe823b44ea590a64f20f498"
+  },
+  "health": {
+    "records": [
+      {
+        "health_state": 0,
+        "names": []
+      },
+      {
+        "health_state": 1,
+        "names": [
+          "DEGRADED_GNSS"
+        ]
+      },
+      {
+        "health_state": 21,
+        "names": [
+          "DEGRADED_GNSS",
+          "DEGRADED_TIME",
+          "LOW_POWER"
+        ]
+      },
+      {
+        "health_state": 34,
+        "names": [
+          "DEGRADED_STORAGE",
+          "RECOVERY_REQUIRED"
+        ]
+      },
+      {
+        "health_state": 132,
+        "names": [
+          "DEGRADED_TIME",
+          "0x80"
+        ]
+      }
+    ],
+    "note": "0x00 means no condition on the list is active, which is not the same as healthy in every respect."
+  }
+}

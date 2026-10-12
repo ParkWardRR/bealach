@@ -1,0 +1,24 @@
+{
+  "name": "wrong-vehicle-key",
+  "description": "A segment whose header vehicle_id was changed (header CRC repaired) after the frames were sealed.",
+  "asserts": "The header is valid and the structural scan is clean. Keyed: the vehicle_id is the HKDF salt and part of every frame's AAD, so the derived key is wrong and the very first frame fails: AUTH_FAILED with zero frames retained. Re-labelling data as another vehicle's is not possible without the storage root.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 4,
+    "stop_offset": 528,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "GNSS_SAMPLE": 4
+    },
+    "first_seq": 0,
+    "last_seq": 3
+  },
+  "keyed": {
+    "segment_key_hex": "eeb22d7180c9e64a4b8315c3164805f9d7ff6a57dc362c09ab8482ca4179d556",
+    "stop_reason": "AUTH_FAILED",
+    "frames_retained": 0,
+    "stop_offset": 128,
+    "plaintext_sha256_hex": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

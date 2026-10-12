@@ -1,0 +1,12 @@
+{
+  "name": "manifest-tampered-body",
+  "description": "A manifest signed as manifest-valid, then one byte of firmware_version edited; the original signature kept.",
+  "asserts": "The edited manifest is still canonical CBOR and still describes the same members, so only the signature can reject it. The signature covers every byte of manifest.cbor: no field is editable after signing, not even one that no other check reads.",
+  "manifest": {
+    "valid": true,
+    "signature_valid": false,
+    "content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "d27f6b83601d282cb68bc8eaafc0fd2e679bb5cf8b73466e7bbaaf1671b48b27"
+  }
+}

@@ -1,0 +1,19 @@
+Third-Party Notices — Bealach iOS App
+=====================================
+
+This app carries code from the following sources. Each migrated file retains
+a provenance header (source repository, pinned commit, original path).
+
+1. Cairn iOS Companion App
+   Repository:  https://github.com/ParkWardRR/cairn-ios-companion-app
+   Commit:      52f134eba85d45122fbd4e0aa252e00f5e52d9b7
+   License:     Blue Oak Model License 1.0.0
+   Scope:       BLE client (GATT, offload, device info), mirror engine,
+                snapshot manifest/archive, GRDB store + encryption,
+                Keychain/Secure Enclave identity, trip views, history,
+                vehicle models
+   Renamed:     Cairn* → Bealach* on landing
+
+2. GRDB (dependency)
+   License:     MIT
+   Scope:       SQLite wrapper for the encrypted local store

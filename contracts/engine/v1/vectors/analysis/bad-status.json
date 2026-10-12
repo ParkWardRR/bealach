@@ -1,0 +1,13 @@
+{
+  "expect_error": "is not stub, derived or verified",
+  "profile": {
+    "id": "bmw-n20",
+    "name": "X",
+    "status": "provisional",
+    "sources": [
+      "s"
+    ],
+    "signals": [],
+    "thresholds": {}
+  }
+}
