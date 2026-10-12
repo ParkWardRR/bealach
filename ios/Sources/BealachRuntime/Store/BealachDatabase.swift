@@ -136,6 +136,49 @@ public final class BealachDatabase: Sendable {
             try db.create(index: "maintenanceEntry_vehicle", on: "maintenanceEntry", columns: ["vehicleID", "performedAt"])
         }
 
+        migrator.registerMigration("v2-reconciliation-deletion") { db in
+            try db.create(table: "reconciliationSnapshot") { t in
+                t.primaryKey("id", .text).notNull()
+                t.column("computedAt", .datetime).notNull()
+                t.column("snapshotMarker", .text).notNull()
+                t.column("dongleReachable", .boolean).notNull()
+            }
+
+            try db.create(table: "reconciliationEntry") { t in
+                t.primaryKey("id", .text).notNull()
+                t.column("snapshotID", .text).notNull()
+                    .references("reconciliationSnapshot", onDelete: .cascade)
+                t.column("bundleID", .text).notNull()
+                t.column("contentRoot", .text).notNull()
+                t.column("state", .text).notNull()
+                t.column("transferProgress", .double)
+                t.column("explanation", .text)
+            }
+
+            try db.create(table: "deletionIntent") { t in
+                t.primaryKey("id", .text).notNull()
+                t.column("bundleID", .text).notNull()
+                t.column("contentRoot", .text).notNull()
+                t.column("store", .text).notNull()
+                t.column("phase", .text).notNull()
+                t.column("requestedAt", .datetime).notNull()
+                t.column("completedAt", .datetime)
+                t.column("actor", .text).notNull()
+            }
+
+            try db.create(table: "tombstone") { t in
+                t.primaryKey("id", .text).notNull()
+                t.column("bundleID", .text).notNull()
+                t.column("contentRoot", .text).notNull()
+                t.column("deletedAt", .datetime).notNull()
+                t.column("actor", .text).notNull()
+            }
+
+            try db.create(index: "reconciliationEntry_snapshot", on: "reconciliationEntry", columns: ["snapshotID"])
+            try db.create(index: "deletionIntent_bundle", on: "deletionIntent", columns: ["bundleID"])
+            try db.create(index: "tombstone_bundle", on: "tombstone", columns: ["bundleID"])
+        }
+
         return migrator
     }
 }
