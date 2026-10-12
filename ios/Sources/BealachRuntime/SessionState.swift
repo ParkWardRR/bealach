@@ -170,56 +170,6 @@ public final class DrivingSession {
     }
 }
 
-/// Stub for the trip sync client. Cairn used this to sync with the server.
-/// Bealach does not have a server; this stub keeps the views compiling.
-@MainActor
-@Observable
-public final class TripSyncClient {
-    public enum Route: String, Sendable {
-        case local, tailnet, lan, unreachable
-    }
-
-    public struct ProbeResult: Sendable {
-        public var route: Route
-        public var reachable: Bool
-        public var latencyMs: Int?
-        public var error: String?
-
-        public init(route: Route, reachable: Bool, latencyMs: Int? = nil, error: String? = nil) {
-            self.route = route
-            self.reachable = reachable
-            self.latencyMs = latencyMs
-            self.error = error
-        }
-    }
-
-    public enum SyncState: Equatable, Sendable {
-        case idle, syncing, done, failed(String)
-    }
-
-    public var hasServer: Bool { false }
-    public var lanURL: String = ""
-    public var tailnetURL: String = ""
-    public var state: SyncState = .idle
-    public var activeRoute: Route? { nil }
-    public var manifest: SnapshotManifest? { nil }
-    public var lastSyncAt: Date?
-    public var lastLANProbe: ProbeResult?
-    public var lastTailnetProbe: ProbeResult?
-
-    public init() {}
-
-    public func sync() {
-        // No server to sync with in Bealach.
-    }
-
-    public func cachedTrips() -> [TripSnapshot] { [] }
-
-    public func probeEndpoints() async {
-        // No server to probe in Bealach.
-    }
-}
-
 // MARK: - Server setup stubs (not used in Bealach)
 
 /// Parsed from a `cairn://configure` QR code. Bealach does not use server setup,

@@ -35,11 +35,13 @@ public struct SettingsView: View {
     public var body: some View {
         NavigationStack {
             Form {
+                deviceSection
                 fuelSection
                 bluetoothSection
                 if let offload {
                     OffloadSection(offload: offload)
                 }
+                storageSection
                 dataSection
                 aboutSection
                 dangerZone
@@ -90,6 +92,30 @@ public struct SettingsView: View {
         }
     }
 
+    // MARK: - Device
+
+    @ViewBuilder
+    private var deviceSection: some View {
+        Section {
+            NavigationLink {
+                DeviceDetailView(state: session.state)
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "cpu")
+                        .font(.body)
+                        .foregroundStyle(.purple)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Device")
+                            .font(.body)
+                        Text("Firmware, identity, boot timing")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+    }
+
     // MARK: - Fuel
 
     private var fuelSection: some View {
@@ -124,6 +150,30 @@ public struct SettingsView: View {
                         Text("Bluetooth")
                             .font(.body)
                         Text(session.state.stage)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Storage
+
+    @ViewBuilder
+    private var storageSection: some View {
+        Section {
+            NavigationLink {
+                StorageView(session: session, offload: offload)
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "externaldrive")
+                        .font(.body)
+                        .foregroundStyle(.teal)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Storage & Mirror")
+                            .font(.body)
+                        Text("Bundles, reconciliation, SD state")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

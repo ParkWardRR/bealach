@@ -87,35 +87,6 @@ public final class BealachDatabase: Sendable {
                     .references("vehicle", onDelete: .cascade)
             }
 
-            try db.create(table: "syncState") { t in
-                t.primaryKey("id", .text).notNull()
-                t.column("vehicleID", .text)
-                t.column("serverInstance", .text).notNull()
-                t.column("cursor", .text)
-                t.column("lastSuccessAt", .datetime)
-                t.column("retryCount", .integer).notNull().defaults(to: 0)
-                t.column("lastError", .text)
-            }
-
-            try db.create(table: "outbox") { t in
-                t.autoIncrementedPrimaryKey("rowid")
-                t.column("id", .text).notNull().unique()
-                t.column("vehicleID", .text)
-                t.column("kind", .text).notNull()
-                t.column("encryptedPayload", .blob).notNull()
-                t.column("createdAt", .datetime).notNull()
-                t.column("attempts", .integer).notNull().defaults(to: 0)
-                t.column("lastAttemptAt", .datetime)
-                t.column("lastError", .text)
-            }
-
-            try db.create(table: "tripSummary") { t in
-                t.primaryKey("id", .text).notNull()
-                t.column("vehicleID", .text)
-                t.column("encryptedData", .blob).notNull()
-                t.column("snapshotAt", .datetime).notNull()
-            }
-
             try db.create(table: "annotation") { t in
                 t.primaryKey("id", .text).notNull()
                 t.column("vehicleID", .text)
@@ -155,7 +126,6 @@ public final class BealachDatabase: Sendable {
             }
 
             try db.create(index: "drive_session_vehicleID", on: "drive_session", columns: ["vehicleID"])
-            try db.create(index: "outbox_kind", on: "outbox", columns: ["kind", "createdAt"])
             try db.create(index: "annotation_target", on: "annotation", columns: ["targetID"])
             try db.create(index: "maintenanceEntry_vehicle", on: "maintenanceEntry", columns: ["vehicleID", "performedAt"])
         }
