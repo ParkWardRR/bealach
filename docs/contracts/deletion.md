@@ -82,4 +82,4 @@ If deleted iOS data still exists on SD and is still listed by the device:
 
 Interrupted transfer/import/**deletion**, deleted-iOS-still-on-SD re-download
 rules, and “never erase active recording” are all in
-[acceptance-tests.md](acceptance-tests.md).
+[acceptance-tests.md](../acceptance-tests.md).

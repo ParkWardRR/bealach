@@ -1,0 +1,12 @@
+# Local CI output
+build/
+
+# Rust
+**/target/
+
+# Go
+**/vendor/
+
+# Editors / OS
+.DS_Store
+*.swp

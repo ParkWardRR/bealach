@@ -59,7 +59,7 @@ from format v3, except §2.3.
 
 Recording **must not wait** for GNSS lock, ECU identification, stationary
 calibration, BLE pairing, or a full-card scan. Fast startup and deferred
-recovery are separate phases ([boot-budgets.md](boot-budgets.md)).
+recovery are separate phases ([boot-budgets.md](../boot-budgets.md)).
 
 Recorded streams (schemas in format v3 §4, carried over):
 
