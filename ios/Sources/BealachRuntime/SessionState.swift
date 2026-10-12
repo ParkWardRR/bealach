@@ -211,6 +211,7 @@ public enum DeviceEnrolment {
 /// Notification posted when device setup changes (e.g. enrolment).
 public extension Notification.Name {
     static let bealachSetupChanged = Notification.Name("bealachSetupChanged")
+    static let bealachDeviceInfoUpdated = Notification.Name("bealachDeviceInfoUpdated")
 }
 
 // MARK: - Server admin stubs (not used in Bealach)

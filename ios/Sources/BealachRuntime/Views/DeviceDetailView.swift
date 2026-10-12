@@ -2,11 +2,11 @@ import BealachCore
 import SwiftUI
 
 public struct DeviceDetailView: View {
-    let state: SessionState
+    let ble: BealachBLEManager
     @State private var deviceInfo: DeviceInfo?
 
-    public init(state: SessionState) {
-        self.state = state
+    public init(ble: BealachBLEManager) {
+        self.ble = ble
     }
 
     public var body: some View {
@@ -32,11 +32,10 @@ public struct DeviceDetailView: View {
             }
         }
         .navigationTitle("Device")
-        .task { await pollDeviceInfo() }
-    }
-
-    private func pollDeviceInfo() async {
-        // TODO: read DEVICE_INFO characteristic when BLE offload pipeline is wired
+        .onAppear { deviceInfo = ble.lastDeviceInfo }
+        .onReceive(NotificationCenter.default.publisher(for: .bealachDeviceInfoUpdated)) { _ in
+            deviceInfo = ble.lastDeviceInfo
+        }
     }
 
     // MARK: - Identity

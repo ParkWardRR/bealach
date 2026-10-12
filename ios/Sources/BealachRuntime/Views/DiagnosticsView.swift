@@ -227,7 +227,23 @@ public struct DiagnosticsView: View {
 
     private func load() async {
         isLoading = true
-        // TODO: populate from bundle data once OBD decoding pipeline is built
+        if let live = session.state.obdLive {
+            let engine = session.ble.lastDeviceInfo?.engines.first
+            snapshots = [OBDSnapshot(
+                timestamp: session.state.lastOBDAt ?? Date(),
+                engineProfileID: engine?.engineID ?? "live",
+                profileVersion: Int(engine?.profileVersion ?? 0),
+                rpm: live.rpm == OBDLiveSnapshot.invalidU16 ? nil : Int(live.rpm),
+                speedKph: live.speedKph.map { Int($0) },
+                coolantTempC: live.coolantTempC == OBDLiveSnapshot.invalidI16 ? nil : Int(live.coolantTempC),
+                intakeAirTempC: live.intakeTempC == OBDLiveSnapshot.invalidI16 ? nil : Int(live.intakeTempC),
+                mafGramsPerSec: live.maf,
+                throttlePercent: live.throttlePct == 0xFF ? nil : Double(live.throttlePct),
+                engineLoadPercent: live.engineLoadPct == 0xFF ? nil : Double(live.engineLoadPct),
+                fuelPressureKPa: live.fuelPressureKpa == OBDLiveSnapshot.invalidU16 ? nil : Int(live.fuelPressureKpa),
+                timingAdvanceDeg: live.timingAdv
+            )]
+        }
         isLoading = false
     }
 }

@@ -570,6 +570,7 @@ extension BealachBLEManager: @preconcurrency CBPeripheralDelegate {
                 let info = try parseDeviceInfo(data)
                 lastDeviceInfo = info
                 onDeviceInfo?(info)
+                NotificationCenter.default.post(name: .bealachDeviceInfoUpdated, object: nil)
                 trace("device info: fw \(info.firmware?.major ?? 0).\(info.firmware?.minor ?? 0).\(info.firmware?.patch ?? 0), \(info.engines.count) engine(s)\(info.truncated ? " (truncated)" : "")")
             } catch {
                 trace("device info parse error: \(error)")

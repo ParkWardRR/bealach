@@ -143,7 +143,7 @@ public struct SettingsView: View {
     private var deviceSection: some View {
         Section {
             NavigationLink {
-                DeviceDetailView(state: session.state)
+                DeviceDetailView(ble: session.ble)
             } label: {
                 HStack(spacing: 12) {
                     Image(systemName: "cpu")
