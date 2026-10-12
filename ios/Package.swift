@@ -27,5 +27,13 @@ let package = Package(
             name: "BealachCoreTests",
             dependencies: ["BealachCore"]
         ),
+        .testTarget(
+            name: "BealachRuntimeTests",
+            dependencies: [
+                "BealachRuntime",
+                "BealachCore",
+                .product(name: "GRDB", package: "GRDB.swift"),
+            ]
+        ),
     ]
 )

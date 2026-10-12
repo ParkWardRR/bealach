@@ -26,13 +26,15 @@ public struct SettingsView: View {
 
     let offload: OffloadController?
     let enrolmentService: EnrolmentService?
+    let reconciliationStore: GRDBReconciliationStore?
     @State private var showEnrolment = false
 
-    public init(session: DrivingSession, dataPorter: DataPorter, offload: OffloadController? = nil, enrolmentService: EnrolmentService? = nil) {
+    public init(session: DrivingSession, dataPorter: DataPorter, offload: OffloadController? = nil, enrolmentService: EnrolmentService? = nil, reconciliationStore: GRDBReconciliationStore? = nil) {
         self.offload = offload
         self.session = session
         self.dataPorter = dataPorter
         self.enrolmentService = enrolmentService
+        self.reconciliationStore = reconciliationStore
     }
 
     public var body: some View {
@@ -231,7 +233,7 @@ public struct SettingsView: View {
     private var storageSection: some View {
         Section {
             NavigationLink {
-                StorageView(session: session, offload: offload)
+                StorageView(session: session, offload: offload, reconciliationStore: reconciliationStore)
             } label: {
                 HStack(spacing: 12) {
                     Image(systemName: "externaldrive")

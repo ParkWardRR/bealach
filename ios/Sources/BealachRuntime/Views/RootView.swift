@@ -13,6 +13,7 @@ public struct RootView: View {
     private let dataPorter: DataPorter
     private let enrolmentService: EnrolmentService?
     private let offload: OffloadController?
+    private let reconciliationStore: GRDBReconciliationStore?
     @State private var showWelcome: Bool
     @State private var pendingLink: PendingLink?
     @State private var linkError: String?
@@ -32,13 +33,14 @@ public struct RootView: View {
         let link: ConfigureLink
     }
 
-    public init(session: DrivingSession, vehicleStore: GRDBVehicleStore, maintenanceStore: GRDBMaintenanceStore, dataPorter: DataPorter, enrolmentService: EnrolmentService? = nil, offload: OffloadController? = nil) {
+    public init(session: DrivingSession, vehicleStore: GRDBVehicleStore, maintenanceStore: GRDBMaintenanceStore, dataPorter: DataPorter, enrolmentService: EnrolmentService? = nil, offload: OffloadController? = nil, reconciliationStore: GRDBReconciliationStore? = nil) {
         self.offload = offload
         self.session = session
         self.vehicleStore = vehicleStore
         self.maintenanceStore = maintenanceStore
         self.dataPorter = dataPorter
         self.enrolmentService = enrolmentService
+        self.reconciliationStore = reconciliationStore
         _showWelcome = State(initialValue: !UserDefaults.standard.bool(forKey: Self.hasSeenWelcomeKey))
     }
 
@@ -90,7 +92,7 @@ public struct RootView: View {
                 GarageView(vehicleStore: vehicleStore, maintenanceStore: maintenanceStore, recorder: session.recorder)
                     .tabItem { Label("Garage", systemImage: "building.2") }
                     .tag(2)
-                SettingsView(session: session, dataPorter: dataPorter, offload: offload, enrolmentService: enrolmentService)
+                SettingsView(session: session, dataPorter: dataPorter, offload: offload, enrolmentService: enrolmentService, reconciliationStore: reconciliationStore)
                     .tabItem { Label("Settings", systemImage: "gear") }
                     .tag(3)
             }

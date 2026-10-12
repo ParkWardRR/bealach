@@ -1,9 +1,12 @@
 import BealachCore
 import SwiftUI
+import os
 
 public struct StorageView: View {
+    private static let log = Logger(subsystem: "app.bealach", category: "storage-view")
     let session: DrivingSession
     let offload: OffloadController?
+    let reconciliationStore: GRDBReconciliationStore?
     @State private var snapshot: ReconciliationSnapshot?
     @State private var deletionIntents: [DeletionIntent] = []
     @State private var tombstones: [Tombstone] = []
@@ -12,9 +15,10 @@ public struct StorageView: View {
     @State private var showClearMirrorConfirm = false
     @State private var selectedEntry: ReconciliationEntry?
 
-    public init(session: DrivingSession, offload: OffloadController? = nil) {
+    public init(session: DrivingSession, offload: OffloadController? = nil, reconciliationStore: GRDBReconciliationStore? = nil) {
         self.session = session
         self.offload = offload
+        self.reconciliationStore = reconciliationStore
     }
 
     public var body: some View {
@@ -166,7 +170,7 @@ public struct StorageView: View {
                     }
                     if entry.state == .deletedIntentionally {
                         Button {
-                            // TODO: clear tombstone and re-fetch
+                            Task { await fetchAgain(bundleID: entry.bundleID) }
                         } label: {
                             Label("Fetch Again", systemImage: "arrow.down.circle")
                         }
@@ -237,7 +241,7 @@ public struct StorageView: View {
                     }
                     Spacer()
                     Button {
-                        // TODO: clear tombstone and trigger re-fetch
+                        Task { await fetchAgain(bundleID: tombstone.bundleID) }
                     } label: {
                         Text("Fetch Again")
                             .font(.caption2)
@@ -287,16 +291,57 @@ public struct StorageView: View {
 
     private func load() async {
         isLoading = true
-        // TODO: populate from offload controller's reconciliation state
+        guard let store = reconciliationStore else {
+            isLoading = false
+            return
+        }
+        do {
+            snapshot = try await store.latestSnapshot()
+            deletionIntents = try await store.allDeletionIntents()
+            tombstones = try await store.allTombstones()
+        } catch {
+            Self.log.error("Failed to load reconciliation state: \(error)")
+        }
         isLoading = false
     }
 
     private func deleteIOSCopy(_ entry: ReconciliationEntry) async {
-        // TODO: create DeletionIntent and execute through deletion pipeline
+        guard let store = reconciliationStore else { return }
+        let intent = DeletionIntent(bundleID: entry.bundleID, contentRoot: entry.contentRoot, store: .ios)
+        do {
+            try await store.createDeletionIntent(intent)
+            try await store.updateDeletionPhase(id: intent.id, phase: .deleted, completedAt: Date())
+            try await store.createTombstone(Tombstone(bundleID: entry.bundleID, contentRoot: entry.contentRoot))
+            await load()
+        } catch {
+            Self.log.error("Failed to delete iOS copy \(entry.bundleID): \(error)")
+        }
     }
 
     private func clearIOSMirror() async {
-        // TODO: create DeletionIntents for all iOS copies
+        guard let store = reconciliationStore, let snapshot else { return }
+        let verified = snapshot.entries.filter { $0.state == .verified }
+        for entry in verified {
+            let intent = DeletionIntent(bundleID: entry.bundleID, contentRoot: entry.contentRoot, store: .ios)
+            do {
+                try await store.createDeletionIntent(intent)
+                try await store.updateDeletionPhase(id: intent.id, phase: .deleted, completedAt: Date())
+                try await store.createTombstone(Tombstone(bundleID: entry.bundleID, contentRoot: entry.contentRoot))
+            } catch {
+                Self.log.error("Failed to delete iOS copy \(entry.bundleID): \(error)")
+            }
+        }
+        await load()
+    }
+
+    private func fetchAgain(bundleID: String) async {
+        guard let store = reconciliationStore else { return }
+        do {
+            try await store.removeTombstone(bundleID: bundleID)
+            await load()
+        } catch {
+            Self.log.error("Failed to remove tombstone for \(bundleID): \(error)")
+        }
     }
 }
 
