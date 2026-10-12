@@ -64,7 +64,7 @@ FAULTS_SRC      := $(FORMAT_SRC) $(STORE_SRC) $(FS_SRC) $(APP_SRC) \
 BLE_VEC_SRC     := $(FORMAT_SRC) minijson.c ble_vectors.c
 # Provisioning needs only the format primitives, its own sources, and the host
 # key-value store (so the credential slots run against the real slot code).
-PROV_SRC        := $(FORMAT_SRC) $(wildcard $(PROV_DIR)/*.c) $(FS_DIR)/bealach_kv_posix.c minijson.c prov_test.c
+PROV_SRC        := $(FORMAT_SRC) $(wildcard $(PROV_DIR)/*.c) $(FS_DIR)/bealach_kv_posix.c minijson.c owner_key_stub.c prov_test.c
 
 # The BLE offload protocol: the module, over the real store and prune code, in
 # front of a simulated BLE stack and phone.

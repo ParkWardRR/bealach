@@ -580,6 +580,78 @@ static bool row_legacy_slots_are_erased(void)
     return true;
 }
 
+/* ── owner key commands ──────────────────────────────────────────────────── */
+
+#include "../../lib/bealach_store/bealach_store.h"
+
+static bool row_owner_key_commands(void)
+{
+    bealach_prov_t p;
+    bealach_prov_env_t env = { 1000, false, false };
+
+    /* SET + GET round-trip through the prov console. */
+    reset_io(); bealach_prov_init(&p, &OPS);
+    send(&p, &env, "CAIRN-PROV BEGIN");
+    send(&p, &env, "GET owner_enrolled");
+    CHECK(strstr(s_out, "ENROLLED no"), "reports enrolled before any key is set: %s", s_out);
+
+    reset_io();
+    send(&p, &env, "SET owner_keys "
+         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "
+         "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+    CHECK(strstr(s_out, "OK"), "SET owner_keys rejected valid hex: %s", s_out);
+
+    reset_io();
+    send(&p, &env, "GET owner_enrolled");
+    CHECK(strstr(s_out, "ENROLLED yes"), "not enrolled after SET: %s", s_out);
+
+    /* Verify the keys landed in the stub's KV. */
+    uint8_t buf[32];
+    CHECK(bealach_owner_key_get_enroll(buf), "enroll key not readable after SET");
+    for (int i = 0; i < 32; i++) CHECK(buf[i] == 0xAA, "enroll byte %d: 0x%02x", i, buf[i]);
+    CHECK(bealach_owner_key_get_ack(buf), "ack key not readable after SET");
+    for (int i = 0; i < 32; i++) CHECK(buf[i] == 0xBB, "ack byte %d: 0x%02x", i, buf[i]);
+
+    /* CLEAR removes the keys. */
+    reset_io();
+    send(&p, &env, "CLEAR owner_keys");
+    CHECK(strstr(s_out, "OK"), "CLEAR owner_keys failed: %s", s_out);
+
+    reset_io();
+    send(&p, &env, "GET owner_enrolled");
+    CHECK(strstr(s_out, "ENROLLED no"), "still enrolled after CLEAR: %s", s_out);
+
+    /* Validation: zero keys, short hex, missing args. */
+    reset_io();
+    send(&p, &env, "SET owner_keys "
+         "0000000000000000000000000000000000000000000000000000000000000000 "
+         "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+    CHECK(strstr(s_out, "ERR"), "accepted all-zero enroll key: %s", s_out);
+
+    reset_io();
+    send(&p, &env, "SET owner_keys "
+         "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa "
+         "0000000000000000000000000000000000000000000000000000000000000000");
+    CHECK(strstr(s_out, "ERR"), "accepted all-zero ack key: %s", s_out);
+
+    reset_io();
+    send(&p, &env, "SET owner_keys aabb");
+    CHECK(strstr(s_out, "ERR"), "accepted short hex: %s", s_out);
+
+    reset_io();
+    send(&p, &env, "SET owner_keys");
+    CHECK(strstr(s_out, "ERR"), "accepted missing args: %s", s_out);
+
+    /* The raw keys must not appear in the output or log. */
+    CHECK(!strstr(s_out, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
+          "enroll key was echoed");
+    CHECK(!strstr(s_log, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),
+          "enroll key was logged");
+
+    bealach_prov_abort(&p);
+    return true;
+}
+
 typedef struct { const char *name; bool (*fn)(void); } row_t;
 
 /*
@@ -692,6 +764,7 @@ int main(void)
         { "no secret is ever echoed or logged (raw or base64)", row_no_secret_leaks },
         { "legacy Wi-Fi and key slots are erased, idempotently, touching nothing else", row_legacy_slots_are_erased },
         { "DROP legacy-bundles and CLEAR bonds obey the session and report", row_drop_and_clear },
+        { "SET/GET/CLEAR owner_keys round-trip and validate", row_owner_key_commands },
     };
     for (size_t i = 0; i < sizeof(ROWS) / sizeof(ROWS[0]); i++) {
         bool ok = ROWS[i].fn();

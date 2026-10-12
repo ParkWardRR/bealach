@@ -10,6 +10,7 @@
 #include <string.h>
 
 #include "../bealach_format/bealach_format.h"
+#include "../bealach_store/bealach_store.h"
 
 /* ── scrubbing ────────────────────────────────────────────────────────────── */
 
@@ -217,10 +218,10 @@ static const char *refusal(const bealach_prov_env_t *env)
     return NULL;
 }
 
-static bool is_hex32(const char *s, uint8_t out[16])
+static bool parse_hex(const char *s, uint8_t *out, size_t out_len)
 {
-    if (strlen(s) != 32) return false;
-    for (int i = 0; i < 16; i++) {
+    if (strlen(s) != out_len * 2) return false;
+    for (size_t i = 0; i < out_len; i++) {
         int hi, lo;
         char a = s[2 * i], b = s[2 * i + 1];
         hi = (a >= '0' && a <= '9') ? a - '0' : (a >= 'a' && a <= 'f') ? a - 'a' + 10 : (a >= 'A' && a <= 'F') ? a - 'A' + 10 : -1;
@@ -229,6 +230,11 @@ static bool is_hex32(const char *s, uint8_t out[16])
         out[i] = (uint8_t)((hi << 4) | lo);
     }
     return true;
+}
+
+static bool is_hex32(const char *s, uint8_t out[16])
+{
+    return parse_hex(s, out, 16);
 }
 
 static void set_field(bealach_prov_t *p, char *field, char *a1, char *a2)
@@ -244,6 +250,27 @@ static void set_field(bealach_prov_t *p, char *field, char *a1, char *a2)
         }
         memcpy(st->vehicle_id, veh, 16); memcpy(st->assignment_id, asg, 16);
         st->have_assignment = true;
+    } else if (strcmp(field, "owner_keys") == 0 && a1 && a2) {
+        uint8_t enroll[32], ack[32];
+        if (!parse_hex(a1, enroll, 32) || !parse_hex(a2, ack, 32)) {
+            say(p, "ERR owner_keys needs two 64-hex keys: <enroll_x25519> <ack_ed25519>");
+            scrub(enroll, 32); scrub(ack, 32);
+            return;
+        }
+        if (all_zero(enroll, 32) || all_zero(ack, 32)) {
+            say(p, "ERR owner keys must be non-zero");
+            scrub(enroll, 32); scrub(ack, 32);
+            return;
+        }
+        if (!bealach_owner_key_set(enroll, ack)) {
+            say(p, "ERR could not store owner keys in NVS");
+            scrub(enroll, 32); scrub(ack, 32);
+            return;
+        }
+        scrub(enroll, 32); scrub(ack, 32);
+        note(p, "provisioning: owner keys installed");
+        say(p, "OK");
+        return;
     } else if (strcmp(field, "counter_floor") == 0 && a1 && !a2) {
         size_t n = strlen(a1);
         if (n == 0 || n > 20) { say(p, "ERR counter_floor must be a decimal u64"); return; }
@@ -344,6 +371,15 @@ void bealach_prov_line(bealach_prov_t *p, const char *line, const bealach_prov_e
         bealach_prov_abort(p);
         note(p, "provisioning: session closed");
         say(p, "OK");
+    } else if (strcmp(tok[0], "GET") == 0 && nt == 2 && strcmp(tok[1], "owner_enrolled") == 0) {
+        say(p, bealach_owner_enrolled() ? "ENROLLED yes" : "ENROLLED no");
+    } else if (strcmp(tok[0], "CLEAR") == 0 && nt == 2 && strcmp(tok[1], "owner_keys") == 0) {
+        if (bealach_owner_key_clear()) {
+            note(p, "provisioning: owner keys cleared");
+            say(p, "OK");
+        } else {
+            say(p, "ERR could not clear owner keys");
+        }
     } else if (strcmp(tok[0], "GET") == 0 && nt == 2 && strcmp(tok[1], "enroll_blob") == 0) {
         char text[BEALACH_PROV_LINE_MAX / 2];
         const char *err = NULL;
