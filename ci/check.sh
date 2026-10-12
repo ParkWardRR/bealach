@@ -70,6 +70,11 @@ check_firmware_host() {
   (cd "$ROOT/firmware/test/host" && make clean && make)
 }
 
+check_ios() {
+  command -v swift >/dev/null 2>&1 || { note "swift not installed"; return 1; }
+  (cd "$ROOT/ios" && swift build && swift test)
+}
+
 check_mermaid() {
   command -v mmdc >/dev/null 2>&1 || return 2
   mkdir -p "$ROOT/build/ci"
@@ -98,6 +103,7 @@ if [ -z "$ONLY" ] || [ "$ONLY" = "local-ci-policy" ]; then run "local-ci-policy"
 if [ -z "$ONLY" ] || [ "$ONLY" = "tools-go" ]; then run "tools-go" check_tools_go; fi
 if [ -z "$ONLY" ] || [ "$ONLY" = "harvest-rust" ]; then run "harvest-rust" check_harvest_rust; fi
 if [ -z "$ONLY" ] || [ "$ONLY" = "firmware-host" ]; then run "firmware-host" check_firmware_host; fi
+if [ -z "$ONLY" ] || [ "$ONLY" = "ios" ]; then run "ios" check_ios; fi
 if [ -z "$ONLY" ]; then maybe_mermaid; fi
 
 note ""
