@@ -7,7 +7,7 @@ import CoreBluetooth
 /// The 128-bit base is provisional until the spec lands in the firmware repo.
 /// UUIDs are computed because `CBUUID` is not `Sendable`.
 public enum BealachGATTProfile {
-    public static let advertisedName = "Cairn"
+    public static let advertisedName = "Bealach"
 
     public static var serviceUUID: CBUUID { uuid(suffix: "0000") }
 

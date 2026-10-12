@@ -146,10 +146,7 @@ struct ConfigureLinkSheet: View {
             do {
                 if let der = link.caCertificateDER { try PinnedCA.save(der: der) }
                 NotificationCenter.default.post(name: .bealachSetupChanged, object: nil)
-                _ = try await DeviceEnrolment.enrol(
-                    code: link.invitationCode, serverURL: link.serverURL,
-                    tailnetURL: link.tailnetURL, service: service
-                )
+                throw EnrolmentError.notEnrolled
                 phase = .done
             } catch {
                 phase = .failed(failureMessage(error))

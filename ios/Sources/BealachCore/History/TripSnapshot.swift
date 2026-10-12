@@ -44,6 +44,7 @@ public struct TripSnapshot: Codable, Identifiable, Sendable, Equatable {
         gapCount: Int = 0, gapDurationMs: Int = 0,
         warnings: String? = nil,
         startLat: Double? = nil, startLon: Double? = nil,
+        distanceMeters: Double? = nil,
         deviceID: Data? = nil
     ) {
         self.id = id
@@ -60,6 +61,7 @@ public struct TripSnapshot: Codable, Identifiable, Sendable, Equatable {
         self.warnings = warnings
         self.startLat = startLat
         self.startLon = startLon
+        self.distanceMeters = distanceMeters
         self.deviceID = deviceID
     }
 

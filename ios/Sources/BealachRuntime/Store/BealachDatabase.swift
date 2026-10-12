@@ -116,13 +116,11 @@ public final class BealachDatabase: Sendable {
 
             try db.create(table: "enrolment") { t in
                 t.primaryKey("id", .text).notNull()
-                t.column("clientID", .text).notNull()
-                t.column("role", .text).notNull()
+                t.column("deviceID", .blob).notNull()
+                t.column("fingerprint", .text).notNull()
+                t.column("ownerKeyHex", .text).notNull()
                 t.column("state", .text).notNull()
-                t.column("scope", .text).notNull()
-                t.column("instanceID", .text)
-                t.column("spkiSHA256", .text)
-                t.column("enrolledAt", .datetime)
+                t.column("enrolledAt", .datetime).notNull()
             }
 
             try db.create(index: "drive_session_vehicleID", on: "drive_session", columns: ["vehicleID"])

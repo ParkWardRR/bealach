@@ -110,7 +110,7 @@ public final class BealachBLEManager: NSObject {
         state.connection = .idle
     }
 
-    /// Clear the stored dongle identity. The user must also forget "Cairn" in Settings → Bluetooth
+    /// Clear the stored dongle identity. The user must also forget "Bealach" in Settings → Bluetooth
     /// to remove the stale iOS bond before re-pairing.
     public func forgetDongle() {
         stop()

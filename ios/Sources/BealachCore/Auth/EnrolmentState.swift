@@ -1,45 +1,41 @@
-// Provenance: cairn-ios-companion-app @ a7d02d8, Sources/CairnCore/Auth/EnrolmentState.swift
-// Renamed Cairn* → Bealach* for Bealach.
-
 import Foundation
 
 public enum EnrolmentState: String, Codable, Sendable {
     case notEnrolled
     case enrolling
     case enrolled
-    case revoked
     /// The identity on file was enrolled with a key this phone no longer holds (or one that was
-    /// never saved), so every signed request would be refused. Only a fresh enrolment fixes it.
+    /// never saved). Only a fresh enrolment fixes it.
     case needsReenrolment
 }
 
-public struct EnrolledIdentity: Codable, Sendable {
-    public var clientID: String
-    public var role: String
-    public var scope: [String]
-    public var instanceID: String
-    public var spkiSHA256: String
-    public var localBaseURL: String
-    public var tailnetBaseURL: String
-    /// The public key (X9.63, lowercase hex) the server registered for this client. Absent on
-    /// identities saved before the key was kept across launches; those cannot be trusted to match.
-    public var publicKeyHex: String?
+/// The relationship between this phone and an enrolled dongle. In Bealach the trust model is
+/// device-to-owner-phone (no server): the phone holds Ed25519 and X25519 key pairs whose public
+/// halves are installed on the dongle via `SET owner_keys`.
+public struct EnrolledIdentity: Codable, Sendable, Equatable {
+    /// 16-byte UUID of the enrolled dongle (from `DEVICE_INFO` identity).
+    public var deviceID: Data
+    /// 8-character hex fingerprint derived from the dongle's Ed25519 public key.
+    public var fingerprint: String
+    /// The phone's Ed25519 public key hex (the `pinned_key` installed on the dongle for receipt
+    /// verification). Used to detect key mismatch after a key rotation or restore.
+    public var ownerKeyHex: String
+    /// When the enrolment bond was established.
+    public var enrolledAt: Date
 
     public init(
-        clientID: String, role: String, scope: [String],
-        instanceID: String, spkiSHA256: String,
-        localBaseURL: String, tailnetBaseURL: String,
-        publicKeyHex: String? = nil
+        deviceID: Data,
+        fingerprint: String,
+        ownerKeyHex: String,
+        enrolledAt: Date = Date()
     ) {
-        self.clientID = clientID
-        self.role = role
-        self.scope = scope
-        self.instanceID = instanceID
-        self.spkiSHA256 = spkiSHA256
-        self.localBaseURL = localBaseURL
-        self.tailnetBaseURL = tailnetBaseURL
-        self.publicKeyHex = publicKeyHex
+        self.deviceID = deviceID
+        self.fingerprint = fingerprint
+        self.ownerKeyHex = ownerKeyHex
+        self.enrolledAt = enrolledAt
     }
 
-    public var isAdmin: Bool { role == "admin" }
+    public var deviceIDHex: String {
+        deviceID.map { String(format: "%02x", $0) }.joined()
+    }
 }

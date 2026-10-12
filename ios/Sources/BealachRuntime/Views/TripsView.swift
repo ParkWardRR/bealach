@@ -606,10 +606,39 @@ struct TripDetailView: View {
 // MARK: - Merge
 
 enum HistoryMerger {
-    /// Build history entries from sessions. Trips from bundle data will be merged in once
-    /// the bundle import pipeline is built; for now each session is its own entry.
+    /// Build history entries by segmenting sessions into trips. Each trip is paired with the
+    /// session whose time range contains it. Sessions with no track points appear as standalone
+    /// entries so they remain visible.
     static func merge(sessions: [DriveSession]) -> [HistoryEntry] {
-        var entries: [HistoryEntry] = sessions.map { HistoryEntry(session: $0) }
+        let trips = TripSegmenter.segment(sessions: sessions)
+
+        var entries: [HistoryEntry] = []
+        var matchedSessionIDs: Set<UUID> = []
+
+        for trip in trips {
+            let snapshot = TripSnapshot(
+                id: trip.id.uuidString,
+                startedAt: trip.startedAt,
+                endedAt: trip.endedAt,
+                durationSeconds: trip.duration,
+                gnssSamples: trip.legs.reduce(0) { $0 + $1.route.count },
+                fixSamples: trip.legs.reduce(0) { $0 + $1.route.count },
+                startLat: trip.legs.first?.route.first?.latitude,
+                startLon: trip.legs.first?.route.first?.longitude,
+                distanceMeters: trip.totalDistance
+            )
+            let session = sessions.first { s in
+                s.startedAt <= trip.startedAt &&
+                (s.closedAt ?? s.lastObservedAt) >= trip.endedAt
+            }
+            if let session { matchedSessionIDs.insert(session.id) }
+            entries.append(HistoryEntry(session: session, trip: snapshot))
+        }
+
+        for session in sessions where !matchedSessionIDs.contains(session.id) && session.track.isEmpty {
+            entries.append(HistoryEntry(session: session))
+        }
+
         entries.sort { $0.startedAt > $1.startedAt }
         return entries
     }

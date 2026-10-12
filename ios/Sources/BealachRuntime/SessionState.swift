@@ -201,11 +201,8 @@ public enum PinnedCA {
     public static func save(der: Data) throws {}
 }
 
-/// Server-side device enrolment. Stubbed for Bealach (no server).
+/// Device enrolment error messages.
 public enum DeviceEnrolment {
-    public static func enrol(code: String, serverURL: String, tailnetURL: String, service: EnrolmentService) async throws -> EnrolledIdentity {
-        throw EnrolmentError.notEnrolled
-    }
     public static func message(for error: Error) -> String {
         error.localizedDescription
     }
