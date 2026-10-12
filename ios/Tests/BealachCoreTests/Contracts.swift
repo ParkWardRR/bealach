@@ -3,9 +3,8 @@
 
 import Foundation
 
-/// Where the pinned contracts live: `$CAIRN_CONTRACTS` if set (a contract and this app changing
-/// together on a laptop), otherwise `.contracts/contracts` as fetched by scripts/fetch-contracts.sh
-/// at the commit contracts.lock names. Nothing is vendored, so there is no copy to drift.
+/// Where the pinned contracts live: `$CAIRN_CONTRACTS` if set, otherwise `contracts/` at the
+/// repository root (four levels up from this file).
 enum Contracts {
     static let root: URL = {
         if let override = ProcessInfo.processInfo.environment["CAIRN_CONTRACTS"], !override.isEmpty {
@@ -14,7 +13,7 @@ enum Contracts {
         return URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent()
             .deletingLastPathComponent().deletingLastPathComponent()
-            .appendingPathComponent(".contracts/contracts")
+            .appendingPathComponent("contracts")
     }()
 
     static func data(_ path: String) throws -> Data {
