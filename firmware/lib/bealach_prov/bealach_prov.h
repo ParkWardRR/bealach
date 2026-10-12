@@ -2,7 +2,7 @@
  * Renamed bealach_* → bealach_* for Bealach. Wire format markers unchanged. */
 
 /*
- * Device enrolment and serial provisioning (docs/device-provisioning.md).
+ * Device enrolment and provisioning.
  *
  * Portable C with no Arduino dependency, so the whole protocol — its window
  * rules, its refusal to echo a secret, its all-or-nothing commit — is exercised
@@ -10,21 +10,22 @@
  *
  * Three jobs:
  *
- *   1. Seal the storage root to the server's enrolment key and sign the result
- *      (bealach_enroll_build). The blob is byte-identical to the Go reference in
- *      server/internal/enroll; contracts/enrolment/v1/vectors pins that.
+ *   1. Seal the storage root to the owner phone's enrolment key and sign the
+ *      result (bealach_enroll_build). The owner phone unseals the blob to
+ *      recover K_root for frame AEAD verification.
  *   2. Speak a small line protocol over the USB console so an operator's
  *      workstation can fetch that blob and install the vehicle assignment and
- *      counter floor (bealach_prov_line).
+ *      counter floor (bealach_prov_line). In Bealach the owner phone drives
+ *      enrolment over BLE; the console protocol is kept for diagnostics.
  *   3. Erase credentials left in NVS by firmware that still had Wi-Fi
  *      (bealach_prov_erase_legacy_credentials). This firmware holds no network
  *      credential of any kind, so there is nothing to provision beyond the above.
  *
  * What this does NOT do is protect the console from someone with the USB cable:
  * physical access is the trust boundary here until flash encryption and secure
- * boot (ROADMAP Phase 24) exist. The rules below narrow what such a person can
- * do — never mid-trip, only in a short window after boot once provisioned, never
- * logging or echoing a secret — they do not eliminate it, and the doc says so.
+ * boot exist. The rules below narrow what such a person can do — never mid-trip,
+ * only in a short window after boot once provisioned, never logging or echoing a
+ * secret — they do not eliminate it, and the doc says so.
  */
 
 #ifndef BEALACH_PROV_H
@@ -59,14 +60,14 @@ int bealach_b64_decode(const char *in, size_t n, uint8_t *out, size_t cap);
  * passes hardware-random `eph_priv` and `nonce`; the host tests pass the values
  * from contracts/enrolment/v1/vectors and compare bytes.
  *
- * Refuses (returns false) when `server_pub` is all zero — the unconfigured
- * placeholder — or when the key agreement yields a low-order result. Sealing a
+ * Refuses (returns false) when `owner_pub` is all zero — indicating no phone
+ * is enrolled — or when the key agreement yields a low-order result. Sealing a
  * root to a key nobody holds would "succeed" and lose it.
  */
 bool bealach_enroll_build(uint8_t blob[BEALACH_ENROLL_BLOB_SIZE],
                         const uint8_t device_id[16], const uint8_t seed[32],
                         const uint8_t pub[32], uint32_t key_version,
-                        const uint8_t root[32], const uint8_t server_pub[32],
+                        const uint8_t root[32], const uint8_t owner_pub[32],
                         const uint8_t eph_priv[32], const uint8_t nonce[24]);
 
 /* First four bytes of SHA-256(public key) as 8 lowercase hex chars + NUL. */
@@ -105,7 +106,7 @@ typedef struct {
     void (*identity)(void *ctx, uint8_t device_id[16], char fingerprint[9]);
 
     /* The console text for ENROLL-BLOB (base64), or false if it cannot be built
-     * (no server key pinned, RNG failure, ...). `err` explains, without secrets. */
+     * (no owner key enrolled, RNG failure, ...). `err` explains, without secrets. */
     bool (*enroll_text)(void *ctx, char *out, size_t cap, const char **err);
 
     /*

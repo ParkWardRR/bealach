@@ -244,8 +244,8 @@ bool bealach_prune_legacy_bundles(uint32_t *dropped, uint64_t *bytes_freed)
             continue;
         }
 
-        BEALACH_LOGW(TAG, "dropped %s: manifest version %d, which no reader here "
-                        "or on the server accepts (%llu bytes)",
+        BEALACH_LOGW(TAG, "dropped %s: manifest version %d, which no reader "
+                        "accepts (%llu bytes)",
                    ids[i], v, (unsigned long long)bytes);
 
         if (dropped != NULL)     (*dropped)++;
@@ -286,7 +286,7 @@ bealach_prune_result_t bealach_receipt_check(const uint8_t *receipt, size_t rece
     /*
      * Signature first, then what it covers. Distinguishing the two matters for
      * diagnosis: a bad signature means the wrong key or a forgery, while a
-     * genuine signature over the wrong root means a server/bundle mix-up. Both
+     * genuine signature over the wrong root means a bundle mix-up. Both
      * refuse to delete, but they mean different things on a bench.
      */
     if (bealach_receipt_verify(&r, pinned_key) != BEALACH_OK) {
@@ -313,7 +313,7 @@ bealach_prune_result_t bealach_prune_if_receipted(const char *id_text,
     bealach_prune_result_t check =
         bealach_receipt_check(receipt, receipt_len, pinned_key, uploaded_root);
     if (check == BEALACH_PRUNE_NO_PINNED_KEY) {
-        BEALACH_LOGW(TAG, "no server key is pinned; %s stays on the card", id_text);
+        BEALACH_LOGW(TAG, "no owner key pinned (not enrolled); %s stays on the card", id_text);
     }
     if (check != BEALACH_PRUNE_OK) return check;
 

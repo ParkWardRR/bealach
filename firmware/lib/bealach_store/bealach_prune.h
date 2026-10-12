@@ -2,18 +2,20 @@
  * Renamed bealach_* → bealach_* for Bealach. Wire format markers unchanged. */
 
 /*
- * Receipt-gated pruning.
+ * Acknowledgement-gated pruning.
  *
  * Kept as portable C, apart from any transport, for one reason: this is the
  * invariant with the worst failure mode in the whole system. Everything else
  * that goes wrong costs a trip's worth of detail; a wrongly authorized prune
  * deletes data permanently and reports success. So the gate lives here, away
- * from the HTTP code, where a host test can drive it with a forged receipt, a
- * receipt for a different bundle, and a receipt signed by the wrong key.
+ * from the BLE code, where a host test can drive it with a forged ack, an ack
+ * for a different bundle, and an ack signed by the wrong key.
  *
- * The rule, stated once: a bundle may be deleted only when a receipt has been
- * verified against the *pinned* server key and that receipt acknowledges the
- * content root actually uploaded. Both conditions, every time.
+ * The rule, stated once: a bundle may be deleted only when an acknowledgement
+ * has been verified against the owner phone's key (pinned at enrolment) and
+ * that ack names the content root actually stored on the phone. Both
+ * conditions, every time. Default is no prune — the card fills rather than
+ * guessing.
  */
 
 #ifndef BEALACH_PRUNE_H
@@ -30,7 +32,7 @@ extern "C" {
 typedef enum {
     BEALACH_PRUNE_OK = 0,
     BEALACH_PRUNE_RECEIPT_MALFORMED,
-    BEALACH_PRUNE_RECEIPT_UNVERIFIED, /* signature failed against the pinned key */
+    BEALACH_PRUNE_RECEIPT_UNVERIFIED, /* signature failed against the owner's pinned key */
     BEALACH_PRUNE_WRONG_BUNDLE,       /* genuine signature, different content root */
     BEALACH_PRUNE_NO_PINNED_KEY,
     BEALACH_PRUNE_STORE_FAILED,
@@ -65,10 +67,10 @@ bealach_prune_result_t bealach_receipt_check(const uint8_t *receipt, size_t rece
  * Verify, then prune. The only sanctioned path to deleting bundle data.
  *
  * `pinned_key` may be NULL or all-zero, which returns BEALACH_PRUNE_NO_PINNED_KEY
- * and deletes nothing: an unconfigured device fills its card rather than
+ * and deletes nothing: an unenrolled device fills its card rather than
  * guessing. Returns BEALACH_PRUNE_WRONG_BUNDLE when the signature is genuine but
- * acknowledges different content — accepting that would let a misconfigured or
- * hostile server induce deletion of data it never received.
+ * acknowledges different content — accepting that would let a compromised or
+ * hostile phone induce deletion of data it never verified.
  */
 bealach_prune_result_t bealach_prune_if_receipted(const char *id_text,
                                               const uint8_t *receipt,

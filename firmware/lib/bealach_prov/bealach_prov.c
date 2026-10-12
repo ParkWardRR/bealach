@@ -130,19 +130,19 @@ void bealach_enroll_fingerprint(const uint8_t pub[32], char out[9])
 bool bealach_enroll_build(uint8_t blob[BEALACH_ENROLL_BLOB_SIZE],
                         const uint8_t device_id[16], const uint8_t seed[32],
                         const uint8_t pub[32], uint32_t key_version,
-                        const uint8_t root[32], const uint8_t server_pub[32],
+                        const uint8_t root[32], const uint8_t owner_pub[32],
                         const uint8_t eph_priv[32], const uint8_t nonce[24])
 {
-    if (key_version == 0 || all_zero(server_pub, 32) || all_zero(root, 32)) return false;
+    if (key_version == 0 || all_zero(owner_pub, 32) || all_zero(root, 32)) return false;
 
     uint8_t eph_pub[32], shared[32], key[32], salt[64];
     bool ok = false;
 
     if (!bealach_x25519_public(eph_pub, eph_priv)) goto out;
-    if (!bealach_x25519(shared, eph_priv, server_pub)) goto out;
+    if (!bealach_x25519(shared, eph_priv, owner_pub)) goto out;
 
     memcpy(salt, eph_pub, 32);
-    memcpy(salt + 32, server_pub, 32);
+    memcpy(salt + 32, owner_pub, 32);
     static const char info[] = "cairn/enroll-seal/v1";
     if (!bealach_hkdf_sha256(salt, 64, shared, 32, (const uint8_t *)info, sizeof(info) - 1, key, 32))
         goto out;

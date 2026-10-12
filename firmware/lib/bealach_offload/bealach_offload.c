@@ -490,8 +490,8 @@ static void apply_receipt(bealach_offload_t *o)
     case BEALACH_PRUNE_OK:
         break;
     case BEALACH_PRUNE_NO_PINNED_KEY:
-        BEALACH_LOGW(TAG, "no server key is pinned; the receipt for %s was not verified and "
-                        "nothing was stored or deleted", o->id_text);
+        BEALACH_LOGW(TAG, "no owner key pinned (not enrolled); the ack for %s was not "
+                        "verified and nothing was stored or deleted", o->id_text);
         finish_receipt(o, BEALACH_OFFLOAD_OK, BEALACH_OFFLOAD_OUTCOME_NO_KEY);
         return;
     case BEALACH_PRUNE_WRONG_BUNDLE:

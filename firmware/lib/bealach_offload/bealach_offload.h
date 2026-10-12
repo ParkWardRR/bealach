@@ -4,20 +4,23 @@
 /*
  * BLE bundle offload: the dongle's half of contracts/ble/v1/offload.md.
  *
- * The dongle has no network. The enrolled phone pulls sealed bundles over BLE,
- * uploads them, and hands the server's signed receipt back. This module is the
- * whole protocol, as portable C with no Arduino or NimBLE dependency, so the
- * framing, the refusals and above all the receipt gate are exercised on the host
- * against exactly the code the device runs. A thin NimBLE shim (src/ble_offload.cpp)
- * feeds it bytes and gives it a way to send.
+ * The dongle has no network. The enrolled owner phone pulls sealed bundles
+ * over BLE, verifies them locally, and hands a signed acknowledgement back.
+ * This module is the whole protocol, as portable C with no Arduino or NimBLE
+ * dependency, so the framing, the refusals and above all the ack gate are
+ * exercised on the host against exactly the code the device runs. A thin
+ * NimBLE shim (src/ble_offload.cpp) feeds it bytes and gives it a way to send.
  *
  * What the phone is trusted with, and what it is not:
  *
- *   - It can pull ciphertext (frames are AEAD-sealed; it never holds a key).
+ *   - It can pull ciphertext (frames are AEAD-sealed; it holds K_root from
+ *     enrolment and can verify frame AEADs, but the ciphertext is safe in
+ *     transit).
  *   - It can NOT make this module delete anything. A bundle is pruned only
- *     through bealach_prune_if_receipted, and only on a receipt that verifies
- *     against the key pinned in firmware and names this bundle's content root.
- *     A bad receipt is rejected before anything is written to the card.
+ *     through bealach_prune_if_receipted, and only on an acknowledgement that
+ *     verifies against the owner phone's key (pinned at enrolment) and names
+ *     this bundle's content root. A bad ack is rejected before anything is
+ *     written to the card.
  *
  * Decisions where the spec left room (kept here so they are not rediscovered):
  *
@@ -32,8 +35,9 @@
  *     that every request is answered IO_ERROR rather than half working.
  *   - A failed PUT_RECEIPT (bad sequence, too many bytes, stall) is answered with
  *     the 0x84 indication and a non-zero status and NO outcome byte.
- *   - PUT_RECEIPT outcome 4 (not in the original table): no key is pinned, so the
- *     receipt could not be verified; nothing was stored or deleted.
+ *   - PUT_RECEIPT outcome 4 (not in the original table): no key is pinned
+ *     (device not enrolled), so the ack could not be verified; nothing was
+ *     stored or deleted.
  */
 
 #ifndef BEALACH_OFFLOAD_H
@@ -102,8 +106,8 @@ typedef struct {
     uint32_t (*now_ms)(void *ctx);
     bool     (*trip_active)(void *ctx);
 
-    /* The server's receipt public key, pinned in firmware: 32 bytes, or NULL /
-     * all-zero when none is configured. */
+    /* The owner phone's Ed25519 public key, stored in NVS at enrolment.
+     * 32 bytes, or NULL / all-zero before enrolment. */
     const uint8_t *pinned_key;
 } bealach_offload_io_t;
 

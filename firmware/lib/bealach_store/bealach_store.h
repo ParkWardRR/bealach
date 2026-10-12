@@ -93,7 +93,7 @@ typedef struct {
  * *reserved* (made durable) before the first header naming it is written, and
  * *committed* again before the manifest naming it is signed. Between the two,
  * no power cut can hand the same counter to different content: a reserved
- * counter whose bundle never seals is a hole the server reports, and a hole is
+ * counter whose bundle never seals is a hole the phone reports, and a hole is
  * the harmless direction.
  */
 typedef struct {
@@ -103,7 +103,7 @@ typedef struct {
     /*
      * The assignment as provisioned. With none provisioned both are all-zero
      * and `assigned` is false: the device still captures and seals — data
-     * first — but the server will refuse such a bundle until an assignment
+     * first — but the phone will flag such a bundle until an assignment
      * exists, which is the correct direction for that failure.
      */
     uint8_t  vehicle_id[16];
@@ -223,10 +223,9 @@ bool bealach_identity_load(uint8_t device_id[16], uint8_t seed[32],
  * them.
  *
  * The device generates its own signing key on first boot, so it cannot be
- * enrolled in advance — the server has to be told a key that does not exist
- * until the hardware has run once. Printing the full values here is what closes
- * that loop; a truncated prefix in a log line is not something an operator can
- * enrol.
+ * enrolled in advance — the owner phone needs a key that does not exist until
+ * the hardware has run once. Printing the full values here is what closes that
+ * loop; a truncated prefix in a log line is not something an operator can use.
  */
 void bealach_identity_print_enrolment(const uint8_t device_id[16],
                                     const uint8_t pub[32]);
@@ -251,8 +250,8 @@ bool bealach_storage_set_assignment(const uint8_t vehicle_id[16],
 /*
  * Raise the device counter to at least `floor`. Never lowers it.
  *
- * Used when a device is re-enrolled: the server returns the highest counter it
- * has accepted from this device, and the next bundle must be numbered above it.
+ * Used when a device is re-enrolled: the owner phone provides the highest
+ * counter it has seen, and the next bundle must be numbered above it.
  * A floor below the current value is a no-op, because lowering a counter is
  * precisely the rollback the counter exists to defeat. Returns false only if the
  * value could not be made durable.

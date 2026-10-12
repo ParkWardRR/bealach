@@ -158,20 +158,20 @@ bool bealach_identity_load(uint8_t device_id[16], uint8_t seed[32],
 
     /*
      * The signing seed is generated once from the hardware RNG and cannot be
-     * re-derived, so losing the key store means a new key and re-enrolment on
-     * the server. That is the correct outcome, and it is loud rather than
-     * silent.
+     * re-derived, so losing the key store means a new key and re-enrolment
+     * with the owner phone. That is the correct outcome, and it is loud
+     * rather than silent.
      *
      * Flash encryption is deliberately not enabled (see partitions-ab.csv), so
      * this seed is readable from a physically extracted chip. Accepted trade
      * for a device that must stay recoverable on a bench: the key authorizes
-     * uploads, not deletions, and the server can revoke it.
+     * manifests, not deletions, and the owner can re-enrol.
      */
     if (!bealach_kv_get_blob("key_seed", seed, 32)) {
         bealach_random(seed, 32);
         bealach_kv_set_blob("key_seed", seed, 32);
-        BEALACH_LOGW(TAG, "generated a new device signing key; the server must "
-                        "enrol this device before it can upload");
+        BEALACH_LOGW(TAG, "generated a new device signing key; the owner phone "
+                        "must re-enrol this device");
     }
 
     uint32_t count = bealach_kv_get_u32("boot_count", 0) + 1;
@@ -217,10 +217,9 @@ void bealach_identity_print_enrolment(const uint8_t device_id[16],
      * Transcribing 96 hex characters off a serial console is exactly the step
      * where a bench session loses twenty minutes.
      */
-    BEALACH_LOGI(TAG, "to enrol:  cairn-server -enroll %s -enroll-key %s "
-                    "-enroll-name car", id_hex, pub_hex);
-    BEALACH_LOGI(TAG, "until enrolled, uploads are refused with 403 and bundles "
-                    "stay on the card");
+    BEALACH_LOGI(TAG, "device id:  %s", id_hex);
+    BEALACH_LOGI(TAG, "public key: %s", pub_hex);
+    BEALACH_LOGI(TAG, "until enrolled with an owner phone, bundles stay on the card");
 }
 
 void bealach_new_boot_id(uint8_t boot_id[16])
@@ -241,8 +240,8 @@ void bealach_new_boot_id(uint8_t boot_id[16])
 #define KV_VEHICLE_ID      "vehicle_id"
 #define KV_ASSIGNMENT_ID   "assignment_id"
 
-/* The version a freshly generated root is. The server escrows it as version 1
- * at enrolment; a rotation would issue the next. */
+/* The version a freshly generated root is. The owner phone receives it as
+ * version 1 at enrolment; a rotation would issue the next. */
 #define STORAGE_KEY_VERSION_INITIAL 1u
 
 static bool kv_counter_read(uint64_t *out)
@@ -303,7 +302,7 @@ static bool kv_counter_commit(void *ctx, uint64_t counter)
      * The high-water mark is behind a counter already written into a bundle's
      * headers: NVS was erased or restored after the capture opened. Raise it
      * before the manifest is signed, or the next bundle would reuse this one's
-     * counter for different content — which the server must quarantine.
+     * counter for different content — which must be quarantined.
      */
     BEALACH_LOGW(TAG, "device counter high-water %llu is behind bundle counter %llu; "
                     "raising it before signing",
@@ -335,10 +334,11 @@ bool bealach_storage_identity_load(bealach_storage_identity_t *out)
     }
 
     /*
-     * K_root is generated once, on the device, from the hardware RNG, and never
-     * leaves it in the clear. Losing it makes every bundle sealed under it
-     * unreadable to anyone but the server's escrowed copy — so a regeneration
-     * is logged as the event it is, not silently papered over.
+     * K_root is generated once, on the device, from the hardware RNG. It is
+     * shared with the owner phone at enrolment (sealed in the enrolment blob)
+     * and backed up to iCloud Keychain. Losing it makes every bundle sealed
+     * under it unreadable — so a regeneration is logged as the event it is,
+     * not silently papered over.
      *
      * Until flash encryption is enabled (docs/esp32-hardening.md) this root is
      * plaintext in on-chip flash: it protects the card against someone who has
@@ -353,9 +353,9 @@ bool bealach_storage_identity_load(bealach_storage_identity_t *out)
             memset(out->root_key, 0, sizeof(out->root_key));
             return false;
         }
-        BEALACH_LOGW(TAG, "generated a new storage root (version %u); the server must "
-                        "escrow it at enrolment before it can decode this device's "
-                        "bundles", (unsigned)STORAGE_KEY_VERSION_INITIAL);
+        BEALACH_LOGW(TAG, "generated a new storage root (version %u); the owner "
+                        "phone must re-enrol to receive it",
+                   (unsigned)STORAGE_KEY_VERSION_INITIAL);
     }
     out->storage_key_version =
         bealach_kv_get_u32(KV_STORAGE_VERSION, STORAGE_KEY_VERSION_INITIAL);
