@@ -1,5 +1,31 @@
 # Bealach
 
+[![License: Blue Oak 1.0.0](https://img.shields.io/badge/license-Blue%20Oak%201.0.0-2ea44f)](LICENSE)
+[![Status: documentation-first](https://img.shields.io/badge/status-documentation--first-d4a017)](docs/implementation-plan.md)
+[![Phase 0: foundations](https://img.shields.io/badge/phase-0%20foundations-d4a017)](docs/implementation-plan.md)
+[![Validation: not hardware-validated](https://img.shields.io/badge/validation-not%20hardware--validated-e8833a)](docs/acceptance-tests.md)
+[![CI: local only](https://img.shields.io/badge/CI-local%20only-1f6feb)](ci/README.md)
+[![GitHub Actions: not used](https://img.shields.io/badge/GitHub%20Actions-not%20used-6e40c9?logo=githubactions&logoColor=white)](ci/README.md)
+
+[![Hardware: Freematics ONE+ Model B](https://img.shields.io/badge/hardware-Freematics%20ONE%2B%20Model%20B%20(ESP32)-555555)](docs/hardware-and-research.md)
+[![App: iOS 18+](https://img.shields.io/badge/app-iOS%2018%2B-000000?logo=apple&logoColor=white)](docs/implementation-plan.md)
+[![Transport: BLE only](https://img.shields.io/badge/transport-BLE%20only-0082fc?logo=bluetooth&logoColor=white)](docs/contracts/mirroring.md)
+[![Cloud: none](https://img.shields.io/badge/cloud-none-2ea44f)](#what-it-deliberately-is-not)
+[![Server: none](https://img.shields.io/badge/server-none-2ea44f)](#what-it-deliberately-is-not)
+[![LTE uplink: none](https://img.shields.io/badge/LTE%20uplink-none-2ea44f)](#what-it-deliberately-is-not)
+[![Accounts: none](https://img.shields.io/badge/accounts-none-2ea44f)](docs/threat-model.md)
+
+[![Recording format: v3](https://img.shields.io/badge/recording%20format-v3-1f6feb)](docs/contracts/recording.md)
+[![Mirror protocol: v1](https://img.shields.io/badge/mirror%20protocol-v1-1f6feb)](docs/contracts/mirroring.md)
+[![Engine profiles: v1](https://img.shields.io/badge/engine%20profiles-v1-1f6feb)](harvest/contracts/engine/v1/README.md)
+[![Crypto: XChaCha20-Poly1305 + Ed25519](https://img.shields.io/badge/crypto-XChaCha20--Poly1305%20%2B%20Ed25519-e8833a)](docs/threat-model.md)
+[![Integrity: Merkle content roots](https://img.shields.io/badge/integrity-Merkle%20content%20roots-e8833a)](docs/contracts/recording.md)
+
+[![Firmware: C / ESP-IDF](https://img.shields.io/badge/firmware-C%20%2F%20ESP--IDF-00599c)](harvest/README.md)
+[![iOS: Swift / SwiftUI](https://img.shields.io/badge/iOS-Swift%20%2F%20SwiftUI-f05138)](harvest/README.md)
+[![Vectors: golden](https://img.shields.io/badge/vectors-golden-6e40c9)](harvest/contracts/format/v3/vectors/README.md)
+[![Dev tools: Rust / Go](https://img.shields.io/badge/dev%20tools-Rust%20%2F%20Go-6e40c9)](ci/README.md)
+
 A sibling project to [Cairn](https://github.com/ParkWardRR/cairn-driving-log-selfhosted):
 same landscape, different journey.
 
@@ -53,17 +79,50 @@ carried over and tested here, it is not part of Bealach.
 
 ## Architecture
 
-```text
-┌──────────────────────────────┐        BLE (bonded, encrypted,        ┌─────────────────────────────┐
-│ Freematics ONE+ Model B      │        authenticated)                 │ iPhone (iOS 18+)            │
-│                              │◄─────────────────────────────────────►│                             │
-│  GNSS · ICM-42627 IMU        │   resumable verified chunk mirror     │  Bealach app                │
-│  OBD-II (allowlisted reads)  │                                       │  · final verifier + store   │
-│  vehicle voltage · microSD   │        ownership / enrolment          │  · encrypted local mirror   │
-│                              │◄─────────────────────────────────────►│  · trips, maps, summaries   │
-│  SD card = source of truth   │                                       │  · Storage & Mirror screen  │
-│  (immutable sealed segments) │                                       │                             │
-└──────────────────────────────┘                                       └─────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph vehicle["Vehicle"]
+        obd["OBD-II bus<br/>allowlisted read-only PIDs"]
+        power["12 V supply<br/>load dumps · brownouts · crank"]
+    end
+
+    subgraph dongle["Freematics ONE+ Model B · ESP32"]
+        direction TB
+        sensors["Sensors<br/>GNSS · ICM-42627 IMU · battery voltage"]
+        capture["Capture pipeline<br/>journal · quality fields · explicit gaps"]
+        seal["Seal &amp; sign<br/>Ed25519 manifest → Merkle content_root"]
+        sd[("microSD — source of truth<br/>immutable sealed segments<br/>XChaCha20-Poly1305 frames")]
+        ble["BLE mirror service<br/>bonded · encrypted · authenticated"]
+    end
+
+    subgraph phone["iPhone · iOS 18+"]
+        direction TB
+        enrol["Enrolment &amp; ownership<br/>Secure Enclave identity<br/>pinned keys · out-of-band fingerprint"]
+        verify["Final verifier<br/>signature · digests · structure · AEAD"]
+        mirror[("Verified local mirror<br/>encrypted at rest")]
+        ui["Trips · maps · summaries<br/>Device · Storage &amp; Mirror"]
+    end
+
+    obd --> capture
+    power -.->|must survive| capture
+    sensors --> capture
+    capture --> seal
+    seal --> sd
+    sd --> ble
+    enrol <-->|"explicit local enrolment<br/>no server, no account"| ble
+    ble <-->|"resumable verified chunk mirror<br/>LIST · GET_MANIFEST · READ"| verify
+    verify --> mirror
+    mirror --> ui
+    verify -.->|"signed acks gate reclaim<br/>delete only what is verified"| sd
+
+    classDef vehicle fill:#fff4e5,stroke:#f59e0b,color:#6b3f00
+    classDef dongle fill:#e8f4ff,stroke:#0082fc,color:#0b3d66
+    classDef phone fill:#f3e8ff,stroke:#7c3aed,color:#3b1f6e
+    classDef store fill:#e8f8ee,stroke:#16a34a,color:#0b4a22
+    class obd,power vehicle
+    class sensors,capture,seal,ble dongle
+    class enrol,verify,ui phone
+    class sd,mirror store
 ```
 
 - **Firmware** (ESP-IDF, C): capture to SD in immutable, versioned, authenticated
@@ -92,11 +151,34 @@ or contacted at runtime.
 Provenance, pinned commits, and the reuse/adapt/exclude decisions:
 [docs/migration-from-cairn.md](docs/migration-from-cairn.md).
 
+## Development & CI
+
+**CI is local only.** This project does not use GitHub Actions (or any hosted CI)
+— checks run on your own machine, optionally in a Linux container via
+[OrbStack](https://orbstack.dev/). See [ci/README.md](ci/README.md).
+
+```sh
+make ci        # run every check natively (macOS or Linux)
+make ci-linux  # same checks inside a Linux container (OrbStack / Docker)
+```
+
+What runs today: documentation link integrity, a local-only-CI policy check, and
+the staged Cairn test suites in `harvest/` (engine-profile generator in Rust,
+contract tools in Go) against the pinned contract vectors.
+
 ## Repository layout
 
 ```text
 README.md                          this file
+ROADMAP.md                         step-by-step execution roadmap (phases, tracks, gates)
 LICENSE                            Blue Oak Model License 1.0.0
+Makefile                           make ci — the local CI entry point
+ci/                                local-only check scripts, Linux container
+  README.md                        how to run CI, and why it is local
+  check.sh                         runs every check
+  links.py                         documentation link integrity
+  linux.sh                         run checks in a Linux container (OrbStack)
+  Dockerfile                       reproducible CI environment
 docs/
   migration-from-cairn.md          selective migration and provenance
   hardware-and-research.md         hardware capability inventory + external research
@@ -111,9 +193,10 @@ docs/
     mirroring.md                   secure resumable BLE mirror to the owner phone
     reconciliation.md              what “matches” means; mirror screen semantics
     deletion.md                    deletion, retention, reset and re-download rules
+harvest/                           staged Cairn code for later migration (not product)
 ```
 
-Development tooling (vector generators, contract checkers) will live apart from
+Development tooling (vector generators, contract checkers) lives apart from
 product code and is not part of the product scope: there is no desktop product and
 no web interface.
 

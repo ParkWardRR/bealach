@@ -1,5 +1,9 @@
 # Phased implementation plan
 
+Execution steps, track assignments and dependency order live in
+[../ROADMAP.md](../ROADMAP.md); this file holds the phase acceptance criteria
+(what "done" means).
+
 Each phase ends with the listed acceptance evidence. Security and fast boot are
 acceptance criteria from phase 1, not later enhancements. **Nothing is claimed
 as done until it is tested here**; this repository currently contains
