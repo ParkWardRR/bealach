@@ -206,6 +206,8 @@ struct AddVehicleSheet: View {
     @State private var make: String = ""
     @State private var model: String = ""
     @State private var engineCode: String = ""
+    @State private var vin: String = ""
+    @State private var category: Vehicle.Category = .personal
 
     var body: some View {
         NavigationStack {
@@ -218,6 +220,17 @@ struct AddVehicleSheet: View {
                     TextField("Make", text: $make)
                     TextField("Model", text: $model)
                     TextField("Engine code (optional)", text: $engineCode)
+                    TextField("VIN (optional)", text: $vin)
+                        #if os(iOS)
+                        .textInputAutocapitalization(.characters)
+                        #endif
+                }
+                Section("Type") {
+                    Picker("Category", selection: $category) {
+                        Text("Personal").tag(Vehicle.Category.personal)
+                        Text("Rental").tag(Vehicle.Category.rental)
+                    }
+                    .pickerStyle(.segmented)
                 }
                 Section {
                     if let preview = previewName {
@@ -239,7 +252,9 @@ struct AddVehicleSheet: View {
                         guard let y = Int(year), !make.isEmpty, !model.isEmpty else { return }
                         let vehicle = Vehicle(
                             year: y, make: make, model: model,
-                            engineCode: engineCode.isEmpty ? nil : engineCode
+                            engineCode: engineCode.isEmpty ? nil : engineCode,
+                            vin: vin.isEmpty ? nil : vin.uppercased(),
+                            category: category
                         )
                         onSave(vehicle)
                         dismiss()

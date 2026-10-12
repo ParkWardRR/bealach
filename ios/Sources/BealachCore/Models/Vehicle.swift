@@ -1,6 +1,3 @@
-// Provenance: cairn-ios-companion-app @ a7d02d8, Sources/CairnCore/Models/Vehicle.swift
-// Renamed Cairn* → Bealach* for Bealach.
-
 import Foundation
 
 public struct Vehicle: Codable, Identifiable, Sendable, Equatable, Hashable {
@@ -9,7 +6,11 @@ public struct Vehicle: Codable, Identifiable, Sendable, Equatable, Hashable {
     public var make: String
     public var model: String
     public var engineCode: String?
+    public var vin: String?
     public var isArchived: Bool
+    public var category: Category
+    public var identificationSource: IdentificationSource
+    public var identificationConfidence: Confidence
 
     public init(
         id: String = UUID().uuidString,
@@ -17,14 +18,22 @@ public struct Vehicle: Codable, Identifiable, Sendable, Equatable, Hashable {
         make: String,
         model: String,
         engineCode: String? = nil,
-        isArchived: Bool = false
+        vin: String? = nil,
+        isArchived: Bool = false,
+        category: Category = .personal,
+        identificationSource: IdentificationSource = .manual,
+        identificationConfidence: Confidence = .confirmed
     ) {
         self.id = id
         self.year = year
         self.make = make
         self.model = model
         self.engineCode = engineCode
+        self.vin = vin
         self.isArchived = isArchived
+        self.category = category
+        self.identificationSource = identificationSource
+        self.identificationConfidence = identificationConfidence
     }
 
     public var displayName: String {
@@ -35,13 +44,6 @@ public struct Vehicle: Codable, Identifiable, Sendable, Equatable, Hashable {
         return parts.joined(separator: " ")
     }
 
-    /// The firmware engine profile id to declare to the dongle for this vehicle, derived
-    /// from `make` and `engineCode`. `nil` when there is no profile the firmware is known
-    /// to ship — the dongle's own discovery chain is left to pick (VIN pattern, default).
-    ///
-    /// Known profiles are tracked in `cairn-esp32-device-firmware/engines/*.yaml`. Keep
-    /// this mapping deliberately conservative: an unknown profile written to the dongle
-    /// is logged and does nothing, so adding one here is cheap but silently wrong is bad.
     public var firmwareEngineProfileID: String? {
         guard let code = engineCode?.uppercased(), !code.isEmpty else { return nil }
         let brand = make.lowercased()
@@ -51,14 +53,56 @@ public struct Vehicle: Codable, Identifiable, Sendable, Equatable, Hashable {
         default: return nil
         }
     }
+
+    // MARK: - Types
+
+    public enum Category: String, Codable, Sendable, Equatable, Hashable {
+        case personal
+        case rental
+    }
+
+    public enum IdentificationSource: String, Codable, Sendable, Equatable, Hashable {
+        case manual
+        case obdVIN
+        case userCorrected
+    }
+
+    public enum Confidence: String, Codable, Sendable, Equatable, Hashable {
+        case confirmed
+        case candidate
+        case ambiguous
+    }
 }
 
-public struct VehicleAssignment: Codable, Sendable, Equatable {
+public struct VehicleAssignment: Codable, Sendable, Equatable, Identifiable {
+    public let id: String
     public let dongleID: String
     public let vehicleID: String
+    public var assignedAt: Date
+    public var endedAt: Date?
+    public var source: AssignmentSource
 
-    public init(dongleID: String, vehicleID: String) {
+    public init(
+        id: String = UUID().uuidString,
+        dongleID: String,
+        vehicleID: String,
+        assignedAt: Date = Date(),
+        endedAt: Date? = nil,
+        source: AssignmentSource = .manual
+    ) {
+        self.id = id
         self.dongleID = dongleID
         self.vehicleID = vehicleID
+        self.assignedAt = assignedAt
+        self.endedAt = endedAt
+        self.source = source
+    }
+
+    public var isActive: Bool { endedAt == nil }
+
+    public enum AssignmentSource: String, Codable, Sendable, Equatable {
+        case manual
+        case obdDetected
+        case vinMatched
     }
 }

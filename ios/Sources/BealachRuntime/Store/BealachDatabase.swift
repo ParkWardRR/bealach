@@ -78,13 +78,21 @@ public final class BealachDatabase: Sendable {
                 t.column("make", .text).notNull()
                 t.column("model", .text).notNull()
                 t.column("engineCode", .text)
+                t.column("vin", .text)
                 t.column("isArchived", .boolean).notNull().defaults(to: false)
+                t.column("category", .text).notNull().defaults(to: "personal")
+                t.column("identificationSource", .text).notNull().defaults(to: "manual")
+                t.column("identificationConfidence", .text).notNull().defaults(to: "confirmed")
             }
 
             try db.create(table: "vehicleAssignment") { t in
-                t.primaryKey("dongleID", .text).notNull()
+                t.primaryKey("id", .text).notNull()
+                t.column("dongleID", .text).notNull()
                 t.column("vehicleID", .text).notNull()
                     .references("vehicle", onDelete: .cascade)
+                t.column("assignedAt", .datetime).notNull()
+                t.column("endedAt", .datetime)
+                t.column("source", .text).notNull().defaults(to: "manual")
             }
 
             try db.create(table: "annotation") { t in

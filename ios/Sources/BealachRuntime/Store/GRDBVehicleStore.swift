@@ -1,6 +1,3 @@
-// Provenance: cairn-ios-companion-app @ a7d02d8, Sources/CairnRuntime/Store/GRDBVehicleStore.swift
-// Renamed Cairn* → Bealach* for Bealach.
-
 import BealachCore
 import Foundation
 import GRDB
@@ -33,11 +30,14 @@ public final class GRDBVehicleStore: VehicleStore, Sendable {
     public func saveVehicle(_ vehicle: Vehicle) async throws {
         try await db.dbPool.write { dbConn in
             try dbConn.execute(sql: """
-                INSERT OR REPLACE INTO vehicle (id, year, make, model, engineCode, isArchived)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT OR REPLACE INTO vehicle
+                (id, year, make, model, engineCode, vin, isArchived, category, identificationSource, identificationConfidence)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, arguments: [
                 vehicle.id, vehicle.year, vehicle.make, vehicle.model,
-                vehicle.engineCode, vehicle.isArchived,
+                vehicle.engineCode, vehicle.vin, vehicle.isArchived,
+                vehicle.category.rawValue, vehicle.identificationSource.rawValue,
+                vehicle.identificationConfidence.rawValue,
             ])
         }
     }
@@ -53,30 +53,46 @@ public final class GRDBVehicleStore: VehicleStore, Sendable {
 
     public func assignments() async throws -> [VehicleAssignment] {
         try await db.dbPool.read { dbConn in
-            try Row.fetchAll(dbConn, sql: "SELECT * FROM vehicleAssignment")
-                .map { VehicleAssignment(dongleID: $0["dongleID"], vehicleID: $0["vehicleID"]) }
+            try Row.fetchAll(dbConn, sql: "SELECT * FROM vehicleAssignment ORDER BY assignedAt DESC")
+                .map { Self.assignmentFromRow($0) }
+        }
+    }
+
+    public func activeAssignment(forDongle dongleID: String) async throws -> VehicleAssignment? {
+        try await db.dbPool.read { dbConn in
+            guard let row = try Row.fetchOne(dbConn, sql: """
+                SELECT * FROM vehicleAssignment WHERE dongleID = ? AND endedAt IS NULL
+                ORDER BY assignedAt DESC LIMIT 1
+            """, arguments: [dongleID]) else { return nil }
+            return Self.assignmentFromRow(row)
         }
     }
 
     public func assign(dongleID: String, to vehicleID: String) async throws {
         try await db.dbPool.write { dbConn in
             try dbConn.execute(sql: """
-                INSERT OR REPLACE INTO vehicleAssignment (dongleID, vehicleID) VALUES (?, ?)
-            """, arguments: [dongleID, vehicleID])
+                UPDATE vehicleAssignment SET endedAt = ? WHERE dongleID = ? AND endedAt IS NULL
+            """, arguments: [Date(), dongleID])
+            try dbConn.execute(sql: """
+                INSERT INTO vehicleAssignment (id, dongleID, vehicleID, assignedAt, source)
+                VALUES (?, ?, ?, ?, ?)
+            """, arguments: [UUID().uuidString, dongleID, vehicleID, Date(), "manual"])
         }
     }
 
     public func unassign(dongleID: String) async throws {
         try await db.dbPool.write { dbConn in
-            try dbConn.execute(sql: "DELETE FROM vehicleAssignment WHERE dongleID = ?",
-                               arguments: [dongleID])
+            try dbConn.execute(sql: """
+                UPDATE vehicleAssignment SET endedAt = ? WHERE dongleID = ? AND endedAt IS NULL
+            """, arguments: [Date(), dongleID])
         }
     }
 
     public nonisolated func vehicleID(forDongle dongleID: String) -> String? {
         try? db.dbPool.read { dbConn in
             try String.fetchOne(dbConn, sql: """
-                SELECT vehicleID FROM vehicleAssignment WHERE dongleID = ?
+                SELECT vehicleID FROM vehicleAssignment WHERE dongleID = ? AND endedAt IS NULL
+                ORDER BY assignedAt DESC LIMIT 1
             """, arguments: [dongleID])
         }
     }
@@ -100,7 +116,22 @@ public final class GRDBVehicleStore: VehicleStore, Sendable {
             make: row["make"],
             model: row["model"],
             engineCode: row["engineCode"],
-            isArchived: row["isArchived"]
+            vin: row["vin"],
+            isArchived: row["isArchived"],
+            category: (row["category"] as String?).flatMap(Vehicle.Category.init(rawValue:)) ?? .personal,
+            identificationSource: (row["identificationSource"] as String?).flatMap(Vehicle.IdentificationSource.init(rawValue:)) ?? .manual,
+            identificationConfidence: (row["identificationConfidence"] as String?).flatMap(Vehicle.Confidence.init(rawValue:)) ?? .confirmed
+        )
+    }
+
+    private static func assignmentFromRow(_ row: Row) -> VehicleAssignment {
+        VehicleAssignment(
+            id: row["id"],
+            dongleID: row["dongleID"],
+            vehicleID: row["vehicleID"],
+            assignedAt: row["assignedAt"],
+            endedAt: row["endedAt"],
+            source: (row["source"] as String?).flatMap(VehicleAssignment.AssignmentSource.init(rawValue:)) ?? .manual
         )
     }
 }

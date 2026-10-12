@@ -108,6 +108,24 @@ struct VehicleProfileView: View {
                 if let code = vehicle.engineCode {
                     Metric("Engine", code)
                 }
+                if let vin = vehicle.vin {
+                    Metric("VIN", vin)
+                }
+            }
+
+            HStack(spacing: 8) {
+                BadgePill(
+                    text: vehicle.category == .rental ? "RENTAL" : "PERSONAL",
+                    color: vehicle.category == .rental ? .orange : .blue
+                )
+                BadgePill(
+                    text: vehicle.identificationConfidence.rawValue.uppercased(),
+                    color: confidenceColor(vehicle.identificationConfidence)
+                )
+                BadgePill(
+                    text: vehicle.identificationSource.rawValue.uppercased(),
+                    color: .secondary
+                )
             }
 
             Button { showEditVehicle = true } label: {
@@ -120,11 +138,19 @@ struct VehicleProfileView: View {
         }
     }
 
+    private func confidenceColor(_ c: Vehicle.Confidence) -> Color {
+        switch c {
+        case .confirmed: .green
+        case .candidate: .yellow
+        case .ambiguous: .orange
+        }
+    }
+
     // MARK: - Dongle Assignment
 
     @ViewBuilder
     private var dongleCard: some View {
-        let assignedDongle = assignments.first(where: { $0.vehicleID == vehicle.id })
+        let assignedDongle = assignments.first(where: { $0.vehicleID == vehicle.id && $0.isActive })
 
         Card(title: "Dongle", symbol: "sensor.tag.radiowaves.forward") {
             if let assignment = assignedDongle {
@@ -132,7 +158,7 @@ struct VehicleProfileView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(assignment.dongleID)
                             .font(.subheadline.weight(.medium).monospaced())
-                        Text("Assigned")
+                        Text("Since \(assignment.assignedAt.formatted(.dateTime.month().day().year()))")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -429,6 +455,8 @@ struct EditVehicleSheet: View {
     @State private var make: String
     @State private var model: String
     @State private var engineCode: String
+    @State private var vin: String
+    @State private var category: Vehicle.Category
 
     init(vehicle: Vehicle, onSave: @escaping (Vehicle) -> Void) {
         self.original = vehicle
@@ -437,6 +465,8 @@ struct EditVehicleSheet: View {
         self._make = State(initialValue: vehicle.make)
         self._model = State(initialValue: vehicle.model)
         self._engineCode = State(initialValue: vehicle.engineCode ?? "")
+        self._vin = State(initialValue: vehicle.vin ?? "")
+        self._category = State(initialValue: vehicle.category)
     }
 
     var body: some View {
@@ -450,6 +480,17 @@ struct EditVehicleSheet: View {
                     TextField("Make", text: $make)
                     TextField("Model", text: $model)
                     TextField("Engine code (optional)", text: $engineCode)
+                    TextField("VIN (optional)", text: $vin)
+                        #if os(iOS)
+                        .textInputAutocapitalization(.characters)
+                        #endif
+                }
+                Section("Type") {
+                    Picker("Category", selection: $category) {
+                        Text("Personal").tag(Vehicle.Category.personal)
+                        Text("Rental").tag(Vehicle.Category.rental)
+                    }
+                    .pickerStyle(.segmented)
                 }
                 Section {
                     if let preview = previewName {
@@ -474,6 +515,12 @@ struct EditVehicleSheet: View {
                         updated.make = make
                         updated.model = model
                         updated.engineCode = engineCode.isEmpty ? nil : engineCode
+                        updated.vin = vin.isEmpty ? nil : vin.uppercased()
+                        updated.category = category
+                        if original.identificationSource == .obdVIN {
+                            updated.identificationSource = .userCorrected
+                        }
+                        updated.identificationConfidence = .confirmed
                         onSave(updated)
                         dismiss()
                     }
