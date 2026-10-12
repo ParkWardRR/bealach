@@ -1,5 +1,7 @@
 # Mirroring contract — secure resumable BLE transfer to the owner phone
 
+**Status: frozen** (2026-10-12). Changes require a new version.
+
 Adapted from Cairn **BLE bundle offload v1**
 ([`contracts/ble/v1/offload.md`](https://github.com/ParkWardRR/cairn-driving-log-selfhosted/blob/main/contracts/ble/v1/offload.md) @ `7ed8dac`).
 Framing and recovery are reused; the **server trust/receipt model is replaced by

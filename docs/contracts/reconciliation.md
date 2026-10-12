@@ -1,5 +1,7 @@
 # Reconciliation contract and the Storage & Mirror screen
 
+**Status: frozen** (2026-10-12). Changes require a new version.
+
 What it means for the SD card and the iOS mirror to “match”, and what the UI
 must show. Principle: **never show stale cached information as a current
 successful reconciliation**, and scope every verdict to a snapshot.

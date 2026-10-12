@@ -1,5 +1,7 @@
 # Recording contract
 
+**Status: frozen** (2026-10-12). Changes require a new version.
+
 Adapted from Cairn **bundle format v3**
 ([`contracts/format/v3/spec.md`](https://github.com/ParkWardRR/cairn-driving-log-selfhosted/blob/main/contracts/format/v3/spec.md) @ `7ed8dac`,
 normative there; here the deltas are marked). The SD card is the source of
@@ -78,6 +80,28 @@ Recorded streams (schemas in format v3 §4, carried over):
 **Raw measurements are preserved separately from derived trips and summaries.**
 Derived products (trip segmentation, routes, statistics) live in the iOS store
 and are recomputable from originals at any time.
+
+## 3.1 Trip and leg segmentation (Q8 decision)
+
+Raw recordings are continuous within a boot; trip and leg boundaries are
+**derived on the phone**, not embedded in the recording format.
+
+- **Leg boundary:** a stationary dwell longer than **5 minutes** (no meaningful
+  GNSS displacement and vehicle speed below threshold) ends the current leg and
+  starts a new one within the same trip. The dwell itself is not part of either
+  leg.
+- **Trip boundary:** a gap longer than **30 minutes** (engine off / no samples /
+  device in standby) ends the current trip. The next recording activity starts a
+  new trip.
+- **Per-boot is not per-trip.** A device reboot mid-outing (e.g. power brownout
+  during cranking) does not force a new trip; consecutive boots with gaps shorter
+  than 30 minutes are merged into the same trip by the phone.
+- **Manual correction:** the phone allows the user to split or merge trips after
+  the fact. These edits are local derived state, never written back to SD.
+
+These thresholds (5 min / 30 min) are initial values; they may be adjustable in
+Phase 4 settings. The firmware records continuous data; segmentation is
+interpretation.
 
 ## 4. Durability and loss
 

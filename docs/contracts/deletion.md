@@ -1,5 +1,7 @@
 # Deletion, retention and reset contract
 
+**Status: frozen** (2026-10-12). Changes require a new version.
+
 Default: **SD originals are retained.** Transfer never deletes. Deletion is an
 explicit, informed, separately-confirmed human action on each store.
 

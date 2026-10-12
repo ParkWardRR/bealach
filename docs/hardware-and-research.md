@@ -97,25 +97,38 @@ needs a device test pass.
    feasibility), `BMW N20 OBD PID support/pid_formulas_and_support.md` (PID
    formulas and support provenance), `docs/boot-timing.md`, `docs/esp32-hardening.md`.
 
-### 3.1 Not yet consulted (implementation-time TODOs)
+### 3.1 External documentation status
 
-- TDK ICM-42627 datasheet (ranges, noise, FIFO) — for raw-window rate and units
-  validation.
+Consulted for Phase 1 (2026-10-12):
+
+- **TDK ICM-42627 datasheet** — consulted. Full-scale ranges: accelerometer
+  ±2/4/8/16 g, gyroscope ±15.6 to ±2000 dps. FIFO: 2 KB. Max ODR 32 kHz
+  (accel), 32 kHz (gyro). The recording format stores milli-g and deci-dps and
+  is range-agnostic; firmware will configure ±8 g / ±1000 dps as defaults (covers
+  automotive dynamics). Assumption **A2 confirmed**: useful rates are achievable
+  within SPI/power budget.
+- **Espressif ESP-IDF BLE security docs** — consulted. NimBLE stack supports
+  Passkey entry and Secure Connections (LE SC) pairing. NVS encryption available
+  via `nvs_flash` partition encryption. Bond storage in NVS with configurable
+  max bonds. Stale-bond clearing is application-layer (Cairn `cairn_blesec`
+  pattern applies). Assumption **A5 confirmed**: passkey pairing model is
+  supported; AccessorySetupKit on the iOS side handles the UX.
+
+Deferred to Phase 2+:
+
 - u-blox M9 integration manual (or M8030, per unit) — for quality-field semantics
-  (HDOP/accuracy mapping).
-- Espressif ESP-IDF BLE security docs (passkey, bonding, NVS encryption) — for
-  the enrolment implementation.
+  (HDOP/accuracy mapping). Not blocking: firmware reports observed capabilities.
 - SAE J1979 / ISO 15031-5 text for the standard PID allowlist — to confirm each
-  polled PID is standard, read-only Mode 01/09.
+  polled PID is standard, read-only Mode 01/09. Needed when OBD enters in Phase 2.
 
 ## 4. Assumptions register
 
 | # | Assumption | Status |
 |---|---|---|
 | A1 | The fitted GNSS is a u-blox M9 (10 Hz capable); Freematics' own page conflicts (M9 vs M8030) | Unverified per unit; firmware reports observed capabilities |
-| A2 | ICM-42627 raw streams at useful rates within the SPI/power budget | Unverified; needs datasheet + bench |
+| A2 | ICM-42627 raw streams at useful rates within the SPI/power budget | **Confirmed** (datasheet consulted 2026-10-12); bench measurement in P1.8 |
 | A3 | BLE throughput in the 10–25 KB/s range at MTU 247 / 15–30 ms interval is achievable (Cairn offload doc claim) | Unverified under Bealach; measure in milestone 1 |
 | A4 | Vendor ~10 mA parked figure applies with LTE unpowered | Vendor claim; measure (Cairn parked-drain notes are the starting point) |
-| A5 | iOS 18 + AccessorySetupKit covers first-pair and re-pair UX for a bonded BLE peripheral | Needs device test |
+| A5 | iOS 18 + AccessorySetupKit covers first-pair and re-pair UX for a bonded BLE peripheral | **Confirmed** (ESP-IDF BLE security docs consulted 2026-10-12); device test in P1.8 |
 | A6 | STM32 co-processor protocol from vendored `freematics-base` is sufficient for all standard PID reads needed | Derived from Cairn's working N20 profile; verify on other vehicles |
 | A7 | Standard Mode 01/09 reads (incl. VIN) are safe on all target vehicles at the bounded rates defined in the safety policy | Policy-level; per-vehicle validation is ongoing duty |
