@@ -11,10 +11,24 @@ import (
 // vectorPath is the contract's own vector file, read from this repository.
 func vectorPath(t *testing.T) string {
 	t.Helper()
-	p := filepath.Join("..", "..", "contracts", "engine", "v1", "vectors", "expr.txt")
-	if _, err := os.Stat(p); err != nil {
-		t.Fatalf("the contract's vectors are missing at %s: %v", p, err)
+	// CAIRN_CONTRACTS wins (same convention as tools/enginegen); otherwise try
+	// both known layouts: the Cairn monorepo (tools/ beside contracts/) and
+	// this harvest (tools/ inside contracts/).
+	roots := []string{os.Getenv("CAIRN_CONTRACTS")}
+	if roots[0] == "" {
+		roots = []string{
+			filepath.Join("..", "..", "contracts"),
+			filepath.Join("..", ".."),
+		}
 	}
+	var p string
+	for _, root := range roots {
+		p = filepath.Join(root, "engine", "v1", "vectors", "expr.txt")
+		if _, err := os.Stat(p); err == nil {
+			return p
+		}
+	}
+	t.Fatalf("the contract's vectors are missing at %s: run scripts/fetch-contracts.sh, or set CAIRN_CONTRACTS to a checkout's contracts/ directory", p)
 	return p
 }
 

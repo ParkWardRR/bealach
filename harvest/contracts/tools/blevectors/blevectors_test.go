@@ -5,13 +5,30 @@ import (
 	"crypto/ed25519"
 	"encoding/hex"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
-const vectorsPath = "../../contracts/ble/v1/vectors/device-info/vectors.json"
+// contractPath locates a file in the contracts tree. CAIRN_CONTRACTS wins (the
+// same convention as tools/enginegen and the firmware Makefiles); otherwise
+// both known layouts are tried: the Cairn monorepo (tools/ beside contracts/)
+// and this harvest (tools/ inside contracts/).
+func contractPath(parts ...string) string {
+	if root := os.Getenv("CAIRN_CONTRACTS"); root != "" {
+		return filepath.Join(append([]string{root}, parts...)...)
+	}
+	monorepo := filepath.Join(append([]string{"..", "..", "contracts"}, parts...)...)
+	harvest := filepath.Join(append([]string{"..", ".."}, parts...)...)
+	for _, p := range []string{monorepo, harvest} {
+		if _, err := os.Stat(p); err == nil {
+			return p
+		}
+	}
+	return monorepo
+}
 
 func TestVectorsFileIsCurrent(t *testing.T) {
-	got, err := os.ReadFile(vectorsPath)
+	got, err := os.ReadFile(contractPath("ble", "v1", "vectors", "device-info", "vectors.json"))
 	if err != nil {
 		t.Fatalf("%v (generate it: go run ./cmd/ble-vectors)", err)
 	}
