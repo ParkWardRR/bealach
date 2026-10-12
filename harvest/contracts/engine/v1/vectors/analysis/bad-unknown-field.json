@@ -1,0 +1,15 @@
+{
+  "expect_error": "unknown field",
+  "note": "The reader decodes with unknown fields disallowed, so an extra key is an error and not an extension point (spec.md 1.5).",
+  "profile": {
+    "id": "bmw-n20",
+    "name": "X",
+    "status": "stub",
+    "sources": [
+      "s"
+    ],
+    "signals": [],
+    "thresholds": {},
+    "notes": "a profile is not a place to stash data"
+  }
+}

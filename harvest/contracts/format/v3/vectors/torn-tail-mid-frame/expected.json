@@ -1,0 +1,24 @@
+{
+  "name": "torn-tail-mid-frame",
+  "description": "Power cut 20 bytes into the final frame (inside its nonce).",
+  "asserts": "TORN_TAIL. The nine complete frames are retained and exactly 20 bytes are reported discarded. This is the expected outcome of a key-off during a write, not a defect.",
+  "scan": {
+    "stop_reason": "TORN_TAIL",
+    "frames_retained": 9,
+    "stop_offset": 1028,
+    "discarded_tail_bytes": 20,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "GNSS_SAMPLE": 9
+    },
+    "first_seq": 0,
+    "last_seq": 8
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "TORN_TAIL",
+    "frames_retained": 9,
+    "stop_offset": 1028,
+    "plaintext_sha256_hex": "04206c851a659cf0b9b5674f80e39dc3d2e393d372a76a61b1a092bbb5509df7"
+  }
+}

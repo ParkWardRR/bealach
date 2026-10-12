@@ -1,0 +1,13 @@
+{
+  "name": "receipt-truncated",
+  "description": "receipt-valid cut short by ten bytes, inside the signature.",
+  "asserts": "A receipt that ends mid-item is refused, with no read past the end of the buffer. A partial transfer of a receipt is a normal fault and must not be mistaken for an acknowledgement. parse_error names the reason; the expectation's other fields only say that nothing here acknowledges the upload.",
+  "receipt": {
+    "parse_error": "truncated",
+    "signature_valid": false,
+    "acknowledges_uploaded_root": false,
+    "uploaded_content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "receipt_content_root_hex": "",
+    "server_public_key_hex": "d07b7edd264490e2160519835f57d6840a520477e173a24a44a8523a56c998fd"
+  }
+}

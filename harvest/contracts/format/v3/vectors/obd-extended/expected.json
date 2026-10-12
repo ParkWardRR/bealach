@@ -1,0 +1,81 @@
+{
+  "name": "obd-extended",
+  "description": "Three OBD_EXTENDED records: full boost with pedal position, all sentinels, and MAP saturated at schema_version 1.",
+  "asserts": "Every field decodes to the expected value or is absent when sentinel. MAPSaturated is true only when MAP is 255 kPa. BoostPSI requires both MAP and baro; with either absent it is uncomputable, not assumed from sea level. pedal_pct is read only at schema_version 2: record 2 is version 1 and carries 55 in byte 23, which a conformant reader reports as absent because that byte is reserved there.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 3,
+    "stop_offset": 404,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "OBD_EXTENDED": 3
+    },
+    "first_seq": 0,
+    "last_seq": 2
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "EOF",
+    "frames_retained": 3,
+    "stop_offset": 404,
+    "plaintext_sha256_hex": "5db46ff650d9ae73bb2a627a9eda89832ffbb53f050def9c959258aca37fc83d"
+  },
+  "obd_ext": {
+    "records": [
+      {
+        "map_kpa": 230,
+        "maf_cgps": 15000,
+        "lambda_e4": 28836,
+        "abs_load_raw": 484,
+        "baro_kpa": 101,
+        "ambient_temp_c": 28,
+        "fuel_trim_short_pct": -5,
+        "fuel_trim_long_pct": 18,
+        "pids_requested": 6,
+        "pids_answered": 6,
+        "poll_cadence_ms": 200,
+        "map_saturated": false,
+        "boost_psi": 18.7098633,
+        "lambda": 2.8836,
+        "abs_load_pct": 189.80392156862746,
+        "schema_version": 2,
+        "pedal_pct": 97
+      },
+      {
+        "map_kpa": null,
+        "maf_cgps": null,
+        "lambda_e4": null,
+        "abs_load_raw": null,
+        "baro_kpa": null,
+        "ambient_temp_c": null,
+        "fuel_trim_short_pct": null,
+        "fuel_trim_long_pct": null,
+        "pids_requested": 0,
+        "pids_answered": 0,
+        "poll_cadence_ms": 1200,
+        "map_saturated": false,
+        "schema_version": 2,
+        "pedal_pct": null
+      },
+      {
+        "map_kpa": 255,
+        "maf_cgps": null,
+        "lambda_e4": 27852,
+        "abs_load_raw": null,
+        "baro_kpa": null,
+        "ambient_temp_c": null,
+        "fuel_trim_short_pct": null,
+        "fuel_trim_long_pct": null,
+        "pids_requested": 2,
+        "pids_answered": 2,
+        "poll_cadence_ms": 200,
+        "map_saturated": true,
+        "lambda": 2.7852,
+        "schema_version": 1,
+        "pedal_pct": null
+      }
+    ],
+    "note": "Sentinels: u16 0xFFFF, u8 0xFF, i8 0x80 (-128). A sentinel field is absent, not zero. Derived values use the standard's own formulas."
+  }
+}

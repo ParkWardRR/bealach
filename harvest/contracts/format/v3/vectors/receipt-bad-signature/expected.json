@@ -1,0 +1,12 @@
+{
+  "name": "receipt-bad-signature",
+  "description": "A receipt for the uploaded bundle whose signature has one flipped bit.",
+  "asserts": "The receipt names the right content root and parses, so only the signature check refuses it. It is not an acknowledgement and no byte may be pruned on its strength.",
+  "receipt": {
+    "signature_valid": false,
+    "acknowledges_uploaded_root": false,
+    "uploaded_content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "receipt_content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "server_public_key_hex": "d07b7edd264490e2160519835f57d6840a520477e173a24a44a8523a56c998fd"
+  }
+}

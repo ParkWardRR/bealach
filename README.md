@@ -1,7 +1,6 @@
 # Bealach
 
-**Pronounced roughly “BYAL-ukh”** — Scottish Gaelic for a mountain pass, a passage, a
-road. A sibling project to [Cairn](https://github.com/ParkWardRR/cairn-driving-log-selfhosted):
+A sibling project to [Cairn](https://github.com/ParkWardRR/cairn-driving-log-selfhosted):
 same landscape, different journey.
 
 Bealach is an **offline driving recorder**: firmware for the

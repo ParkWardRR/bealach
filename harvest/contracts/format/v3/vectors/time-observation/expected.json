@@ -1,0 +1,61 @@
+{
+  "name": "time-observation",
+  "description": "Four TIME_OBSERVATION records: phone, modem network, GNSS (adopted), and an unknown source.",
+  "asserts": "Each record decodes to its stated source, wall clock and accuracy. accuracy_ms is absent when the source stated none (0xFFFFFFFF), which is not the same as claiming zero uncertainty. implied_basis_ms is utc_ms minus the FRAME's monotonic_ms, not a payload field. An unknown source number is kept and rendered as unknown(N) rather than rejected. Exactly one record has adopted set, and it is not the earliest -- the device may adopt a later, more accurate source.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 4,
+    "stop_offset": 464,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "TIME_OBSERVATION": 4
+    },
+    "first_seq": 0,
+    "last_seq": 3
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "EOF",
+    "frames_retained": 4,
+    "stop_offset": 464,
+    "plaintext_sha256_hex": "49e46d33185d1f57858a033893d754d2e86ac2a36a6d143bfcb495a8efac72ee"
+  },
+  "time_obs": {
+    "records": [
+      {
+        "monotonic_ms": 2000,
+        "utc_ms": 1790000002000,
+        "accuracy_ms": 500,
+        "source": "phone",
+        "adopted": false,
+        "implied_basis_ms": 1790000000000
+      },
+      {
+        "monotonic_ms": 20000,
+        "utc_ms": 1790000020400,
+        "accuracy_ms": 1000,
+        "source": "modem_network",
+        "adopted": false,
+        "implied_basis_ms": 1790000000400
+      },
+      {
+        "monotonic_ms": 130000,
+        "utc_ms": 1790000130000,
+        "accuracy_ms": 100,
+        "source": "gnss",
+        "adopted": true,
+        "implied_basis_ms": 1790000000000
+      },
+      {
+        "monotonic_ms": 140000,
+        "utc_ms": 1790000140000,
+        "accuracy_ms": null,
+        "source": "unknown(9)",
+        "adopted": false,
+        "implied_basis_ms": 1790000000000
+      }
+    ],
+    "note": "All four imply the same basis to within their stated accuracy, which is the comparison the record exists to make possible. The phone had the time 128 s before GNSS did: a drive that never gets a fix is datable from these records even though the manifest basis would be zero."
+  }
+}

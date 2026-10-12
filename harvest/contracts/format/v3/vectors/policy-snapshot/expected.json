@@ -1,0 +1,22 @@
+{
+  "name": "policy-snapshot",
+  "description": "A POLICY_SNAPSHOT carrying the default capture policy.",
+  "asserts": "The deterministic CBOR encoding is reproducible byte-for-byte, so two bundles captured under identical policy have identical snapshots and can be grouped without trusting the version number. A version number identifies a policy but does not describe one.",
+  "policy": {
+    "policy_version": 1,
+    "gnss_period_ms": 1000,
+    "imu_window_ms": 1000,
+    "obd_period_ms": 2000,
+    "health_period_ms": 30000,
+    "start_score_threshold_e2": 150,
+    "stop_score_threshold_e2": 40,
+    "start_dwell_ms": 3000,
+    "stop_dwell_ms": 120000,
+    "motion_accel_rms_mg": 120,
+    "motion_speed_cmps": 280,
+    "preroll_window_ms": 45000,
+    "preroll_ring_samples": 128,
+    "segment_max_bytes": 1048576,
+    "adaptive_sampling": true
+  }
+}

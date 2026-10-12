@@ -1,0 +1,9 @@
+{
+  "name": "header-bad-magic",
+  "description": "A segment whose first four bytes are not the ASCII magic CRN3, header CRC recomputed.",
+  "asserts": "Not a Cairn v3 segment: refused before any other field is trusted. The CRC is valid, so only the magic check can reject it; an implementation that checks the CRC and then reads on has accepted arbitrary bytes that happen to carry a matching checksum.",
+  "header": {
+    "parse_error": "bad_magic",
+    "note": "bad segment magic"
+  }
+}

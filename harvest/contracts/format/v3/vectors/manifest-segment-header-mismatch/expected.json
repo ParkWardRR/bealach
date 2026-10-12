@@ -1,0 +1,16 @@
+{
+  "name": "manifest-segment-header-mismatch",
+  "description": "A correctly signed manifest whose capture segment header carries a different assignment_id.",
+  "asserts": "The manifest signature, content root and member digests are all valid; the segment is simply not the one the manifest describes. Verification of members against the manifest must fail on assignment_id. A valid signature binds the manifest to the device key, not the manifest to its segments: that is this check's job.",
+  "binding": {
+    "match": false,
+    "mismatched_field": "assignment_id"
+  },
+  "manifest": {
+    "valid": true,
+    "signature_valid": true,
+    "content_root_hex": "3596bbb5b9dfd8c6e85594f6d7d1f4b18919e93bbc3a8a90ec921902472822d4",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "2e25f0d1f1b27eab3929aa05564a3aee2bf6550044f1d570db080aabba500c05"
+  }
+}

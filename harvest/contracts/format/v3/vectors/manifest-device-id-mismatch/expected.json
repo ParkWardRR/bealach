@@ -1,0 +1,16 @@
+{
+  "name": "manifest-device-id-mismatch",
+  "description": "A capture segment whose header names a different device than the manifest.",
+  "asserts": "device_id in every segment header must equal the manifest's: data from another unit cannot be slipped under this device's signature. The manifest signature, content root and member digests are all valid: a valid signature binds the manifest to the device, not the manifest to its segments.",
+  "binding": {
+    "match": false,
+    "mismatched_field": "device_id"
+  },
+  "manifest": {
+    "valid": true,
+    "signature_valid": true,
+    "content_root_hex": "44b2134f2ced0b8bd4dce8dbf6aa43f0fd0034338b1f068580f1c48ab2aa9bec",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "e5d168c876dae9ceaecb9a1e226e425ba86cf5ed1a6498159ff92bb03e46d162"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "cairn.engine-analysis/v0",
+  "id": "bmw-b58",
+  "name": "BMW B58",
+  "status": "stub",
+  "codes": [
+    "B58"
+  ],
+  "sources": [
+    "identity only. Nothing documents B58 limits, so this profile claims nothing: no limit is invented from the N20"
+  ],
+  "signals": [
+    {
+      "key": "boost_psi",
+      "label": "Boost",
+      "unit": "psi",
+      "min": 0,
+      "max": 30,
+      "warn_low": null,
+      "warn_high": null
+    },
+    {
+      "key": "lambda",
+      "label": "Air-fuel ratio (lambda)",
+      "unit": "",
+      "min": 0.5,
+      "max": 2,
+      "warn_low": null,
+      "warn_high": null
+    }
+  ],
+  "thresholds": {}
+}

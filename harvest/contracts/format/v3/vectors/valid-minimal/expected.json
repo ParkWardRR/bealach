@@ -1,0 +1,33 @@
+{
+  "name": "valid-minimal",
+  "description": "One frame of each defined record type, cleanly sealed.",
+  "asserts": "Every record type is parsed and the scan reaches EOF with nothing discarded.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 10,
+    "stop_offset": 968,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "DEVICE_HEALTH": 1,
+      "GNSS_GAP": 1,
+      "GNSS_SAMPLE": 1,
+      "IMU_RAW_WINDOW": 1,
+      "IMU_SUMMARY": 1,
+      "OBD_EXTENDED": 1,
+      "OBD_SNAPSHOT": 1,
+      "POLICY_SNAPSHOT": 1,
+      "STATE_TRANSITION": 1,
+      "TRIP_EVENT": 1
+    },
+    "first_seq": 0,
+    "last_seq": 9
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "EOF",
+    "frames_retained": 10,
+    "stop_offset": 968,
+    "plaintext_sha256_hex": "66a0487b7f76d83e5a5e4141606dd014ae041f7b82b5f40b954d7cb8244831f7"
+  }
+}

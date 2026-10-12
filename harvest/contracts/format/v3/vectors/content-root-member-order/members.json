@@ -1,0 +1,17 @@
+[
+  {
+    "length": 4096,
+    "name": "seg-00000000.seg",
+    "sha256_hex": "8dacc3c93ec64b3033f1390f957322f3bce41113b683e7214ee2672d271cea6e"
+  },
+  {
+    "length": 2048,
+    "name": "seg-00000001.seg",
+    "sha256_hex": "a998317e4eeb8beb830519a85f6411369ad39742d350e7a001375b4d421c101d"
+  },
+  {
+    "length": 512,
+    "name": "journal.seg",
+    "sha256_hex": "81dd6b775afcccb6dbb8a25a58ea844271bbefaeea7cb1d91c1687d7450f850c"
+  }
+]

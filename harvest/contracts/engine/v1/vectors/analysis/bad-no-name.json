@@ -1,0 +1,13 @@
+{
+  "expect_error": "needs a name",
+  "profile": {
+    "id": "bmw-n20",
+    "name": "   ",
+    "status": "stub",
+    "sources": [
+      "s"
+    ],
+    "signals": [],
+    "thresholds": {}
+  }
+}

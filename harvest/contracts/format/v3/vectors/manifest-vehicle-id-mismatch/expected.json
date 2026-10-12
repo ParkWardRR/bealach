@@ -1,0 +1,16 @@
+{
+  "name": "manifest-vehicle-id-mismatch",
+  "description": "A capture segment bound to a different vehicle than the manifest.",
+  "asserts": "vehicle_id in every segment header must equal the manifest's, so a bundle cannot be attributed to one vehicle by its manifest and to another by its data. The manifest signature, content root and member digests are all valid: a valid signature binds the manifest to the device, not the manifest to its segments.",
+  "binding": {
+    "match": false,
+    "mismatched_field": "vehicle_id"
+  },
+  "manifest": {
+    "valid": true,
+    "signature_valid": true,
+    "content_root_hex": "7169d7b6bb62050a1d90e8091abbdb1d65727c774a142de8234d417d3174c7dc",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "8ad971aee3c06f7a7faba69ebb7e2276354516887fc65ea180af6d20f2ee8852"
+  }
+}

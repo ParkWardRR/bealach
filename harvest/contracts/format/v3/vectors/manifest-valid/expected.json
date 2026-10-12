@@ -1,0 +1,12 @@
+{
+  "name": "manifest-valid",
+  "description": "A correctly signed, canonically encoded manifest.",
+  "asserts": "The deterministic CBOR encoding is reproducible byte-for-byte across implementations, and the signature covers exactly the bytes of manifest.cbor with nothing to strip or re-encode. An implementation that produces different bytes for this logical manifest is non-conformant.",
+  "manifest": {
+    "valid": true,
+    "signature_valid": true,
+    "content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "1cc8a1575e74d2789a7f68a539d200451dbe1952087547d1fd5edb162de515a9"
+  }
+}

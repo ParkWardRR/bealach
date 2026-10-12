@@ -1,0 +1,10 @@
+{
+  "name": "content-root-member-order",
+  "description": "Three bundle members supplied in a non-canonical order.",
+  "asserts": "Members are sorted by raw name bytes ascending before hashing, so a permuted input yields the same content root. Identity depends on content, not on the order a directory happened to be walked in. Changing any member's name or digest must change the root.",
+  "merkle": {
+    "root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "leaves_hex": null,
+    "note": "leaf_input = u16le(len(name)) || name || sha256(contents)."
+  }
+}

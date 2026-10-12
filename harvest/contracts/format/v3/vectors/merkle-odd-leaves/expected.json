@@ -1,0 +1,14 @@
+{
+  "name": "merkle-odd-leaves",
+  "description": "Three leaves, so one level has an odd node count.",
+  "asserts": "The final node is promoted unchanged: root = internal(internal(a,b), c). It must not be duplicated — duplication would make the leaf lists [a,b,c] and [a,b,c,c] share a root, which is a second-preimage weakness.",
+  "merkle": {
+    "root_hex": "36642e73c2540ab121e3a6bf9545b0a24982cd830eb13d3cd19de3ce6c021ec1",
+    "leaves_hex": [
+      "022a6979e6dab7aa5ae4c3e5e45f7e977112a7e63593820dbec1ec738a24f93c",
+      "57eb35615d47f34ec714cacdf5fd74608a5e8e102724e80b24b287c0c27b6a31",
+      "597fcb31282d34654c200d3418fca5705c648ebf326ec73d8ddef11841f876d8"
+    ],
+    "note": "leaf(d) = SHA256(0x00||d); internal(l,r) = SHA256(0x01||l||r)."
+  }
+}

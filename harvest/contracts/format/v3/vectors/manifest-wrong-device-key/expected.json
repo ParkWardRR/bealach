@@ -1,0 +1,12 @@
+{
+  "name": "manifest-wrong-device-key",
+  "description": "A well-formed manifest naming the device's identity, genuinely signed by a different Ed25519 key.",
+  "asserts": "The signature is mathematically valid, but not under the device key the verifier has enrolled. Anyone can sign a manifest; what makes it the device's is the key. Verification is against the enrolled key, never against a key carried by the artifact.",
+  "manifest": {
+    "valid": true,
+    "signature_valid": false,
+    "content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "1cc8a1575e74d2789a7f68a539d200451dbe1952087547d1fd5edb162de515a9"
+  }
+}

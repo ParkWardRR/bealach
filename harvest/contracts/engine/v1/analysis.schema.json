@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:cairn:engine-analysis:v0",
+  "title": "Cairn engine profile, analysis half (JSON)",
+  "$comment": "The analysis half of contracts/engine/v1: what a reading MEANS once it is in the store. Identified in-document as `cairn.engine-analysis/v0`; the v0 says no profile here can be mistaken for a released one, and it becomes v1 when the contract leaves draft. The two halves share an engine id and nothing else, which is the whole point of writing them as one contract rather than two files in two repositories. What a schema cannot state is in spec.md §4 and is enforced by the reader: min below max, warn_low below warn_high, check limits no tighter than warn limits, no repeated signal key, and a stub claiming nothing.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "status", "signals", "thresholds"],
+  "properties": {
+    "schema": {
+      "const": "cairn.engine-analysis/v0",
+      "$comment": "Optional for now: the shipped profiles predate the identifier and the reader accepts its absence. Required when this leaves draft."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 31,
+      "$comment": "The same engine id as the acquisition half, so bmw-n20 means one engine on both sides."
+    },
+    "name": { "type": "string", "minLength": 1 },
+    "status": {
+      "enum": ["stub", "derived", "verified"],
+      "$comment": "The same three words, with the same meanings, as the acquisition half. A stub names the engine and claims no limit."
+    },
+    "codes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 },
+      "$comment": "Free-text engine codes this profile answers for, matched trimmed and upper-cased. Two profiles may not claim the same code."
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "$comment": "Where each limit came from. A profile that states a limit without a source is not reviewable, so this is how `derived` and `verified` are told apart from opinion."
+    },
+    "signals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/signal" },
+      "$comment": "May be empty: an engine nobody has characterised still has an identity."
+    },
+    "thresholds": {
+      "type": "object",
+      "additionalProperties": { "type": "number" },
+      "$comment": "Named scalars a reader asks for by name with its own default, so adding one never breaks an older reader. A stub states none."
+    }
+  },
+  "$defs": {
+    "signal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "label", "unit", "min", "max", "warn_low", "warn_high"],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,39}$",
+          "$comment": "The metric key. Modules name these in contracts/module/v1 `metrics[].key`, which is how a module's readings find their limits."
+        },
+        "label": { "type": "string", "minLength": 1 },
+        "unit": { "type": "string", "$comment": "Empty for a dimensionless signal such as lambda." },
+        "min": { "type": "number", "$comment": "The bottom of the plottable axis, not a limit." },
+        "max": { "type": "number" },
+        "warn_low": {
+          "type": ["number", "null"],
+          "$comment": "null means NO LIMIT IS KNOWN on that side, never `no limit exists`. A reading is then never flagged for it. This distinction is the contract's most important rule; see spec.md §4."
+        },
+        "warn_high": { "type": ["number", "null"] },
+        "check_low": { "type": ["number", "null"], "$comment": "The further limit past which a reading is worth having looked at rather than watched. Optional." },
+        "check_high": { "type": ["number", "null"] }
+      }
+    }
+  }
+}

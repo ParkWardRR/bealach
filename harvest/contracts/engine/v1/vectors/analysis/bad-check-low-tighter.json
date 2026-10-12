@@ -1,0 +1,25 @@
+{
+  "expect_error": "is above warn_low",
+  "note": "As bad-check-high-tighter, on the low side.",
+  "profile": {
+    "id": "bmw-n20",
+    "name": "X",
+    "status": "derived",
+    "sources": [
+      "s"
+    ],
+    "signals": [
+      {
+        "key": "boost_psi",
+        "label": "Boost",
+        "unit": "psi",
+        "min": -25,
+        "max": 25,
+        "warn_low": -10,
+        "warn_high": 10,
+        "check_low": -5
+      }
+    ],
+    "thresholds": {}
+  }
+}

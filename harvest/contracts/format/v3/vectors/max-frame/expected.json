@@ -1,0 +1,24 @@
+{
+  "name": "max-frame",
+  "description": "One frame at the maximum length of 4096 bytes.",
+  "asserts": "A frame_len of 4096 is accepted; 4097 must be rejected as a torn tail rather than trusted, and a frame_len below 68 must also be rejected so a scan cannot make zero progress.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 1,
+    "stop_offset": 4224,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "IMU_RAW_WINDOW": 1
+    },
+    "first_seq": 0,
+    "last_seq": 0
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "EOF",
+    "frames_retained": 1,
+    "stop_offset": 4224,
+    "plaintext_sha256_hex": "b4782ef2128a2814a5fc0a67d3664f25048ae70ada572eab6cfe6f915fcd4f32"
+  }
+}

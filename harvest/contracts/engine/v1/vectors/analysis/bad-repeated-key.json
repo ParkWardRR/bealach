@@ -1,0 +1,32 @@
+{
+  "expect_error": "is empty or repeated",
+  "profile": {
+    "id": "bmw-n20",
+    "name": "X",
+    "status": "derived",
+    "sources": [
+      "s"
+    ],
+    "signals": [
+      {
+        "key": "boost_psi",
+        "label": "Boost",
+        "unit": "psi",
+        "min": 0,
+        "max": 30,
+        "warn_low": null,
+        "warn_high": 22
+      },
+      {
+        "key": "boost_psi",
+        "label": "Boost",
+        "unit": "psi",
+        "min": 0,
+        "max": 30,
+        "warn_low": null,
+        "warn_high": 24
+      }
+    ],
+    "thresholds": {}
+  }
+}

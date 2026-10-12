@@ -1,0 +1,16 @@
+{
+  "name": "manifest-journal-index-mismatch",
+  "description": "journal.seg whose header declares segment_index 0 instead of the reserved 0xFFFFFFFF.",
+  "asserts": "The journal's segment_index is the reserved 0xFFFFFFFF. A journal that claims a capture index is a capture segment in disguise. The manifest signature, content root and member digests are all valid: a valid signature binds the manifest to the device, not the manifest to its segments.",
+  "binding": {
+    "match": false,
+    "mismatched_field": "segment_index"
+  },
+  "manifest": {
+    "valid": true,
+    "signature_valid": true,
+    "content_root_hex": "a488f5bc27bd5e902d02f7659fa3e81c89ce241b312e23f82fe5ca2d04cc2313",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "59d61342f4b79086fc6d88d42513414f2634a057c9c300cc76ef8cdbdffedbb1"
+  }
+}

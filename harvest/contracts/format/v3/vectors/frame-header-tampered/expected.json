@@ -1,0 +1,24 @@
+{
+  "name": "frame-header-tampered",
+  "description": "The monotonic_ms field of the last of four frames edited, with the frame CRC recomputed.",
+  "asserts": "A structural scan reaches EOF with four frames: the CRC is valid and the chain is intact. A keyed scan stops at that frame with AUTH_FAILED and retains the three before it, because the 24-byte frame header is authenticated as AAD. A timestamp cannot be rewritten by anyone without the key.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 4,
+    "stop_offset": 528,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "GNSS_SAMPLE": 4
+    },
+    "first_seq": 0,
+    "last_seq": 3
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "AUTH_FAILED",
+    "frames_retained": 3,
+    "stop_offset": 428,
+    "plaintext_sha256_hex": "177a6c983755b275695cfeb41aa2ec858d91d91273c6892687276edc12834ccd"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "frame-moved-between-segments",
+  "description": "Three valid frames from a segment with device_counter 42, placed under a header with device_counter 43 (everything else identical, header CRC valid).",
+  "asserts": "Structurally clean (EOF, three frames): the CRCs and the chain are untouched. Keyed: AUTH_FAILED at frame 0. Both headers derive the same segment key, so the rejection comes from the AAD alone: every frame authenticates the segment header, so frames cannot be replayed into another bundle, vehicle, device or counter.",
+  "scan": {
+    "stop_reason": "EOF",
+    "frames_retained": 3,
+    "stop_offset": 428,
+    "discarded_tail_bytes": 0,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "GNSS_SAMPLE": 3
+    },
+    "first_seq": 0,
+    "last_seq": 2
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "AUTH_FAILED",
+    "frames_retained": 0,
+    "stop_offset": 128,
+    "plaintext_sha256_hex": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

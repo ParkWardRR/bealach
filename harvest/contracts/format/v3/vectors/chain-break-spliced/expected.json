@@ -1,0 +1,24 @@
+{
+  "name": "chain-break-spliced",
+  "description": "Frame index 2 excised from the middle of the segment.",
+  "asserts": "CHAIN_BREAK. Every remaining frame is individually CRC-valid, so only prev_crc32 can detect the splice. This is what the chain field exists for.",
+  "scan": {
+    "stop_reason": "CHAIN_BREAK",
+    "frames_retained": 2,
+    "stop_offset": 328,
+    "discarded_tail_bytes": 300,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "GNSS_SAMPLE": 2
+    },
+    "first_seq": 0,
+    "last_seq": 1
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "CHAIN_BREAK",
+    "frames_retained": 2,
+    "stop_offset": 328,
+    "plaintext_sha256_hex": "e4e55ad87dd8894eca544917eec4d12f7dfc61b294e747340637f64780f8e811"
+  }
+}

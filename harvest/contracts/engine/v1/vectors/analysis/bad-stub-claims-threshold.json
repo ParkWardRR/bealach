@@ -1,0 +1,25 @@
+{
+  "expect_error": "a stub claims no thresholds",
+  "profile": {
+    "id": "bmw-b58",
+    "name": "BMW B58",
+    "status": "stub",
+    "sources": [
+      "s"
+    ],
+    "signals": [
+      {
+        "key": "boost_psi",
+        "label": "Boost",
+        "unit": "psi",
+        "min": 0,
+        "max": 30,
+        "warn_low": null,
+        "warn_high": null
+      }
+    ],
+    "thresholds": {
+      "ltft_drift_watch_pct": 3
+    }
+  }
+}

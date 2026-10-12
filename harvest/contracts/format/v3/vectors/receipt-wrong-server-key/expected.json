@@ -1,0 +1,12 @@
+{
+  "name": "receipt-wrong-server-key",
+  "description": "A receipt for the uploaded bundle, with the right content root, genuinely signed by a key that is not the pinned server key.",
+  "asserts": "The signature is valid under the signer's own key, and the root matches. Verification is against the key the device pinned, never one the receipt carries: a forged receipt for a bundle the server never stored is exactly how deletion is induced. Not an acknowledgement.",
+  "receipt": {
+    "signature_valid": false,
+    "acknowledges_uploaded_root": false,
+    "uploaded_content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "receipt_content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "server_public_key_hex": "d07b7edd264490e2160519835f57d6840a520477e173a24a44a8523a56c998fd"
+  }
+}

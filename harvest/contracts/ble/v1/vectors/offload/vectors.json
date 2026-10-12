@@ -1,0 +1,550 @@
+{
+  "version": 1,
+  "spec": "contracts/ble/v1/offload.md",
+  "att_mtu": 247,
+  "notes": [
+    "All frames are hex. Control writes go to OFFLOAD_CONTROL; the dongle's indications come back on it. Data notifications come on OFFLOAD_DATA; receipt frames are written to it.",
+    "Every scenario starts a fresh dongle with the bundle above on its card and the MTU already negotiated to att_mtu (an `mtu` event is shown where a scenario changes it).",
+    "Events are in the order the dongle produced them. A phone should produce exactly the control_write and data_write bytes shown and parse every indication and notification.",
+    "The dongle's receipt key is receipt_public_key_hex unless a scenario says no_pinned_key.",
+    "These were produced by the firmware's own protocol module, not by hand. go test ./internal/offloadclient -run Vectors fails if they drift."
+  ],
+  "bundle": {
+    "bundle_id": "426b17997550788e79a0db2193101846",
+    "stream_bytes": 13380,
+    "manifest_len": 580,
+    "chunk_count": 4,
+    "first_member_length": 480,
+    "stream_sha256": "6063a89a940c868198dfe8c5adbf17e9267e24e8e74a79ebdf841229da7378e6",
+    "stream_first_64_bytes_hex": "43524e3303008000101112131415161718191a1b1c1d1e1fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf303132333435363738393a3b3c3d3e3f5051525354555657",
+    "receipt_public_key_hex": "9efae97c414d1725bb06b7f0ca46fe7178d3f68d429751f62c1215a5c45e7ac5",
+    "genuine_receipt_hex": "ab01020250010203000000000000000000000000000350101112131415161718191a1b1c1d1e1f0450426b17997550788e79a0db219310184605582085ea2635c5e7617a2a7860112c33744a8c313761497248c7fa11b17b9c1dd26a061b00000199c82cc00007486c0cd8ae8286a984080109800a67656432353531390b5840491bfbe86a9a011847d81d9b5fadc39f1097c1a62dfbcd1dbbc8b4dbafdd0368c2d27de85f74a5be7428273b08938e7f93739f5ecc7e89b4b2ece7e9230a010b",
+    "wrong_key_receipt_hex": "ab01020250010203000000000000000000000000000350101112131415161718191a1b1c1d1e1f0450426b17997550788e79a0db219310184605582085ea2635c5e7617a2a7860112c33744a8c313761497248c7fa11b17b9c1dd26a061b00000199c82cc000074841da677727cf2dc9080109800a67656432353531390b58403c984d616fdd4ca47b3edc8309c3cd1bb766645b01d3cb0470beb55524e94646848e9229406656e6a0c1e0d2acd6eb22a7fa65d035017ad8a1ffb1ef8feb0e08"
+  },
+  "scenarios": [
+    {
+      "name": "list",
+      "doc": "LIST page 0: total 1, one 29-byte entry.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "01010000"
+        },
+        {
+          "t": "indication",
+          "hex": "8101000100000001426b17997550788e79a0db219310184644340000000000004402040000"
+        }
+      ]
+    },
+    {
+      "name": "get_manifest",
+      "doc": "GET_MANIFEST: response, then manifest.cbor||manifest.sig as seq-numbered notifications, then the 0x86 done indication (bytes_sent, CRC-32).",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "0202426b17997550788e79a0db2193101846"
+        },
+        {
+          "t": "indication",
+          "hex": "82020084020000"
+        },
+        {
+          "t": "notification",
+          "hex": "0000b81b01030250426b17997550788e79a0db21931018460350101112131415161718191a1b1c1d1e1f04483b5879efe97348470550a0a1a2a3a4a5a6a7a8a9aaabacadaeaf0671636169726e2d76332e302e302d746573740701081a000f4240091a01312d000a1b000001a0c4506c000b18fa0c000d187e0ea3011878040707040f83836b6a6f75726e616c2e7365671901e058201a4682d13d096302be6bd157c43142f1d2596f36a91efae37d0609ab1d15770c83707365672d30303030303030302e736567192f6058200a0b280a08f55437303716501b261678c6ce61ceee4bfc114eb0b955d8f8877c83707365672d30"
+        },
+        {
+          "t": "notification",
+          "hex": "0100303030303030312e7365671903045820c5052f5851ce47e06714ad6281d28fe56c96e3cf16f524c12197d0955def62d0108483001910005820799f19a4ec807f31d878c4e34f9de527e8b14de0c864eb157a17c6381033b4dd83011910005820b33e2a0a844abef279cf8e8fd3527ce28ef3d8aef163802a771f6678c93dc84783021910005820b934cc49d1fb936b77ab9140424555a101423e4a73eb26de992f82cd8be421b583031904445820b180483257360213f94ed5ed57a2625c1a1152f0896c2709621598d04e7b22b611582085ea2635c5e7617a2a7860112c33744a8c313761497248c7fa11b17b9c1dd26a12"
+        },
+        {
+          "t": "notification",
+          "hex": "0200f6130114001500166765643235353139181850303132333435363738393a3b3c3d3e3f181950505152535455565758595a5b5c5d5e5f181a01181b01181c7820786368616368613230706f6c79313330352b686b64662d7368613235362f763103002e99aeaa13c878c71a7d0019458b7356126dc461372cb7f0fd27416775ef259afb331eef4413fc1a56b3a10277c5137d8d471c372f1160ecaa8b07757508"
+        },
+        {
+          "t": "indication",
+          "hex": "86020084020000dc18710c"
+        }
+      ]
+    },
+    {
+      "name": "read_across_member_boundary",
+      "doc": "READ 100 bytes straddling the end of the first member: the bundle byte stream is the members concatenated.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "0303426b17997550788e79a0db2193101846ae0100000000000064000000"
+        },
+        {
+          "t": "indication",
+          "hex": "83030064000000"
+        },
+        {
+          "t": "notification",
+          "hex": "0000cfee6f700d7c9d71b83d016ee49c438fd5b7ee9ee737dc8d89ec07bb9281209fc3e6c446ba368149e9cddf5e9df3c4bca99743524e3303008000101112131415161718191a1b1c1d1e1fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf30313233343536373839"
+        },
+        {
+          "t": "indication",
+          "hex": "86030064000000af501c0d"
+        }
+      ]
+    },
+    {
+      "name": "read_first_bytes",
+      "doc": "READ the first 40 bytes: one notification, seq 0.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "0304426b17997550788e79a0db2193101846000000000000000028000000"
+        },
+        {
+          "t": "indication",
+          "hex": "83040028000000"
+        },
+        {
+          "t": "notification",
+          "hex": "000043524e3303008000101112131415161718191a1b1c1d1e1fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf"
+        },
+        {
+          "t": "indication",
+          "hex": "86040028000000a48f0215"
+        }
+      ]
+    },
+    {
+      "name": "read_bad_arguments",
+      "doc": "READ refused with BAD_ARGUMENT: offset at the end, zero length, over the 64 KiB cap, a range past the end, and an offset that would wrap.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "0305426b17997550788e79a0db2193101846443400000000000001000000"
+        },
+        {
+          "t": "indication",
+          "hex": "830503"
+        },
+        {
+          "t": "control_write",
+          "hex": "0306426b17997550788e79a0db2193101846000000000000000000000000"
+        },
+        {
+          "t": "indication",
+          "hex": "830603"
+        },
+        {
+          "t": "control_write",
+          "hex": "0307426b17997550788e79a0db2193101846000000000000000001000100"
+        },
+        {
+          "t": "indication",
+          "hex": "830703"
+        },
+        {
+          "t": "control_write",
+          "hex": "0308426b17997550788e79a0db2193101846433400000000000002000000"
+        },
+        {
+          "t": "indication",
+          "hex": "830803"
+        },
+        {
+          "t": "control_write",
+          "hex": "0309426b17997550788e79a0db2193101846faffffffffffffff64000000"
+        },
+        {
+          "t": "indication",
+          "hex": "830903"
+        }
+      ]
+    },
+    {
+      "name": "unknown_bundle",
+      "doc": "Every operation on a bundle id the dongle does not hold answers UNKNOWN_BUNDLE.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "020a426b17997550788e79a0db2193101813"
+        },
+        {
+          "t": "indication",
+          "hex": "820a02"
+        },
+        {
+          "t": "control_write",
+          "hex": "030b426b17997550788e79a0db219310181300000000000000000a000000"
+        },
+        {
+          "t": "indication",
+          "hex": "830b02"
+        },
+        {
+          "t": "control_write",
+          "hex": "040c426b17997550788e79a0db21931018136400"
+        },
+        {
+          "t": "indication",
+          "hex": "840c02"
+        }
+      ]
+    },
+    {
+      "name": "busy_then_abort",
+      "doc": "A request while a READ is in progress is answered BUSY; ABORT is always honoured and frees the dongle. The first notifications of the READ are shown, then it is aborted.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "030d426b17997550788e79a0db21931018460000000000000000221a0000"
+        },
+        {
+          "t": "control_write",
+          "hex": "010e0000"
+        },
+        {
+          "t": "control_write",
+          "hex": "050f"
+        },
+        {
+          "t": "indication",
+          "hex": "830d00221a0000"
+        },
+        {
+          "t": "notification",
+          "hex": "000043524e3303008000101112131415161718191a1b1c1d1e1fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf303132333435363738393a3b3c3d3e3f505152535455565758595a5b5c5d5e5fffffffff0000000040420f0000000000010000000100000000000000000000000000000000000000000000000000000000000000ae0d08ef5800070100000000000000000000000000000000000000002dffc7ef7f459efdffab309e98af0b40b2727a5497ed09822d6132946ae87aedc71bd657b3cc65e445fd5cb4adad92e34638d3be70a72bfee6dfd867cc96277f580007010000000001000000f4010000cc96277f000000008db3"
+        },
+        {
+          "t": "notification",
+          "hex": "0100143233d15def7c2fca3d99502fd81c765f9198b6773e9751264830ea3433d74abc0df21666969bf158edf88b5286e8af1a97fb73325a0d9ac562a4557776580007010000000002000000e8030000a455777600000000e9e9f8c94394fbe391a098acb10a8b221d71c1c7a9d8e10e4db741c681930935e9dbb84e6e34ef51bccfd2904af4805100269e60ac2c361ce76c68401ee0fd34580007010000000003000000dc0500001ee0fd3400000000bcb90ae2faf1d0faa1aba2754ae2cfee6f700d7c9d71b83d016ee49c438fd5b7ee9ee737dc8d89ec07bb9281209fc3e6c446ba368149e9cddf5e9df3c4bca99743524e33"
+        },
+        {
+          "t": "notification",
+          "hex": "020003008000101112131415161718191a1b1c1d1e1fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf303132333435363738393a3b3c3d3e3f505152535455565758595a5b5c5d5e5f000000000000000040420f0000000000010000000100000000000000000000000000000000000000000000000000000000000000e1fddcdc6400010100000000000000000000000000000000000000007eeb7f6637353615555a77c45609aec27f44e5aa2ca5fe0db31fbd614c07d3838f41433f2d27f42c7dcc3cc9ce91171fa82b4afa4eb872c2479c6b057252b081551a82ee91535f4a7ff0b120640001010000000001000000e80300007ff0"
+        },
+        {
+          "t": "notification",
+          "hex": "0300b1200000000047f9b9853ea652ee600f42db2cfb6e37a3190c032e2480320fd37c1ba23616bb47a2204f9cce87cef8d8132950052b919e5f9bae1d84e7be70538b92b3ea0ceaa45244379fe66ef2783f852a640001010000000002000000d0070000783f852a0000000058efaf448c12c6b495b0c56db9983d886f27367436e6c65b7110ee9cb33ceed9ade24dafa930b195c688c127dc75c2940982132bd906e2f05f4e2371e074b25d3654cac37aa80b276efdb032640001010000000003000000b80b00006efdb032000000002dc4011bf0eede77ff9c08e3101cf79cc27093d9af3682f8466e53c659af4ecf1f118dca"
+        },
+        {
+          "t": "notification",
+          "hex": "04004bfc7973effda66537e6320524b111b3ef2ce7f7fe50407eb023aaf206a1ca343ea7f1df7ddf9d19640001010000000004000000a00f00007ddf9d19000000007296d118575b849e64e8c543d212b952a0ccb6e6fbe2e9b8648023eaa096b248d7485c300368ceb18178ad47fd7925d8e7f932c458f8e4c26c804aa16f851ff2b0152546aa41cde2e229440164000101000000000500000088130000e2294401000000005de2bcbc0f6f1d418ac3ea99195ae6cbbdbc1e23639c9981c50f61e13458d0c8f4caece58ccb0dd93f553b76b71298dfe2a8ab7567ea6351010cbc45417bc9501bbb27d85b0a547f70f38f2c6400"
+        },
+        {
+          "t": "notification",
+          "hex": "0500010100000000060000007017000070f38f2c00000000b7308eca0afe48bdce981846120148ba40dd571d7625a9c3a7a555ea15bf281ceaff8582e184f77f20d1c4e733d1544f22574e508d4bf8118e28162ee2c5aa996e96fc83821ead61a0574f94640001010000000007000000581b0000a0574f94000000007dda012004b7e7aa0f77ff4c3e6862155d2571f9e002e4b844327c8f7379edfd0f2d825b5c4295f3c2a8fc77bc9f314cde11a8ca417d54bb229666b603c7464be44a2a25cad19ef8019d40be640001010000000008000000401f0000019d40be00000000679cfe168a0296d3cd02d0d0fedf8c60704804bb"
+        },
+        {
+          "t": "notification",
+          "hex": "06006091ea729667a24994948270385766e6ebc0a4e1bb78a4ae17e5ac7616538e396204bc76d970b3bc064dfb4014b7ec3e1b2d6a8f14df92f36400010100000000090000002823000014df92f3000000004e1d41d8898ce14c188f55127c58475cfbece7de3b8ed331d0ee31ef647ed334ed3481b95e397c4e835f6b211074c82ab2cc8ddf8e77a12a4110047280db0aa8ab9c7df978cf207f68093ee464000101000000000a0000001027000068093ee4000000001fe4ad6fe9adbd24f83ac3cb00e912c642d10215e96f53cb78fb8a3031ef816471a57b13d0b106cb341c9ff2e2b91b8c36822fdf8f5be3e4abbfa4d1a1d0"
+        },
+        {
+          "t": "notification",
+          "hex": "07009f5e4b0d68575c3075a17b14619764000101000000000b000000f82a00007b14619700000000d61fd9cb0af9649cc527c5cc9ce5b5c96a7283683fc5a44da488506c792038a95dc1c43657e72f15ac9907b8d51d84df8c64c5a640d4e250bad2c46d8ef3fc1849e1eeeafc4974edeed6fd4464000101000000000c000000e02e0000eed6fd440000000057a54be3dd5cc17e210679252f3b89dd9736301c2e34c3752e53615c9630cf0738ba96ffa1d4e6df2050db986d093f85deaaa3500e6b63a528ffe8263823b08b2c7126db943e4c4b64cb418564000101000000000d000000c832000064cb4185000000002233ce65"
+        },
+        {
+          "t": "indication",
+          "hex": "810e01"
+        },
+        {
+          "t": "notification",
+          "hex": "080061253679519d35ce0719316740189ba7c3f67bc6fc05d304482a89418290e109bc9b1e8618bb67a25bf611bdfdfddc593f7a4ae80985e6cfe53993e1fe669f2b0147a11ad2d008e864000101000000000e000000b0360000d2d008e800000000bf6146582f079e3502de33f522ff015819defcda5335d4c2bd0b3033b6ff9c75d293c56726090d1e94a57da05796ba0ccb1d98234d9ea0d8762831b6dd3cbdbc60e0490a0cbb6210a826cb2264000101000000000f000000983a0000a826cb2200000000d5640ebced6d6e45533f1688e6dab7602b43d1ae0c9a432fb7301f9a47b62c79115c54239597780f0edd68efb439"
+        },
+        {
+          "t": "notification",
+          "hex": "0900f0f7b517960d28918fb9beff85f5b0ef669a697d3f72dbe4b3a63784b2c0640001010000000010000000803e00003784b2c000000000f3872c3bdbd115ef0f50650682b4514d6e4af47bcc017a27c29570897fb789f6be84cec77ebdc678cd6f48a0b6fc90542a53cb5853e62fae8c2736e0b4114ed7962798b231c7291ff23818f264000101000000001100000068420000f23818f200000000567ddd80864cdf4fef12ff200530b4e4a4cdce9cb1fcbd7841199359a121b6f26eb9ff8357555417294873a9100c455efd175265474e3172bd3bef78b2cfa9063e79c5e6302ba88b9de81071640001010000000012000000"
+        },
+        {
+          "t": "notification",
+          "hex": "0a00504600009de8107100000000307f08cbce239b3d0c8f665b0ea6401b3ead561bd126957630ab5bdda7b6007b62d8df0ee1656bdfd622af0230d854060736fba97eb06645c9b6619cf68ff6e23bcd48364bbf9af895b1b090640001010000000013000000384a000095b1b09000000000d89ff8ba58596097a6b430aee69499efb4cb4a1ec99a75fd98855dfab040402e3b0771240c3aee375d47c48eff6cb38d7e69b559772ea8c3a3d3d778718fb935e7f9a31d7a6a8ead94efa674640001010000000014000000204e000094efa67400000000111508da49f59f4f71da629e6775b0f877d832ccbd24a8e1acaf6cd8b28a"
+        },
+        {
+          "t": "notification",
+          "hex": "0b0069a6f115d37e7a30631b263eab3c655cdc99383fdd49196985587e25b89d95048fd24c8b32cb4f7a4d7cc6f7d09964000101000000001500000008520000c6f7d0990000000031ef803afae2074d3bf54e9266f24a0010226fa38c72046d977000f73e680cde04df0bed1366b0cc9edda4cd5c408508aa8f68898dee607c1eb9a170fe3ae116c2230f7840aa780ab29e9571640001010000000016000000f0550000b29e957100000000cb3a027d0b19d0c9d816867e5db827a9816847c048359f3ad61b134c312f69d873d0b908543caf771683e7e5e414fdeb565417d6fc96c910219126120ca8dd6ea6e339b45d8edf9f"
+        },
+        {
+          "t": "notification",
+          "hex": "0c0036dd9a9e640001010000000017000000d859000036dd9a9e00000000005b14dbabc8b47cf8d4f40f97f3d25d93fc42da9ecb8dbf48e359e6360ec495ba54c498984b63e95e1f7da2c454bd6f42760e36a13e9388b409e3f857f5b043e4dd8da52994cf186d2df07c640001010000000018000000c05d00006d2df07c000000004f70dbc59a6450f9d72a6788f991263bd752ae84f24d97cda0b31f6ce7309411e1eeaea6266644fa488fcc6e2acd1d6b81b6bae3fce92f7c86401ce131b3f60f5a347b882557a8b2a37e2a43640001010000000019000000a8610000a37e2a430000000006d5efceb682a3eec869d41e7776"
+        },
+        {
+          "t": "notification",
+          "hex": "0d002c9d5ebf33cd12b5ae89e50c3d499445ecdb00121fdb1c4ec4c290dc36beb912368fc1937e6cfc7bebcdfe9f0158db6812bcb7473ccba703670d98f5ad9564000101000000001a0000009065000098f5ad9500000000a71d408e4bf96a790f80f7c521357bffe423ad3dc9ec5c7a4b0adb4f6d140b50c8ba32d9ebf0d067d260287d5a398bd2d89c88205f8b9edb31b34f145b126e771df61ec1ad0936b8a780367c64000101000000001b00000078690000a780367c0000000020fb434cbd110928377d548b195968f3e16a8eb645450ec1ffbd1b8fa7e46c51eb8e8516fc6537c75a643b2c63172fdfe9289be27a9a635c"
+        },
+        {
+          "t": "notification",
+          "hex": "0e00a8f90e037389ed9f79eea7c22a163cd83d80923e64000101000000001c000000606d00003d80923e00000000d8358365a957fc5a670009385e342d875b24829f6fda208642e35b743d361a3b1b48f81cfa7b426670b4fca1ba60b51b1b2f792ce63cf3571a504f01bd9de2bb65068e8e62697ad00c235f7664000101000000001d000000487100000c235f7600000000c8afef52775c4d028cae79dcfc13edbf555d6d07d83b55c21b10c2099bf3930843cfea16586c0b5882ed719af89cb519638984ae799c0cebf6311ada84bca961ac1237aff45ef8675b8be06764000101000000001e000000307500005b8be0670000"
+        },
+        {
+          "t": "notification",
+          "hex": "0f0000008aa52f54e8a6ab57bb909256608739246b9f64721f5f16a293d775e1ec96f7429ba38b262eaa0c0f54a56ef6bcedae47f88fe6907f9732a46ead26ae501c0b755992c54e778a1d1d93f5a50764000101000000001f0000001879000093f5a50700000000931bcd897c392f1ba8f06c0e61f8ec4fd96db41b39cdc8f4eecb8c4396fc3286792a873af5cb2df56c1e69c719b17884bdbb9b7b59c4b7dee2ecd511de0273e93d2a331263604af05be4cd6b640001010000000020000000007d00005be4cd6b000000002c96144037cfd14002160523d5e65fa9f5e63cb30deb253c0ae1e7892fb5a91e824df3c9b62b8b55"
+        },
+        {
+          "t": "indication",
+          "hex": "850f00"
+        }
+      ]
+    },
+    {
+      "name": "abort_when_idle",
+      "doc": "ABORT with nothing in progress answers NO_TRANSFER.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "0510"
+        },
+        {
+          "t": "indication",
+          "hex": "851007"
+        }
+      ]
+    },
+    {
+      "name": "trip_active",
+      "doc": "While a trip is in progress LIST, GET_MANIFEST, READ and PUT_RECEIPT are all refused with TRIP_ACTIVE; ABORT still answers.",
+      "trip_active": true,
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "01110000"
+        },
+        {
+          "t": "indication",
+          "hex": "811104"
+        },
+        {
+          "t": "control_write",
+          "hex": "0212426b17997550788e79a0db2193101846"
+        },
+        {
+          "t": "indication",
+          "hex": "821204"
+        },
+        {
+          "t": "control_write",
+          "hex": "0313426b17997550788e79a0db219310184600000000000000000a000000"
+        },
+        {
+          "t": "indication",
+          "hex": "831304"
+        },
+        {
+          "t": "control_write",
+          "hex": "0414426b17997550788e79a0db21931018466400"
+        },
+        {
+          "t": "indication",
+          "hex": "841404"
+        },
+        {
+          "t": "control_write",
+          "hex": "0515"
+        },
+        {
+          "t": "indication",
+          "hex": "851507"
+        }
+      ]
+    },
+    {
+      "name": "mtu_too_small",
+      "doc": "At the default ATT MTU of 23 the dongle refuses everything with IO_ERROR rather than half working; negotiate a larger MTU first.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "mtu",
+          "hex": "1700",
+          "why": "ATT MTU 23"
+        },
+        {
+          "t": "control_write",
+          "hex": "01160000"
+        },
+        {
+          "t": "indication",
+          "hex": "811605"
+        }
+      ]
+    },
+    {
+      "name": "put_receipt_genuine",
+      "doc": "PUT_RECEIPT with a receipt signed by the pinned key naming this bundle: ready, receipt frames, then 0x84 outcome 0 (pruned). The bundle is gone afterwards.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "0417426b17997550788e79a0db2193101846c000"
+        },
+        {
+          "t": "indication",
+          "hex": "841700"
+        },
+        {
+          "t": "data_write",
+          "hex": "0000ab01020250010203000000000000000000000000000350101112131415161718191a1b1c1d1e1f0450426b17997550788e79a0db219310184605582085ea2635c5e7617a2a7860112c33744a8c313761497248c7fa11b17b9c1dd26a061b00000199c82cc00007486c0cd8ae8286a984080109800a67656432353531390b5840491bfbe86a9a011847d81d9b5fadc39f1097c1a62dfbcd1dbbc8b4dbafdd0368c2d27de85f74a5be7428273b08938e7f93739f5ecc7e89b4b2ece7e9230a010b"
+        },
+        {
+          "t": "indication",
+          "hex": "84170000"
+        }
+      ]
+    },
+    {
+      "name": "put_receipt_wrong_key",
+      "doc": "A receipt signed by a different key: outcome 2 (rejected: signature). Nothing is stored or deleted.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "0418426b17997550788e79a0db2193101846c000"
+        },
+        {
+          "t": "indication",
+          "hex": "841800"
+        },
+        {
+          "t": "data_write",
+          "hex": "0000ab01020250010203000000000000000000000000000350101112131415161718191a1b1c1d1e1f0450426b17997550788e79a0db219310184605582085ea2635c5e7617a2a7860112c33744a8c313761497248c7fa11b17b9c1dd26a061b00000199c82cc000074841da677727cf2dc9080109800a67656432353531390b58403c984d616fdd4ca47b3edc8309c3cd1bb766645b01d3cb0470beb55524e94646848e9229406656e6a0c1e0d2acd6eb22a7fa65d035017ad8a1ffb1ef8feb0e08"
+        },
+        {
+          "t": "indication",
+          "hex": "84180002"
+        }
+      ]
+    },
+    {
+      "name": "put_receipt_no_pinned_key",
+      "doc": "A dongle with no key pinned cannot verify: outcome 4. Nothing is stored or deleted. The bundle is safe on the server but stays on the card.",
+      "no_pinned_key": true,
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "0419426b17997550788e79a0db2193101846c000"
+        },
+        {
+          "t": "indication",
+          "hex": "841900"
+        },
+        {
+          "t": "data_write",
+          "hex": "0000ab01020250010203000000000000000000000000000350101112131415161718191a1b1c1d1e1f0450426b17997550788e79a0db219310184605582085ea2635c5e7617a2a7860112c33744a8c313761497248c7fa11b17b9c1dd26a061b00000199c82cc00007486c0cd8ae8286a984080109800a67656432353531390b5840491bfbe86a9a011847d81d9b5fadc39f1097c1a62dfbcd1dbbc8b4dbafdd0368c2d27de85f74a5be7428273b08938e7f93739f5ecc7e89b4b2ece7e9230a010b"
+        },
+        {
+          "t": "indication",
+          "hex": "84190004"
+        }
+      ]
+    },
+    {
+      "name": "put_receipt_bad_length",
+      "doc": "A receipt length of 0 or over 1024 is refused up front with BAD_RECEIPT_LENGTH.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "041a426b17997550788e79a0db21931018460000"
+        },
+        {
+          "t": "indication",
+          "hex": "841a06"
+        },
+        {
+          "t": "control_write",
+          "hex": "041b426b17997550788e79a0db21931018460104"
+        },
+        {
+          "t": "indication",
+          "hex": "841b06"
+        }
+      ]
+    },
+    {
+      "name": "put_receipt_out_of_order",
+      "doc": "A receipt frame with the wrong sequence number ends the upload with BAD_ARGUMENT and no outcome byte. Nothing is stored or deleted.",
+      "events": [
+        {
+          "t": "mtu",
+          "hex": "f700",
+          "why": "ATT MTU 247"
+        },
+        {
+          "t": "control_write",
+          "hex": "041c426b17997550788e79a0db2193101846c000"
+        },
+        {
+          "t": "indication",
+          "hex": "841c00"
+        },
+        {
+          "t": "data_write",
+          "hex": "0100ab01020250010203000000000000000000000000000350101112131415161718191a1b1c1d1e1f0450426b17997550788e79"
+        },
+        {
+          "t": "indication",
+          "hex": "841c03"
+        }
+      ]
+    }
+  ]
+}

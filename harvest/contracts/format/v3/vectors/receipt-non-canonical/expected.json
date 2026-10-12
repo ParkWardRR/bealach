@@ -1,0 +1,13 @@
+{
+  "name": "receipt-non-canonical",
+  "description": "receipt-valid with ingest_schema_version encoded in two bytes (0x18 0x01) instead of one; the signature is the genuine one.",
+  "asserts": "Verification re-derives the signed bytes from the parsed fields, so a lenient parser would verify the signature over bytes other than those received and accept this receipt. The receipt carries its signature inline, so a non-canonical receipt must be refused at parse, before verification. parse_error names the reason; the expectation's other fields only say that nothing here acknowledges the upload.",
+  "receipt": {
+    "parse_error": "non_canonical",
+    "signature_valid": false,
+    "acknowledges_uploaded_root": false,
+    "uploaded_content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "receipt_content_root_hex": "",
+    "server_public_key_hex": "d07b7edd264490e2160519835f57d6840a520477e173a24a44a8523a56c998fd"
+  }
+}

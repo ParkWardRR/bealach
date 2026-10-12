@@ -1,0 +1,12 @@
+{
+  "name": "receipt-valid",
+  "description": "A receipt acknowledging the manifest-valid bundle.",
+  "asserts": "The signature verifies against the pinned server key and the content root matches what was uploaded. Both conditions are required before any byte may be pruned.",
+  "receipt": {
+    "signature_valid": true,
+    "acknowledges_uploaded_root": true,
+    "uploaded_content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "receipt_content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "server_public_key_hex": "d07b7edd264490e2160519835f57d6840a520477e173a24a44a8523a56c998fd"
+  }
+}

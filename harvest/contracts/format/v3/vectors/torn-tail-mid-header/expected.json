@@ -1,0 +1,24 @@
+{
+  "name": "torn-tail-mid-header",
+  "description": "Truncation leaving 10 bytes of the final frame, too few to hold a frame (minimum 68 bytes).",
+  "asserts": "TORN_TAIL with 10 bytes discarded; the two complete frames survive.",
+  "scan": {
+    "stop_reason": "TORN_TAIL",
+    "frames_retained": 2,
+    "stop_offset": 328,
+    "discarded_tail_bytes": 10,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "GNSS_SAMPLE": 2
+    },
+    "first_seq": 0,
+    "last_seq": 1
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "TORN_TAIL",
+    "frames_retained": 2,
+    "stop_offset": 328,
+    "plaintext_sha256_hex": "e4e55ad87dd8894eca544917eec4d12f7dfc61b294e747340637f64780f8e811"
+  }
+}

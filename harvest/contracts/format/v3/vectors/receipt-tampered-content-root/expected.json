@@ -1,0 +1,12 @@
+{
+  "name": "receipt-tampered-content-root",
+  "description": "A genuine receipt for another bundle with its content_root rewritten to the uploaded bundle's root; the signature is the original.",
+  "asserts": "The receipt now says exactly what the device wants to hear, which is the point of the attack: the root matches the upload, so only the signature, which covers the root, refuses it. Checking the root alone would let anyone edit a receipt into an acknowledgement.",
+  "receipt": {
+    "signature_valid": false,
+    "acknowledges_uploaded_root": false,
+    "uploaded_content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "receipt_content_root_hex": "5a674015991470856d2686e1ba1ea7733163e52ef08af279bd76a3a97b574c2f",
+    "server_public_key_hex": "d07b7edd264490e2160519835f57d6840a520477e173a24a44a8523a56c998fd"
+  }
+}

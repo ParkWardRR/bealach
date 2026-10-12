@@ -1,0 +1,23 @@
+{
+  "expect_error": "is not below warn_high",
+  "profile": {
+    "id": "bmw-n20",
+    "name": "X",
+    "status": "derived",
+    "sources": [
+      "s"
+    ],
+    "signals": [
+      {
+        "key": "boost_psi",
+        "label": "Boost",
+        "unit": "psi",
+        "min": 0,
+        "max": 30,
+        "warn_low": 20,
+        "warn_high": 10
+      }
+    ],
+    "thresholds": {}
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "bad-frame-crc",
+  "description": "A single flipped ciphertext bit inside frame index 3. The CRC is not repaired.",
+  "asserts": "CORRUPT_FRAME at frame 3. The three preceding frames remain usable: corruption is isolated to one record and does not invalidate earlier data.",
+  "scan": {
+    "stop_reason": "CORRUPT_FRAME",
+    "frames_retained": 3,
+    "stop_offset": 428,
+    "discarded_tail_bytes": 300,
+    "unknown_type_count": 0,
+    "record_counts": {
+      "GNSS_SAMPLE": 3
+    },
+    "first_seq": 0,
+    "last_seq": 2
+  },
+  "keyed": {
+    "segment_key_hex": "24f7191a4156d6ac88a626e1922ecf5ce32157734499a3055b9d8b4ebfcae979",
+    "stop_reason": "CORRUPT_FRAME",
+    "frames_retained": 3,
+    "stop_offset": 428,
+    "plaintext_sha256_hex": "177a6c983755b275695cfeb41aa2ec858d91d91273c6892687276edc12834ccd"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "manifest-segment-index-mismatch",
+  "description": "seg-00000000.seg whose header declares segment_index 1.",
+  "asserts": "For a capture segment, segment_index must equal the index in its member name. Without this a segment could be renamed into another position while keeping the inputs to its own key derivation. The manifest signature, content root and member digests are all valid: a valid signature binds the manifest to the device, not the manifest to its segments.",
+  "binding": {
+    "match": false,
+    "mismatched_field": "segment_index"
+  },
+  "manifest": {
+    "valid": true,
+    "signature_valid": true,
+    "content_root_hex": "90645395942cc4cc5c469d57264eb04130de302016b061c0c3e3eb8b0a0e456c",
+    "device_public_key_hex": "f876e06990f013620b0c41bb19cb6acb367d615cb52c3d8980a57582925a4e13",
+    "canonical_bytes_sha256_hex": "caaa9f3c2bea66a8ec20e86e7dce7f172dd9d799fdd2b3c67ee4f283092d3cda"
+  }
+}
