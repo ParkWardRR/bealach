@@ -179,6 +179,17 @@ public final class BealachDatabase: Sendable {
             try db.create(index: "tombstone_bundle", on: "tombstone", columns: ["bundleID"])
         }
 
+        migrator.registerMigration("v3-mirror-entry") { db in
+            try db.create(table: "mirrorEntry") { t in
+                t.primaryKey("bundleID", .text).notNull()
+                t.column("contentRoot", .text).notNull()
+                t.column("manifestHash", .text).notNull()
+                t.column("memberCount", .integer).notNull()
+                t.column("totalBytes", .integer).notNull()
+                t.column("verifiedAt", .datetime).notNull()
+            }
+        }
+
         return migrator
     }
 }

@@ -22,17 +22,25 @@ public struct EnrolledIdentity: Codable, Sendable, Equatable {
     public var ownerKeyHex: String
     /// When the enrolment bond was established.
     public var enrolledAt: Date
+    /// The dongle's Ed25519 public key (32 bytes). Used to verify manifest signatures.
+    public var devicePublicKey: Data?
+    /// The escrowed storage root key K_root (32 bytes). Used for AEAD frame verification.
+    public var rootKey: Data?
 
     public init(
         deviceID: Data,
         fingerprint: String,
         ownerKeyHex: String,
-        enrolledAt: Date = Date()
+        enrolledAt: Date = Date(),
+        devicePublicKey: Data? = nil,
+        rootKey: Data? = nil
     ) {
         self.deviceID = deviceID
         self.fingerprint = fingerprint
         self.ownerKeyHex = ownerKeyHex
         self.enrolledAt = enrolledAt
+        self.devicePublicKey = devicePublicKey
+        self.rootKey = rootKey
     }
 
     public var deviceIDHex: String {
