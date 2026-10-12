@@ -263,18 +263,25 @@ public struct StorageView: View {
         }
     }
 
-    // MARK: - Delete Actions
+    // MARK: - Actions
 
     @ViewBuilder
     private var deleteActionsSection: some View {
         Section {
+            Button {
+                Task { await load() }
+            } label: {
+                Label("Reconcile Now", systemImage: "arrow.triangle.2.circlepath")
+            }
+            .disabled(isLoading)
+
             Button(role: .destructive) {
                 showClearMirrorConfirm = true
             } label: {
                 Label("Clear iOS Mirror", systemImage: "trash")
             }
         } header: {
-            Text("Bulk Actions")
+            Text("Actions")
         }
         .confirmationDialog("Clear all iOS copies?", isPresented: $showClearMirrorConfirm) {
             Button("Clear All iOS Copies", role: .destructive) {
