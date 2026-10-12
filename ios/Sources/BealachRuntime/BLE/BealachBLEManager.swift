@@ -6,7 +6,7 @@ import CoreBluetooth
 import Foundation
 import os
 
-/// CoreBluetooth central for the Cairn dongle. Scans by service UUID, bonds by touching an
+/// CoreBluetooth central for the Bealach dongle. Scans by service UUID, bonds by touching an
 /// encrypted characteristic, reconnects on its own (restoration alone is not assumed to), and
 /// writes `GNSS_FIX` without response, dropping when the radio is backed up rather than queueing stale fixes.
 @MainActor
@@ -462,7 +462,7 @@ extension BealachBLEManager: @preconcurrency CBPeripheralDelegate {
         trace("services \(peripheral.services?.map { $0.uuid.uuidString } ?? []) \(describe(error))")
         guard error == nil,
               let service = peripheral.services?.first(where: { $0.uuid == BealachGATTProfile.serviceUUID })
-        else { return retry("Cairn service not found \(describe(error))") }
+        else { return retry("Bealach service not found \(describe(error))") }
         peripheral.discoverCharacteristics(
             [BealachGATTProfile.gnssFix, BealachGATTProfile.gnssQuality,
              BealachGATTProfile.companionStatus, BealachGATTProfile.protocolVersion,
@@ -518,7 +518,7 @@ extension BealachBLEManager: @preconcurrency CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
         trace("services invalidated: \(invalidatedServices.map { $0.uuid.uuidString })")
         if invalidatedServices.contains(where: { $0.uuid == BealachGATTProfile.serviceUUID }) {
-            retry("Cairn service changed")
+            retry("Bealach service changed")
         }
     }
 

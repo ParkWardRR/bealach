@@ -368,7 +368,7 @@ public struct BluetoothSettingsView: View {
         } header: {
             Text("Actions")
         } footer: {
-            Text("Forgetting the dongle clears its identity from the app. You must also forget \"Cairn\" in iOS Settings > Bluetooth to fully remove the pairing.")
+            Text("Forgetting the dongle clears its identity from the app. You must also forget \"Bealach\" in iOS Settings > Bluetooth to fully remove the pairing.")
         }
     }
 

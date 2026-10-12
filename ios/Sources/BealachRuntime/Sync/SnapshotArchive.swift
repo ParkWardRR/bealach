@@ -14,7 +14,7 @@ enum SnapshotArchive {
             switch self {
             case .manifestMissing: "Snapshot archive missing manifest.json"
             case .unsupportedSchema(let v): "Unsupported snapshot schema version \(v)"
-            case .serverNewerThanApp(let v): "The server sent a newer snapshot format (schema \(v)). Update Cairn from TestFlight."
+            case .serverNewerThanApp(let v): "Unsupported snapshot format (schema \(v)). Update Bealach to read it."
             }
         }
     }

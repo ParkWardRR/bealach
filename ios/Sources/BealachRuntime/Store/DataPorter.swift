@@ -172,7 +172,7 @@ public enum PorterError: LocalizedError {
     public var errorDescription: String? {
         switch self {
         case .encryptionFailed: "Failed to encrypt data"
-        case .invalidFile: "This file is not a valid Cairn backup"
+        case .invalidFile: "This file is not a valid Bealach backup"
         case .wrongPassphrase: "Wrong passphrase"
         }
     }
