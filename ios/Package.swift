@@ -13,8 +13,16 @@ let package = Package(
     ],
     targets: [
         .target(
+            name: "BealachFormat",
+            path: "Sources/BealachFormat",
+            publicHeadersPath: ".",
+            cSettings: [
+                .define("_DEFAULT_SOURCE"),
+            ]
+        ),
+        .target(
             name: "BealachCore",
-            dependencies: []
+            dependencies: ["BealachFormat"]
         ),
         .target(
             name: "BealachRuntime",
