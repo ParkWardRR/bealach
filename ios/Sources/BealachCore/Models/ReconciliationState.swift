@@ -68,4 +68,23 @@ public struct ReconciliationEntry: Codable, Sendable, Equatable, Identifiable {
         self.transferProgress = transferProgress
         self.explanation = explanation
     }
+
+    public var discrepancyExplanation: String {
+        if let explanation { return explanation }
+        switch state {
+        case .verified:
+            return "Mirrored and verified — content identities match the current snapshot."
+        case .pending:
+            return "Sealed on SD, not yet transferred to this phone."
+        case .transferring:
+            let pct = transferProgress.map { "\(Int($0 * 100))%" } ?? "unknown"
+            return "Transfer interrupted at \(pct), resumable."
+        case .missing:
+            return "Known on one side but absent from the other."
+        case .corrupt:
+            return "Present but verification failed — this copy will not be trusted."
+        case .deletedIntentionally:
+            return "Removed from iPhone, kept on SD."
+        }
+    }
 }

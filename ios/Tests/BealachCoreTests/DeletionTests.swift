@@ -88,4 +88,29 @@ import Testing
         let decoded = try JSONDecoder().decode(ReconciliationSnapshot.self, from: data)
         #expect(decoded == snapshot)
     }
+
+    @Test func discrepancyExplanationPerState() {
+        let verified = ReconciliationEntry(bundleID: "b1", contentRoot: "r1", state: .verified)
+        #expect(verified.discrepancyExplanation.contains("verified"))
+
+        let pending = ReconciliationEntry(bundleID: "b1", contentRoot: "r1", state: .pending)
+        #expect(pending.discrepancyExplanation.contains("not yet transferred"))
+
+        let transferring = ReconciliationEntry(bundleID: "b1", contentRoot: "r1", state: .transferring, transferProgress: 0.42)
+        #expect(transferring.discrepancyExplanation.contains("42%"))
+
+        let missing = ReconciliationEntry(bundleID: "b1", contentRoot: "r1", state: .missing)
+        #expect(missing.discrepancyExplanation.contains("absent"))
+
+        let corrupt = ReconciliationEntry(bundleID: "b1", contentRoot: "r1", state: .corrupt)
+        #expect(corrupt.discrepancyExplanation.contains("verification failed"))
+
+        let deleted = ReconciliationEntry(bundleID: "b1", contentRoot: "r1", state: .deletedIntentionally)
+        #expect(deleted.discrepancyExplanation.contains("Removed"))
+    }
+
+    @Test func customExplanationOverridesDefault() {
+        let entry = ReconciliationEntry(bundleID: "b1", contentRoot: "r1", state: .corrupt, explanation: "manifest signature failed")
+        #expect(entry.discrepancyExplanation == "manifest signature failed")
+    }
 }

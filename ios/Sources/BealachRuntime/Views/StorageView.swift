@@ -144,20 +144,27 @@ public struct StorageView: View {
     private func reconciliationSection(_ snapshot: ReconciliationSnapshot) -> some View {
         Section {
             ForEach(snapshot.entries) { entry in
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(entry.bundleID.prefix(12))
-                            .font(.caption.monospaced())
-                        Text(entry.contentRoot)
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(entry.bundleID.prefix(12))
+                                .font(.caption.monospaced())
+                            Text(entry.contentRoot)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        if let progress = entry.transferProgress {
+                            ProgressView(value: progress)
+                                .frame(width: 60)
+                        }
+                        MirrorStateBadge(state: entry.state)
+                    }
+                    if entry.state != .verified {
+                        Text(entry.discrepancyExplanation)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
-                    Spacer()
-                    if let progress = entry.transferProgress {
-                        ProgressView(value: progress)
-                            .frame(width: 60)
-                    }
-                    MirrorStateBadge(state: entry.state)
                 }
                 .contextMenu {
                     if entry.state == .verified {
