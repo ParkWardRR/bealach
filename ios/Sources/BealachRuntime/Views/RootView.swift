@@ -90,7 +90,7 @@ public struct RootView: View {
                 GarageView(vehicleStore: vehicleStore, maintenanceStore: maintenanceStore, recorder: session.recorder)
                     .tabItem { Label("Garage", systemImage: "building.2") }
                     .tag(2)
-                SettingsView(session: session, dataPorter: dataPorter, offload: offload)
+                SettingsView(session: session, dataPorter: dataPorter, offload: offload, enrolmentService: enrolmentService)
                     .tabItem { Label("Settings", systemImage: "gear") }
                     .tag(3)
             }

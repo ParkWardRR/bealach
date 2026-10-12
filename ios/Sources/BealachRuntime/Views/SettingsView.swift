@@ -25,16 +25,20 @@ public struct SettingsView: View {
     @AppStorage(FuelEstimate.ethanolKey) private var ethanol = FuelEstimate.defaultEthanolPercent
 
     let offload: OffloadController?
+    let enrolmentService: EnrolmentService?
+    @State private var showEnrolment = false
 
-    public init(session: DrivingSession, dataPorter: DataPorter, offload: OffloadController? = nil) {
+    public init(session: DrivingSession, dataPorter: DataPorter, offload: OffloadController? = nil, enrolmentService: EnrolmentService? = nil) {
         self.offload = offload
         self.session = session
         self.dataPorter = dataPorter
+        self.enrolmentService = enrolmentService
     }
 
     public var body: some View {
         NavigationStack {
             Form {
+                enrolmentSection
                 deviceSection
                 fuelSection
                 bluetoothSection
@@ -89,6 +93,44 @@ public struct SettingsView: View {
                 }
             }
             #endif
+        }
+    }
+
+    // MARK: - Enrolment
+
+    @ViewBuilder
+    private var enrolmentSection: some View {
+        if let enrolmentService {
+            Section {
+                Button {
+                    showEnrolment = true
+                } label: {
+                    HStack(spacing: 12) {
+                        Image(systemName: "person.badge.key")
+                            .font(.body)
+                            .foregroundStyle(.green)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Dongle Enrolment")
+                                .font(.body)
+                            Text("Pair a new dongle or re-enrol")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.tertiary)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+            .sheet(isPresented: $showEnrolment) {
+                EnrolmentView(
+                    bleManager: session.ble,
+                    enrolmentService: enrolmentService,
+                    onComplete: { showEnrolment = false }
+                )
+            }
         }
     }
 

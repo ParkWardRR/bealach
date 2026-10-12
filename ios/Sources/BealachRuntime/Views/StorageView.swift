@@ -4,8 +4,13 @@ import SwiftUI
 public struct StorageView: View {
     let session: DrivingSession
     let offload: OffloadController?
-    @State private var bundles: [BundleState] = []
+    @State private var snapshot: ReconciliationSnapshot?
+    @State private var deletionIntents: [DeletionIntent] = []
+    @State private var tombstones: [Tombstone] = []
     @State private var isLoading = true
+    @State private var showDeleteIOSConfirm = false
+    @State private var showClearMirrorConfirm = false
+    @State private var selectedEntry: ReconciliationEntry?
 
     public init(session: DrivingSession, offload: OffloadController? = nil) {
         self.session = session
@@ -16,15 +21,22 @@ public struct StorageView: View {
         List {
             deviceStorageSection
             phoneStorageSection
-            if !bundles.isEmpty {
-                bundleListSection
+            if let snapshot, !snapshot.entries.isEmpty {
+                reconciliationSection(snapshot)
             }
+            if !deletionIntents.filter({ !$0.isTerminal }).isEmpty {
+                activeDeletionsSection
+            }
+            if !tombstones.isEmpty {
+                tombstoneSection
+            }
+            deleteActionsSection
         }
         .navigationTitle("Storage & Mirror")
         .task { await load() }
         .refreshable { await load() }
         .overlay {
-            if bundles.isEmpty && !isLoading {
+            if snapshot == nil && !isLoading {
                 ContentUnavailableView(
                     "No bundles yet",
                     systemImage: "externaldrive",
@@ -75,11 +87,35 @@ public struct StorageView: View {
     @ViewBuilder
     private var phoneStorageSection: some View {
         Section("Phone") {
-            HStack {
-                Label("Sessions", systemImage: "clock.arrow.circlepath")
-                Spacer()
-                Text("\(bundles.filter { $0.status == .verified }.count) verified")
-                    .foregroundStyle(.secondary)
+            if let snapshot {
+                HStack {
+                    Label("Verified", systemImage: "checkmark.shield")
+                    Spacer()
+                    Text("\(snapshot.verifiedCount)")
+                        .foregroundStyle(.secondary)
+                }
+                HStack {
+                    Label("Pending", systemImage: "clock")
+                    Spacer()
+                    Text("\(snapshot.pendingCount)")
+                        .foregroundStyle(snapshot.pendingCount > 0 ? .orange : .secondary)
+                }
+                if snapshot.transferringCount > 0 {
+                    HStack {
+                        Label("Transferring", systemImage: "arrow.down.circle")
+                        Spacer()
+                        Text("\(snapshot.transferringCount)")
+                            .foregroundStyle(.blue)
+                    }
+                }
+                if snapshot.missingCount > 0 || snapshot.corruptCount > 0 {
+                    HStack {
+                        Label("Attention", systemImage: "exclamationmark.triangle")
+                        Spacer()
+                        Text("\(snapshot.missingCount + snapshot.corruptCount)")
+                            .foregroundStyle(.red)
+                    }
+                }
             }
             if let offload {
                 HStack {
@@ -98,26 +134,147 @@ public struct StorageView: View {
         }
     }
 
-    // MARK: - Bundle List
+    // MARK: - Reconciliation
 
     @ViewBuilder
-    private var bundleListSection: some View {
-        Section("Bundles") {
-            ForEach(bundles) { bundle in
+    private func reconciliationSection(_ snapshot: ReconciliationSnapshot) -> some View {
+        Section {
+            ForEach(snapshot.entries) { entry in
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(bundle.id.prefix(12))
+                        Text(entry.bundleID.prefix(12))
                             .font(.caption.monospaced())
-                        Text(bundle.date, style: .relative)
+                        Text(entry.contentRoot)
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
                     Spacer()
-                    StatusBadge(status: bundle.status)
+                    if let progress = entry.transferProgress {
+                        ProgressView(value: progress)
+                            .frame(width: 60)
+                    }
+                    MirrorStateBadge(state: entry.state)
+                }
+                .contextMenu {
+                    if entry.state == .verified {
+                        Button(role: .destructive) {
+                            selectedEntry = entry
+                            showDeleteIOSConfirm = true
+                        } label: {
+                            Label("Delete iOS Copy", systemImage: "trash")
+                        }
+                    }
+                    if entry.state == .deletedIntentionally {
+                        Button {
+                            // TODO: clear tombstone and re-fetch
+                        } label: {
+                            Label("Fetch Again", systemImage: "arrow.down.circle")
+                        }
+                    }
+                }
+            }
+        } header: {
+            HStack {
+                Text("Bundles")
+                Spacer()
+                if snapshot.isStale {
+                    Label("Stale", systemImage: "exclamationmark.triangle")
+                        .font(.caption2)
+                        .foregroundStyle(.orange)
+                }
+            }
+        } footer: {
+            Text("Snapshot from \(snapshot.computedAt.formatted(.relative(presentation: .named))). \(snapshot.isStale ? "Dongle is unreachable — this may not reflect current state." : "")")
+        }
+        .confirmationDialog(
+            "Delete iOS copy?",
+            isPresented: $showDeleteIOSConfirm,
+            presenting: selectedEntry
+        ) { entry in
+            Button("Delete iOS Copy", role: .destructive) {
+                Task { await deleteIOSCopy(entry) }
+            }
+        } message: { entry in
+            Text("The SD original survives. The iPhone copy of \(entry.bundleID.prefix(8)) becomes unrecoverable. It will not re-download automatically. If you later want it again, you must re-fetch it deliberately from SD.")
+        }
+    }
+
+    // MARK: - Active Deletions
+
+    @ViewBuilder
+    private var activeDeletionsSection: some View {
+        let active = deletionIntents.filter { !$0.isTerminal }
+        Section("In Progress") {
+            ForEach(active) { intent in
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(intent.bundleID.prefix(12))
+                            .font(.caption.monospaced())
+                        Text(intent.store == .ios ? "iOS" : "SD")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    DeletionPhaseBadge(phase: intent.phase)
                 }
             }
         }
     }
+
+    // MARK: - Tombstones
+
+    @ViewBuilder
+    private var tombstoneSection: some View {
+        Section {
+            ForEach(tombstones) { tombstone in
+                HStack {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(tombstone.bundleID.prefix(12))
+                            .font(.caption.monospaced())
+                        Text("Deleted \(tombstone.deletedAt.formatted(.relative(presentation: .named)))")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button {
+                        // TODO: clear tombstone and trigger re-fetch
+                    } label: {
+                        Text("Fetch Again")
+                            .font(.caption2)
+                    }
+                    .buttonStyle(.bordered)
+                }
+            }
+        } header: {
+            Text("Tombstones")
+        } footer: {
+            Text("These recordings were deleted from this phone. They will not re-download automatically. Tap \"Fetch Again\" to re-download from the dongle.")
+        }
+    }
+
+    // MARK: - Delete Actions
+
+    @ViewBuilder
+    private var deleteActionsSection: some View {
+        Section {
+            Button(role: .destructive) {
+                showClearMirrorConfirm = true
+            } label: {
+                Label("Clear iOS Mirror", systemImage: "trash")
+            }
+        } header: {
+            Text("Bulk Actions")
+        }
+        .confirmationDialog("Clear all iOS copies?", isPresented: $showClearMirrorConfirm) {
+            Button("Clear All iOS Copies", role: .destructive) {
+                Task { await clearIOSMirror() }
+            }
+        } message: {
+            Text("All SD originals survive. All iPhone copies and tombstones are removed. This cannot be undone.")
+        }
+    }
+
+    // MARK: - Helpers
 
     private func tripLabel(_ phase: DeviceStatus.TripPhase) -> String {
         switch phase {
@@ -130,30 +287,26 @@ public struct StorageView: View {
 
     private func load() async {
         isLoading = true
-        // TODO: populate from offload controller's bundle inventory
+        // TODO: populate from offload controller's reconciliation state
         isLoading = false
     }
-}
 
-struct BundleState: Identifiable, Sendable {
-    let id: String
-    let date: Date
-    let status: MirrorStatus
-    let sizeBytes: Int64
+    private func deleteIOSCopy(_ entry: ReconciliationEntry) async {
+        // TODO: create DeletionIntent and execute through deletion pipeline
+    }
 
-    enum MirrorStatus: String, Sendable {
-        case pending
-        case transferring
-        case verified
-        case missing
+    private func clearIOSMirror() async {
+        // TODO: create DeletionIntents for all iOS copies
     }
 }
 
-private struct StatusBadge: View {
-    let status: BundleState.MirrorStatus
+// MARK: - Mirror State Badge
+
+private struct MirrorStateBadge: View {
+    let state: MirrorState
 
     var body: some View {
-        Text(status.rawValue.capitalized)
+        Text(label)
             .font(.caption2.weight(.semibold))
             .padding(.horizontal, 8)
             .padding(.vertical, 3)
@@ -161,12 +314,58 @@ private struct StatusBadge: View {
             .foregroundStyle(color)
     }
 
+    private var label: String {
+        switch state {
+        case .pending: "Pending"
+        case .transferring: "Transferring"
+        case .verified: "Verified"
+        case .missing: "Missing"
+        case .corrupt: "Corrupt"
+        case .deletedIntentionally: "Deleted"
+        }
+    }
+
     private var color: Color {
-        switch status {
+        switch state {
         case .pending: .orange
         case .transferring: .blue
         case .verified: .green
         case .missing: .red
+        case .corrupt: .red
+        case .deletedIntentionally: .secondary
+        }
+    }
+}
+
+// MARK: - Deletion Phase Badge
+
+private struct DeletionPhaseBadge: View {
+    let phase: DeletionIntent.Phase
+
+    var body: some View {
+        Text(label)
+            .font(.caption2.weight(.semibold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(color.opacity(0.15), in: Capsule())
+            .foregroundStyle(color)
+    }
+
+    private var label: String {
+        switch phase {
+        case .toDelete: "Queued"
+        case .deleting: "Deleting"
+        case .deleted: "Done"
+        case .failed: "Failed"
+        }
+    }
+
+    private var color: Color {
+        switch phase {
+        case .toDelete: .orange
+        case .deleting: .blue
+        case .deleted: .green
+        case .failed: .red
         }
     }
 }
