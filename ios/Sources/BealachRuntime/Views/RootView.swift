@@ -10,7 +10,6 @@ public struct RootView: View {
     private let session: DrivingSession
     private let vehicleStore: GRDBVehicleStore
     private let maintenanceStore: GRDBMaintenanceStore
-    private let syncClient: TripSyncClient
     private let dataPorter: DataPorter
     private let enrolmentService: EnrolmentService?
     private let offload: OffloadController?
@@ -33,12 +32,11 @@ public struct RootView: View {
         let link: ConfigureLink
     }
 
-    public init(session: DrivingSession, vehicleStore: GRDBVehicleStore, maintenanceStore: GRDBMaintenanceStore, syncClient: TripSyncClient, dataPorter: DataPorter, enrolmentService: EnrolmentService? = nil, offload: OffloadController? = nil) {
+    public init(session: DrivingSession, vehicleStore: GRDBVehicleStore, maintenanceStore: GRDBMaintenanceStore, dataPorter: DataPorter, enrolmentService: EnrolmentService? = nil, offload: OffloadController? = nil) {
         self.offload = offload
         self.session = session
         self.vehicleStore = vehicleStore
         self.maintenanceStore = maintenanceStore
-        self.syncClient = syncClient
         self.dataPorter = dataPorter
         self.enrolmentService = enrolmentService
         _showWelcome = State(initialValue: !UserDefaults.standard.bool(forKey: Self.hasSeenWelcomeKey))
@@ -63,7 +61,7 @@ public struct RootView: View {
                 }
             }
             .sheet(item: $pendingLink) { pending in
-                ConfigureLinkSheet(link: pending.link, syncClient: syncClient, enrolmentService: enrolmentService) {
+                ConfigureLinkSheet(link: pending.link, enrolmentService: enrolmentService) {
                     pendingLink = nil
                 }
             }
@@ -86,7 +84,7 @@ public struct RootView: View {
                 MainView(session: session)
                     .tabItem { Label("Drive", systemImage: "location.fill") }
                     .tag(0)
-                TripsView(recorder: session.recorder, vehicleStore: vehicleStore, maintenanceStore: maintenanceStore, syncClient: syncClient)
+                TripsView(recorder: session.recorder, vehicleStore: vehicleStore, maintenanceStore: maintenanceStore)
                     .tabItem { Label("Trips", systemImage: "road.lanes") }
                     .tag(1)
                 GarageView(vehicleStore: vehicleStore, maintenanceStore: maintenanceStore, recorder: session.recorder)

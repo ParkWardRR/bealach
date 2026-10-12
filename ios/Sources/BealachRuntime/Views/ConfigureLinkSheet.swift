@@ -4,12 +4,11 @@
 import BealachCore
 import SwiftUI
 
-/// Confirms a scanned `cairn://configure` code, then saves the server, trusts its CA and enrols
+/// Confirms a scanned `bealach://configure` code, then saves the server, trusts its CA and enrols
 /// this device. Nothing is stored or sent until the person taps Connect, because the link can
 /// come from anywhere.
 struct ConfigureLinkSheet: View {
     let link: ConfigureLink
-    let syncClient: TripSyncClient
     let enrolmentService: EnrolmentService?
     let onFinish: () -> Void
 
@@ -50,7 +49,7 @@ struct ConfigureLinkSheet: View {
                 actions
             }
             .padding()
-            .navigationTitle("Cairn Setup")
+            .navigationTitle("Bealach Setup")
             .navigationBarTitleDisplayModeInline()
             .task {
                 if let service = enrolmentService {
@@ -72,7 +71,7 @@ struct ConfigureLinkSheet: View {
                 row("Tailnet", host)
             }
             if link.caCertificateDER != nil {
-                row("Certificate", "Trust this server's private CA for Cairn only")
+                row("Certificate", "Trust this server's private CA for Bealach only")
             }
             row("Invitation", "Enrol this phone")
             if alreadyEnrolled {
@@ -118,7 +117,7 @@ struct ConfigureLinkSheet: View {
 
     private var title: String {
         switch phase {
-        case .confirm, .connecting: "Connect to Cairn?"
+        case .confirm, .connecting: "Connect to Bealach?"
         case .done: "Connected"
         case .failed: "Couldn't connect"
         }
@@ -146,16 +145,12 @@ struct ConfigureLinkSheet: View {
         Task {
             do {
                 if let der = link.caCertificateDER { try PinnedCA.save(der: der) }
-                syncClient.lanURL = link.serverURL
-                if !link.tailnetURL.isEmpty { syncClient.tailnetURL = link.tailnetURL }
                 NotificationCenter.default.post(name: .bealachSetupChanged, object: nil)
                 _ = try await DeviceEnrolment.enrol(
                     code: link.invitationCode, serverURL: link.serverURL,
-                    tailnetURL: syncClient.tailnetURL, service: service
+                    tailnetURL: link.tailnetURL, service: service
                 )
                 phase = .done
-                await syncClient.probeEndpoints()
-                syncClient.sync()
             } catch {
                 phase = .failed(failureMessage(error))
             }

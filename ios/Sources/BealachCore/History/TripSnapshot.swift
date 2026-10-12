@@ -1,12 +1,13 @@
 // Provenance: cairn-ios-companion-app @ a7d02d8, Sources/CairnCore/History/TripSnapshot.swift
-// Renamed Cairn* → Bealach* for Bealach.
+// Renamed Cairn* → Bealach* for Bealach. Server (cairn-tsdb) references removed.
 
 import Foundation
 
-/// A trip record from the server's `cairn-tsdb`. This is the dongle's authoritative view of a trip,
-/// as opposed to `DriveSession` which is what the phone observed.
+/// A trip derived locally from bundle data on the phone. The phone segments continuous recordings
+/// into trips per the contract (recording.md §3.1): gaps > 30 min end a trip, stationary dwells
+/// > 5 min end a leg.
 public struct TripSnapshot: Codable, Identifiable, Sendable, Equatable {
-    /// boot_id from the dongle — one power cycle = one trip.
+    /// Locally-generated identifier: bundle_id + time range hash.
     public let id: String
     public var startedAt: Date
     public var endedAt: Date?
@@ -17,7 +18,6 @@ public struct TripSnapshot: Codable, Identifiable, Sendable, Equatable {
     public var obdSamples: Int
     public var gnssSamples: Int
     public var fixSamples: Int
-    public var phoneSamples: Int
     public var gapCount: Int
     public var gapDurationMs: Int
     public var warnings: String?
@@ -25,30 +25,26 @@ public struct TripSnapshot: Codable, Identifiable, Sendable, Equatable {
     public var startLat: Double?
     public var startLon: Double?
 
-    /// Metres along the dongle's GNSS track (fixes no more than 5 s apart), when the snapshot holds positions.
+    /// Metres along the GNSS track (fixes no more than 5 s apart), computed by the phone from bundle data.
     public var distanceMeters: Double?
-    /// The dongle's track, thinned for drawing. Empty when the snapshot has no positions for this trip.
+    /// The track thinned for drawing. Empty when bundle data has no positions for this trip.
     public var route: [RoutePoint] = []
-    /// MAF and lambda moments for a fuel estimate; empty when the dongle caught none.
+    /// MAF and lambda moments for a fuel estimate; empty when the bundle has none.
     public var fuelSamples: [FuelSample] = []
 
-    public var vehicleID: String?
-    public var deviceID: String?
-
-    /// When this snapshot was exported by the server.
-    public var snapshotAt: Date
+    /// 16-byte UUID of the dongle that recorded this trip, from the bundle manifest.
+    public var deviceID: Data?
 
     public init(
         id: String, startedAt: Date, endedAt: Date? = nil,
         durationSeconds: TimeInterval,
         maxSpeedKph: Int? = nil, maxRpm: Int? = nil,
         obdSamples: Int = 0, gnssSamples: Int = 0,
-        fixSamples: Int = 0, phoneSamples: Int = 0,
+        fixSamples: Int = 0,
         gapCount: Int = 0, gapDurationMs: Int = 0,
         warnings: String? = nil,
         startLat: Double? = nil, startLon: Double? = nil,
-        vehicleID: String? = nil, deviceID: String? = nil,
-        snapshotAt: Date = Date()
+        deviceID: Data? = nil
     ) {
         self.id = id
         self.startedAt = startedAt
@@ -59,15 +55,12 @@ public struct TripSnapshot: Codable, Identifiable, Sendable, Equatable {
         self.obdSamples = obdSamples
         self.gnssSamples = gnssSamples
         self.fixSamples = fixSamples
-        self.phoneSamples = phoneSamples
         self.gapCount = gapCount
         self.gapDurationMs = gapDurationMs
         self.warnings = warnings
         self.startLat = startLat
         self.startLon = startLon
-        self.vehicleID = vehicleID
         self.deviceID = deviceID
-        self.snapshotAt = snapshotAt
     }
 
     public var gnssGapSeconds: TimeInterval {
@@ -90,38 +83,27 @@ public struct RoutePoint: Codable, Sendable, Equatable {
     }
 }
 
-/// Combined view for the History tab: a phone-observed session optionally matched with a server trip.
+/// Combined view for the History tab: a phone-observed session optionally paired with a
+/// locally-derived trip from bundle data.
 public struct HistoryEntry: Identifiable, Sendable {
     public let id: String
-    public var phoneSession: DriveSession?
-    public var serverTrip: TripSnapshot?
+    public var session: DriveSession?
+    public var trip: TripSnapshot?
 
-    public init(phoneSession: DriveSession? = nil, serverTrip: TripSnapshot? = nil) {
-        if let s = phoneSession { self.id = s.id.uuidString }
-        else if let t = serverTrip { self.id = t.id }
+    public init(session: DriveSession? = nil, trip: TripSnapshot? = nil) {
+        if let s = session { self.id = s.id.uuidString }
+        else if let t = trip { self.id = t.id }
         else { self.id = UUID().uuidString }
-        self.phoneSession = phoneSession
-        self.serverTrip = serverTrip
+        self.session = session
+        self.trip = trip
     }
 
     public var startedAt: Date {
-        phoneSession?.startedAt ?? serverTrip?.startedAt ?? .distantPast
+        session?.startedAt ?? trip?.startedAt ?? .distantPast
     }
 
-    public var isOnPhoneOnly: Bool { phoneSession != nil && serverTrip == nil }
-    public var isOnServerOnly: Bool { phoneSession == nil && serverTrip != nil }
-    public var isMatched: Bool { phoneSession != nil && serverTrip != nil }
-
-    public var syncLabel: String? {
-        if serverTrip != nil { return nil }
-        if let session = phoneSession {
-            switch session.serverState {
-            case .unknown: return nil
-            case .pendingSync: return "Waiting to sync"
-            case .uploaded: return "Uploaded, processing"
-            case .consumed: return nil
-            }
-        }
-        return nil
-    }
+    public var hasSession: Bool { session != nil }
+    public var hasTrip: Bool { trip != nil }
+    public var isSessionOnly: Bool { session != nil && trip == nil }
+    public var isTripOnly: Bool { session == nil && trip != nil }
 }

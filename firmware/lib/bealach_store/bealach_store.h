@@ -342,8 +342,25 @@ bool bealach_capture_seal(bealach_capture_t *cap, const uint8_t seed[32],
  */
 int bealach_store_resume_interrupted_seals(void);
 
-/* Count sealed bundles awaiting a receipt, and their total bytes. */
+/* Count sealed bundles awaiting an ack, and their total bytes. */
 bool bealach_store_pending_stats(uint32_t *bundle_count, uint64_t *total_bytes);
+
+/*
+ * Owner phone keys, stored in NVS at enrolment. Two keys:
+ *
+ *   enroll_pub — X25519 public key, used to seal the enrolment blob (K_root).
+ *   ack_pub    — Ed25519 public key, used to verify ack signatures (the
+ *                pinned_key that gates pruning).
+ *
+ * Both are set atomically at enrolment; cleared on ownership reset.
+ */
+bool bealach_owner_key_set(const uint8_t enroll_pub[32], const uint8_t ack_pub[32]);
+bool bealach_owner_key_get_enroll(uint8_t out[32]);
+bool bealach_owner_key_get_ack(uint8_t out[32]);
+bool bealach_owner_key_clear(void);
+
+/* True when an ack key is stored and non-zero — the device is enrolled. */
+bool bealach_owner_enrolled(void);
 
 #ifdef __cplusplus
 }

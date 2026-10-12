@@ -98,9 +98,6 @@ struct TripCard: View {
                         stat(summary.averageSpeedKph.map { "\($0) km/h" } ?? summary.maxSpeedKph.map { "\($0) top" }, summary.averageSpeedKph == nil ? "Speed" : "Average")
                     }
                 }
-                if let sync = entry.syncLabel {
-                    Text(sync).font(.caption).foregroundStyle(.orange)
-                }
                 if let firstNote {
                     Text(firstNote).font(.caption).foregroundStyle(.secondary).lineLimit(1)
                 }
@@ -129,10 +126,10 @@ struct TripCard: View {
             BadgePill(text: "LIVE", color: .green)
         } else if summary.isBench {
             BadgePill(text: "BENCH", color: .secondary)
-        } else if entry.isOnPhoneOnly {
+        } else if entry.isSessionOnly {
             Image(systemName: "iphone").font(.caption).foregroundStyle(.secondary)
-        } else if entry.isOnServerOnly {
-            Image(systemName: "cloud.fill").font(.caption).foregroundStyle(.secondary)
+        } else if entry.isTripOnly {
+            Image(systemName: "externaldrive.fill").font(.caption).foregroundStyle(.secondary)
         }
     }
 }

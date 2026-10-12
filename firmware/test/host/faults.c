@@ -3230,6 +3230,32 @@ static bool row_unassigned_is_visible(void)
     return true;
 }
 
+static bool row_owner_key_round_trip(void)
+{
+    uint8_t enroll[32], ack[32], out[32];
+    for (int i = 0; i < 32; i++) { enroll[i] = (uint8_t)(0xAA ^ i); ack[i] = (uint8_t)(0x55 ^ i); }
+
+    CHECK(!bealach_owner_enrolled(), "enrolled before any key is set");
+    CHECK(!bealach_owner_key_get_ack(out), "ack key returned before set");
+    CHECK(!bealach_owner_key_get_enroll(out), "enroll key returned before set");
+
+    CHECK(bealach_owner_key_set(enroll, ack), "set failed");
+    CHECK(bealach_owner_enrolled(), "not enrolled after set");
+
+    CHECK(bealach_owner_key_get_enroll(out), "get enroll failed");
+    CHECK(memcmp(out, enroll, 32) == 0, "enroll key mismatch");
+
+    CHECK(bealach_owner_key_get_ack(out), "get ack failed");
+    CHECK(memcmp(out, ack, 32) == 0, "ack key mismatch");
+
+    CHECK(bealach_owner_key_clear(), "clear failed");
+    CHECK(!bealach_owner_enrolled(), "still enrolled after clear");
+    CHECK(!bealach_owner_key_get_ack(out), "ack key survives clear");
+    CHECK(!bealach_owner_key_get_enroll(out), "enroll key survives clear");
+
+    return true;
+}
+
 /* ── driver ───────────────────────────────────────────────────────────────── */
 
 typedef struct {
@@ -3279,6 +3305,7 @@ static const row_t ROWS[] = {
     { "v3",       "a resumed bundle keeps one binding",          row_resumed_bundle_keeps_its_binding },
     { "time",     "the UTC basis survives a resume, anchored at zero", row_utc_basis_survives_resume },
     { "v3",       "an unassigned device seals, visibly unbound", row_unassigned_is_visible },
+    { "owner",    "owner keys round-trip through NVS",           row_owner_key_round_trip },
 };
 
 int main(int argc, char **argv)

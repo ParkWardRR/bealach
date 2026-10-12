@@ -53,11 +53,6 @@ public struct DriveSession: Codable, Identifiable, Sendable, Equatable {
     /// True once `DEVICE_STATUS` reported `tripPhase == .driving` during this session.
     public var deviceReportedDriving: Bool
 
-    // MARK: Server reconciliation
-
-    public var serverState: ServerState
-    public var remoteTripID: String?
-
     public init(
         id: UUID = UUID(),
         deviceID: String? = nil,
@@ -82,7 +77,6 @@ public struct DriveSession: Codable, Identifiable, Sendable, Equatable {
         self.trackSegments = [TrackSegment(startIndex: 0, startedAt: startedAt)]
         self.obdReceived = false
         self.deviceReportedDriving = false
-        self.serverState = .unknown
     }
 }
 
@@ -105,12 +99,6 @@ public extension DriveSession {
         case appTerminatedDuringGap
     }
 
-    enum ServerState: String, Codable, Sendable, Equatable {
-        case unknown
-        case pendingSync
-        case uploaded
-        case consumed
-    }
 }
 
 // MARK: - Counters

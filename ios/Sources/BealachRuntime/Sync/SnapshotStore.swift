@@ -45,10 +45,8 @@ actor SnapshotStore {
         guard hasDriveSummary else { return [] }
 
         let hasPosition = (try? conn.query("SELECT 1 FROM position LIMIT 1")) != nil
-        let hasVehicle = hasColumn(conn, table: "drive_summary", column: "vehicle_id")
         let hasDevice = hasColumn(conn, table: "drive_summary", column: "device_id")
 
-        let vehicleCol = hasVehicle ? "d.vehicle_id" : "NULL::VARCHAR AS vehicle_id"
         let deviceCol = hasDevice ? "d.device_id" : "NULL::VARCHAR AS device_id"
 
         let sql: String
@@ -62,14 +60,12 @@ actor SnapshotStore {
                     d.obd_samples,
                     d.gnss_samples,
                     d.fix_samples,
-                    d.phone_samples,
                     d.gap_count,
                     d.gap_duration_ms,
                     d.warnings,
                     p.observed_at,
                     p.lat,
                     p.lon,
-                    \(vehicleCol),
                     \(deviceCol)
                 FROM drive_summary d
                 LEFT JOIN (
@@ -95,14 +91,12 @@ actor SnapshotStore {
                     obd_samples,
                     gnss_samples,
                     fix_samples,
-                    phone_samples,
                     gap_count,
                     gap_duration_ms,
                     warnings,
                     NULL::TIMESTAMP AS observed_at,
                     NULL::DOUBLE AS lat,
                     NULL::DOUBLE AS lon,
-                    \(hasVehicle ? "vehicle_id" : "NULL::VARCHAR AS vehicle_id"),
                     \(hasDevice ? "device_id" : "NULL::VARCHAR AS device_id")
                 FROM drive_summary
             """
@@ -116,10 +110,16 @@ actor SnapshotStore {
             let durationS = dblVal(result, col: 1, row: i) ?? 0
 
             let startDate: Foundation.Date
-            if let ts = tsVal(result, col: 11, row: i) {
+            if let ts = tsVal(result, col: 10, row: i) {
                 startDate = ts
             } else {
                 startDate = .distantPast
+            }
+
+            // Convert device_id string to 16-byte UUID Data if present
+            let deviceIDData: Data? = strVal(result, col: 13, row: i).flatMap { str in
+                guard let uuid = UUID(uuidString: str) else { return nil }
+                return withUnsafeBytes(of: uuid.uuid) { Data($0) }
             }
 
             snapshots.append(TripSnapshot(
@@ -132,15 +132,12 @@ actor SnapshotStore {
                 obdSamples: i64Val(result, col: 4, row: i) ?? 0,
                 gnssSamples: i64Val(result, col: 5, row: i) ?? 0,
                 fixSamples: i64Val(result, col: 6, row: i) ?? 0,
-                phoneSamples: i64Val(result, col: 7, row: i) ?? 0,
-                gapCount: i64Val(result, col: 8, row: i) ?? 0,
-                gapDurationMs: i64Val(result, col: 9, row: i) ?? 0,
-                warnings: strVal(result, col: 10, row: i),
-                startLat: dblVal(result, col: 12, row: i),
-                startLon: dblVal(result, col: 13, row: i),
-                vehicleID: strVal(result, col: 14, row: i),
-                deviceID: strVal(result, col: 15, row: i),
-                snapshotAt: Foundation.Date()
+                gapCount: i64Val(result, col: 7, row: i) ?? 0,
+                gapDurationMs: i64Val(result, col: 8, row: i) ?? 0,
+                warnings: strVal(result, col: 9, row: i),
+                startLat: dblVal(result, col: 11, row: i),
+                startLon: dblVal(result, col: 12, row: i),
+                deviceID: deviceIDData
             ))
         }
         enrich(&snapshots, conn)

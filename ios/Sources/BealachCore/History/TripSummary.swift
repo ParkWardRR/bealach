@@ -4,12 +4,12 @@
 import Foundation
 
 /// What the Trips list shows for one trip: the numbers a person scans for, derived from whichever
-/// of the phone's session and the server's trip is present. Pure, so it is tested without a device.
+/// of the phone's session and the locally-derived trip is present. Pure, so it is tested without a device.
 public struct TripSummary: Identifiable, Sendable, Equatable {
     public let id: String
     public let startedAt: Date
     public let durationSeconds: TimeInterval
-    /// Metres driven: along the dongle's GNSS track when the server has the trip, else the phone's own track.
+    /// Metres driven: along the dongle's GNSS track when the trip has bundle data, else the phone's own track.
     public let distanceMeters: Double?
     public let maxSpeedKph: Int?
     public let averageSpeedKph: Int?
@@ -18,7 +18,7 @@ public struct TripSummary: Identifiable, Sendable, Equatable {
     /// Normalised 0...1 points (x east, y north) for a map-free sketch of the route, thinned.
     public let routeSketch: [SketchPoint]
     /// The route as runs of places (a run ends at a dropout), for drawing on a map. The dongle's when the
-    /// server has it, else the phone's.
+    /// trip has bundle data, else the phone's.
     public let routeRuns: [[RoutePoint]]
     /// Fuel economy estimated from the dongle's MAF samples; nil without enough of them.
     public let fuel: FuelEstimate?
@@ -37,14 +37,14 @@ public struct TripSummary: Identifiable, Sendable, Equatable {
     static let sketchPointLimit = 80
 
     public init(entry: HistoryEntry, ethanolPercent: Int = FuelEstimate.defaultEthanolPercent) {
-        let session = entry.phoneSession
-        let trip = entry.serverTrip
+        let session = entry.session
+        let trip = entry.trip
         self.id = entry.id
         self.startedAt = entry.startedAt
         self.isBench = session?.quality == .bench && trip == nil
         self.isLive = session.map { $0.lifecycle == .active || $0.lifecycle == .gapPending } ?? false
 
-        // The dongle's own account of the trip is authoritative when the server has it.
+        // The dongle's own account of the trip is authoritative when bundle data is present.
         if let trip, trip.durationSeconds > 0 {
             self.durationSeconds = trip.durationSeconds
         } else {
@@ -53,14 +53,14 @@ public struct TripSummary: Identifiable, Sendable, Equatable {
 
         let usable = Self.usableTrack(session)
         let phoneRuns = usable.map { $0.map { RoutePoint(latitude: $0.latitude, longitude: $0.longitude) } }
-        let serverRoute = trip?.route ?? []
-        let runs = serverRoute.count >= 2 ? [serverRoute] : phoneRuns.filter { $0.count >= 2 }
+        let bundleRoute = trip?.route ?? []
+        let runs = bundleRoute.count >= 2 ? [bundleRoute] : phoneRuns.filter { $0.count >= 2 }
         self.routeRuns = runs
         self.routeSketch = Self.sketch(of: runs.flatMap { $0 })
 
-        // the dongle's GNSS distance when the server has one worth trusting, else what the phone drove
-        let serverDistance = trip?.distanceMeters.flatMap { $0 > 50 ? $0 : nil }
-        let distance = serverDistance ?? Self.distance(of: usable)
+        // the dongle's GNSS distance when bundle data has one worth trusting, else what the phone drove
+        let bundleDistance = trip?.distanceMeters.flatMap { $0 > 50 ? $0 : nil }
+        let distance = bundleDistance ?? Self.distance(of: usable)
         self.distanceMeters = distance
 
         let trackMax = usable.flatMap { $0 }.compactMap { $0.speed >= 0 ? $0.speed * 3.6 : nil }.max()

@@ -239,6 +239,8 @@ void bealach_new_boot_id(uint8_t boot_id[16])
 #define KV_DEVICE_COUNTER  "dev_counter"
 #define KV_VEHICLE_ID      "vehicle_id"
 #define KV_ASSIGNMENT_ID   "assignment_id"
+#define KV_OWNER_ENROLL    "owner_enroll"
+#define KV_OWNER_ACK       "owner_ack"
 
 /* The version a freshly generated root is. The owner phone receives it as
  * version 1 at enrolment; a rotation would issue the next. */
@@ -374,8 +376,7 @@ bool bealach_storage_identity_load(bealach_storage_identity_t *out)
         memset(out->assignment_id, 0, 16);
         BEALACH_LOGW(TAG, "UNASSIGNED: no vehicle assignment is provisioned. Capture "
                         "continues, but bundles carry an all-zero vehicle_id and "
-                        "assignment_id and the server will refuse them until this "
-                        "device is assigned (cairn-admin assign)");
+                        "assignment_id until the owner phone assigns a vehicle");
     }
 
     out->counter_reserve = kv_counter_reserve;
@@ -407,6 +408,42 @@ bool bealach_storage_raise_counter(uint64_t floor)
     if (floor <= cur) return true;
 
     return kv_counter_write(floor);
+}
+
+/* ── owner phone keys ────────────────────────────────────────────────────── */
+
+bool bealach_owner_key_set(const uint8_t enroll_pub[32], const uint8_t ack_pub[32])
+{
+    if (!bealach_kv_begin()) return false;
+    return bealach_kv_set_blob(KV_OWNER_ENROLL, enroll_pub, 32) &&
+           bealach_kv_set_blob(KV_OWNER_ACK, ack_pub, 32);
+}
+
+bool bealach_owner_key_get_enroll(uint8_t out[32])
+{
+    if (!bealach_kv_begin()) return false;
+    return bealach_kv_get_blob(KV_OWNER_ENROLL, out, 32);
+}
+
+bool bealach_owner_key_get_ack(uint8_t out[32])
+{
+    if (!bealach_kv_begin()) return false;
+    return bealach_kv_get_blob(KV_OWNER_ACK, out, 32);
+}
+
+bool bealach_owner_key_clear(void)
+{
+    if (!bealach_kv_begin()) return false;
+    bealach_kv_erase(KV_OWNER_ENROLL);
+    bealach_kv_erase(KV_OWNER_ACK);
+    return true;
+}
+
+bool bealach_owner_enrolled(void)
+{
+    uint8_t key[32];
+    if (!bealach_owner_key_get_ack(key)) return false;
+    return !all_zero(key, 32);
 }
 
 /* ── paths ────────────────────────────────────────────────────────────────── */

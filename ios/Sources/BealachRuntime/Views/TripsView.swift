@@ -1,5 +1,5 @@
 // Provenance: cairn-ios-companion-app @ a7d02d8, Sources/CairnRuntime/Views/TripsView.swift
-// Renamed Cairn* → Bealach* for Bealach.
+// Renamed Cairn* → Bealach* for Bealach. Server sync removed.
 
 import BealachCore
 import SwiftUI
@@ -8,9 +8,7 @@ public struct TripsView: View {
     let recorder: DriveRecorder
     let vehicleStore: GRDBVehicleStore
     let maintenanceStore: GRDBMaintenanceStore
-    let syncClient: TripSyncClient
     @State private var sessions: [DriveSession] = []
-    @State private var serverTrips: [TripSnapshot] = []
     @State private var isLoading = true
     @State private var vehicles: [Vehicle] = []
     @State private var filterVehicleID: String?
@@ -20,15 +18,14 @@ public struct TripsView: View {
     @State private var allAnnotations: [Annotation] = []
     @AppStorage(FuelEstimate.ethanolKey) private var ethanol = FuelEstimate.defaultEthanolPercent
 
-    public init(recorder: DriveRecorder, vehicleStore: GRDBVehicleStore, maintenanceStore: GRDBMaintenanceStore, syncClient: TripSyncClient) {
+    public init(recorder: DriveRecorder, vehicleStore: GRDBVehicleStore, maintenanceStore: GRDBMaintenanceStore) {
         self.recorder = recorder
         self.vehicleStore = vehicleStore
         self.maintenanceStore = maintenanceStore
-        self.syncClient = syncClient
     }
 
     private var allEntries: [HistoryEntry] {
-        HistoryMerger.merge(sessions: sessions, trips: serverTrips)
+        HistoryMerger.merge(sessions: sessions)
     }
 
     private var filteredEntries: [HistoryEntry] {
@@ -36,7 +33,7 @@ public struct TripsView: View {
 
         if let vid = filterVehicleID {
             result = result.filter {
-                $0.phoneSession?.vehicleID == vid || $0.serverTrip?.vehicleID == vid
+                $0.session?.vehicleID == vid
             }
         }
 
@@ -97,7 +94,7 @@ public struct TripsView: View {
                     ContentUnavailableView(
                         "No trips yet",
                         systemImage: "car.side",
-                        description: Text("Trips appear here by themselves once your Cairn dongle has connected and you have driven.")
+                        description: Text("Trips appear here by themselves once your Bealach dongle has connected and you have driven.")
                     )
                 } else {
                     VStack(spacing: 0) {
@@ -112,13 +109,6 @@ public struct TripsView: View {
             }
             .navigationTitle("Trips")
             .searchable(text: $searchText, prompt: "Search notes")
-            .toolbar {
-                if syncClient.hasServer {
-                    ToolbarItem(placement: .automatic) {
-                        syncButton
-                    }
-                }
-            }
             .task { await load() }
             .refreshable { await load() }
         }
@@ -244,7 +234,7 @@ public struct TripsView: View {
                         }
                     }
                     .onDelete { indexSet in
-                        let doomed = indexSet.compactMap { entries[day.trips[$0].id]?.phoneSession?.id }
+                        let doomed = indexSet.compactMap { entries[day.trips[$0].id]?.session?.id }
                         Task {
                             for id in doomed { try? await recorder.deleteSession(id) }
                             await load()
@@ -267,31 +257,12 @@ public struct TripsView: View {
         }
     }
 
-    @ViewBuilder
-    private var syncButton: some View {
-        Button {
-            syncClient.sync()
-            Task {
-                try? await Task.sleep(for: .seconds(2))
-                await load()
-            }
-        } label: {
-            if syncClient.state == .syncing {
-                ProgressView()
-            } else {
-                Image(systemName: "arrow.triangle.2.circlepath")
-            }
-        }
-        .disabled(syncClient.state == .syncing)
-    }
-
     // MARK: - Data Loading
 
     private func load() async {
         isLoading = true
         vehicles = (try? await vehicleStore.listVehicles()) ?? []
         sessions = (try? await recorder.allSessions()) ?? []
-        serverTrips = syncClient.cachedTrips()
         await loadAnnotations()
         isLoading = false
     }
@@ -348,14 +319,14 @@ struct TripDetailView: View {
         ScrollView {
             VStack(spacing: 16) {
                 tripHeader
-                if let session = entry.phoneSession {
+                if let session = entry.session {
                     phoneSection(session)
                 }
-                if let trip = entry.serverTrip {
-                    serverSection(trip)
+                if let trip = entry.trip {
+                    bundleSection(trip)
                 }
                 annotationSection
-                if let session = entry.phoneSession, !session.events.isEmpty {
+                if let session = entry.session, !session.events.isEmpty {
                     eventTimeline(session)
                 }
             }
@@ -390,7 +361,7 @@ struct TripDetailView: View {
             Button("Save") {
                 guard !noteText.isEmpty else { return }
                 let annotation = Annotation(
-                    vehicleID: entry.phoneSession?.vehicleID,
+                    vehicleID: entry.session?.vehicleID,
                     targetID: entry.id,
                     text: noteText
                 )
@@ -518,7 +489,7 @@ struct TripDetailView: View {
                 try? await maintenanceStore.deleteAnnotation(existing.id)
             } else {
                 let fav = Annotation(
-                    vehicleID: entry.phoneSession?.vehicleID,
+                    vehicleID: entry.session?.vehicleID,
                     targetID: entry.id,
                     kind: .favorite,
                     text: ""
@@ -563,22 +534,13 @@ struct TripDetailView: View {
     }
 
     @ViewBuilder
-    private func serverSection(_ trip: TripSnapshot) -> some View {
-        GroupBox("Server Trip") {
+    private func bundleSection(_ trip: TripSnapshot) -> some View {
+        GroupBox("Bundle Trip Data") {
             VStack(alignment: .leading, spacing: 8) {
-                if trip.vehicleID != nil || trip.deviceID != nil {
-                    HStack(spacing: 12) {
-                        if let vid = trip.vehicleID,
-                           let vehicle = vehicles.first(where: { $0.id == vid }) {
-                            Label("\(vehicle.year) \(vehicle.make) \(vehicle.model)", systemImage: "car.fill")
-                                .font(.caption)
-                        }
-                        if let did = trip.deviceID {
-                            Label(String(did.prefix(8)), systemImage: "sensor.fill")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
+                if let did = trip.deviceID {
+                    Label(did.prefix(8).map { String(format: "%02x", $0) }.joined(), systemImage: "sensor.fill")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                     tile("Duration", formatDuration(trip.durationSeconds))
@@ -587,7 +549,6 @@ struct TripDetailView: View {
                     tile("OBD samples", "\(trip.obdSamples)")
                     tile("GNSS samples", "\(trip.gnssSamples)")
                     tile("Fix samples", "\(trip.fixSamples)")
-                    tile("Phone samples", "\(trip.phoneSamples)")
                     tile("GNSS gaps", "\(trip.gapCount) (\(formatDuration(trip.gnssGapSeconds)))")
                 }
             }
@@ -645,31 +606,11 @@ struct TripDetailView: View {
 // MARK: - Merge
 
 enum HistoryMerger {
-    static func merge(sessions: [DriveSession], trips: [TripSnapshot]) -> [HistoryEntry] {
-        var entries: [HistoryEntry] = sessions.map { HistoryEntry(phoneSession: $0) }
-        var matchedTrips: Set<String> = []
-        for i in entries.indices {
-            guard let session = entries[i].phoneSession else { continue }
-            if let trip = trips.first(where: { matchesTime(session: session, trip: $0) && !matchedTrips.contains($0.id) }) {
-                entries[i] = HistoryEntry(phoneSession: session, serverTrip: trip)
-                matchedTrips.insert(trip.id)
-            }
-        }
-        for trip in trips where !matchedTrips.contains(trip.id) {
-            entries.append(HistoryEntry(serverTrip: trip))
-        }
+    /// Build history entries from sessions. Trips from bundle data will be merged in once
+    /// the bundle import pipeline is built; for now each session is its own entry.
+    static func merge(sessions: [DriveSession]) -> [HistoryEntry] {
+        var entries: [HistoryEntry] = sessions.map { HistoryEntry(session: $0) }
         entries.sort { $0.startedAt > $1.startedAt }
         return entries
-    }
-
-    private static func matchesTime(session: DriveSession, trip: TripSnapshot) -> Bool {
-        guard let tripEnd = trip.endedAt else { return false }
-        let sessionEnd = session.closedAt ?? session.lastObservedAt
-        let overlapStart = max(session.startedAt, trip.startedAt)
-        let overlapEnd = min(sessionEnd, tripEnd)
-        let overlap = overlapEnd.timeIntervalSince(overlapStart)
-        let sessionDuration = sessionEnd.timeIntervalSince(session.startedAt)
-        guard sessionDuration > 0 else { return false }
-        return overlap / sessionDuration > 0.5
     }
 }
