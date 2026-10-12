@@ -5,7 +5,7 @@ import BealachCore
 import SwiftUI
 
 public struct RootView: View {
-    private static let hasSeenWelcomeKey = "cairn.hasSeenWelcome"
+    private static let hasSeenWelcomeKey = "bealach.hasSeenWelcome"
 
     private let session: DrivingSession
     private let vehicleStore: GRDBVehicleStore
@@ -59,7 +59,7 @@ public struct RootView: View {
                 do {
                     pendingLink = PendingLink(link: try ConfigureLink.parse(url))
                 } catch {
-                    linkError = "That link isn't a valid Cairn setup code. Ask for a new QR code."
+                    linkError = "That link isn't a valid Bealach setup code. Ask for a new QR code."
                 }
             }
             .sheet(item: $pendingLink) { pending in

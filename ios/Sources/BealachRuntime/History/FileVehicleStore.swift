@@ -6,9 +6,9 @@ import Foundation
 import os
 
 public actor FileVehicleStore: VehicleStore {
-    private static let log = Logger(subsystem: "app.cairn.companion", category: "vehicles")
+    private static let log = Logger(subsystem: "app.bealach", category: "vehicles")
     nonisolated let root: URL
-    private let selectedKey = "cairn.selectedVehicleID"
+    private let selectedKey = "bealach.selectedVehicleID"
     private let encoder: JSONEncoder = {
         let e = JSONEncoder()
         e.dateEncodingStrategy = .iso8601

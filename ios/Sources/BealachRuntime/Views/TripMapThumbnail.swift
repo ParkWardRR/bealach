@@ -48,7 +48,7 @@ struct TripMapThumbnail: View {
 @MainActor
 final class TripMapSnapshots {
     static let shared = TripMapSnapshots()
-    private nonisolated static var log: Logger { Logger(subsystem: "app.cairn.companion", category: "trip-map") }
+    private nonisolated static var log: Logger { Logger(subsystem: "app.bealach", category: "trip-map") }
     private let cache = NSCache<NSString, UIImage>()
     private var inFlight: [String: Task<UIImage?, Never>] = [:]
 

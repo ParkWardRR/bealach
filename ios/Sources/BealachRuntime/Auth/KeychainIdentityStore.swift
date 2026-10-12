@@ -5,8 +5,8 @@ import BealachCore
 import Foundation
 
 public actor KeychainIdentityStore: IdentityStore {
-    private static let stateKey = "app.cairn.companion.enrolment-state"
-    private static let identityKey = "app.cairn.companion.enrolled-identity"
+    private static let stateKey = "app.bealach.enrolment-state"
+    private static let identityKey = "app.bealach.enrolled-identity"
 
     public init() {}
 

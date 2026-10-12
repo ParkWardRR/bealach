@@ -32,7 +32,7 @@ public struct FuelEstimate: Sendable, Equatable {
 
     public static let defaultEthanolPercent = 37
     /// Where the app keeps the owner's blend (UserDefaults).
-    public static let ethanolKey = "cairn.ethanolBlend"
+    public static let ethanolKey = "bealach.ethanolBlend"
     /// Fewer than this and nothing is worth showing.
     public static let minimumSamples = 3
 

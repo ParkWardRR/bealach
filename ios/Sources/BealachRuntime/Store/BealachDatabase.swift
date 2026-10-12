@@ -8,7 +8,7 @@ import GRDB
 import os
 
 public final class BealachDatabase: Sendable {
-    private static let log = Logger(subsystem: "app.cairn.companion", category: "db")
+    private static let log = Logger(subsystem: "app.bealach", category: "db")
     let dbPool: DatabasePool
     let encryptionKey: SymmetricKey
 
@@ -16,7 +16,7 @@ public final class BealachDatabase: Sendable {
         let dir = path ?? Self.defaultPath()
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
 
-        let dbFile = dir.appendingPathComponent("cairn.sqlite")
+        let dbFile = dir.appendingPathComponent("bealach.sqlite")
         Self.setFileProtection(dbFile)
         Self.excludeFromBackup(dir)
 
@@ -36,7 +36,7 @@ public final class BealachDatabase: Sendable {
 
     private static func defaultPath() -> URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            .appendingPathComponent("cairn-db", isDirectory: true)
+            .appendingPathComponent("bealach-db", isDirectory: true)
     }
 
     private static func setFileProtection(_ url: URL) {

@@ -12,7 +12,7 @@ public final class DriveLog: @unchecked Sendable {
 
     public static var defaultFileURL: URL {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("cairn-drive.log")
+            .appendingPathComponent("bealach-drive.log")
     }
 
     public let fileURL: URL
@@ -21,7 +21,7 @@ public final class DriveLog: @unchecked Sendable {
     }
 
     private let maxBytes: Int
-    private let queue = DispatchQueue(label: "app.cairn.companion.drivelog", qos: .utility)
+    private let queue = DispatchQueue(label: "app.bealach.drivelog", qos: .utility)
 
     public init(fileURL: URL, maxBytes: Int = 1_000_000) {
         self.fileURL = fileURL

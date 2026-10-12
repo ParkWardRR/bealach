@@ -54,8 +54,8 @@ private struct Header: View {
                 .padding(6)
                 .background(BealachMark.tile, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             VStack(alignment: .leading, spacing: 2) {
-                Text("Cairn").font(.title.weight(.bold))
-                Text("GPS companion").font(.subheadline).foregroundStyle(.secondary)
+                Text("Bealach").font(.title.weight(.bold))
+                Text("Driving recorder").font(.subheadline).foregroundStyle(.secondary)
             }
             Spacer()
             Button { showingGuide = true } label: {
@@ -165,7 +165,7 @@ private struct StatusCard: View {
                 set: { $0 ? session.arm() : session.disarm() }
             )) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Auto-connect to Cairn").font(.body.weight(.medium))
+                    Text("Auto-connect to Bealach").font(.body.weight(.medium))
                     Text("Starts when the dongle powers up, stops when it drops.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
@@ -196,7 +196,7 @@ private struct PairingCard: View {
                         .font(.footnote.weight(.medium))
                     VStack(alignment: .leading, spacing: 4) {
                         Label("Tap Forget Dongle below", systemImage: "1.circle.fill")
-                        Label("Settings → Bluetooth → Cairn → Forget This Device", systemImage: "2.circle.fill")
+                        Label("Settings → Bluetooth → Bealach → Forget This Device", systemImage: "2.circle.fill")
                         Label("Toggle auto-connect back on", systemImage: "3.circle.fill")
                     }
                     .font(.caption)

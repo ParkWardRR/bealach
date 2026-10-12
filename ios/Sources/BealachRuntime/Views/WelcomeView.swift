@@ -14,7 +14,7 @@ public struct WelcomeView: View {
     private let pages: [(symbol: String, title: String, body: String, accent: Color)] = [
         ("car.side.rear.and.collision.and.car.side.front",
          "Your driving log",
-         "Cairn is a small dongle that plugs into your car's OBD-II port. It records GPS position, speed, engine data, and more — every drive, automatically.",
+         "Bealach is a small dongle that plugs into your car's OBD-II port. It records GPS position, speed, engine data, and more — every drive, automatically.",
          .blue),
         ("iphone.radiowaves.left.and.right",
          "This app connects to it",

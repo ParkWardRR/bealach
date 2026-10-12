@@ -14,7 +14,7 @@ import os
 import DuckDB
 
 actor SnapshotStore {
-    private static let log = Logger(subsystem: "app.cairn.companion", category: "store")
+    private static let log = Logger(subsystem: "app.bealach", category: "store")
     private var database: Database?
     private var connection: Connection?
 

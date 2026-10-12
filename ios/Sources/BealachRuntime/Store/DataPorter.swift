@@ -109,7 +109,7 @@ public final class DataPorter: Sendable {
         return HKDF<SHA256>.deriveKey(
             inputKeyMaterial: inputKey,
             salt: salt,
-            info: Data("cairn-backup-v1".utf8),
+            info: Data("bealach-backup-v1".utf8),
             outputByteCount: 32
         )
     }

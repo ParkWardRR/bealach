@@ -14,7 +14,7 @@ import Security
 /// a Secure Enclave key is stored as its opaque `dataRepresentation` (the private half never
 /// leaves the chip), a software key as its raw scalar.
 enum IdentityKeychain {
-    static let service = "app.cairn.companion.identity"
+    static let service = "app.bealach.identity"
 
     static func load(account: String) -> Data? {
         var out: CFTypeRef?

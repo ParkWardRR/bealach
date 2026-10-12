@@ -7,9 +7,9 @@ import GRDB
 import os
 
 public final class GRDBVehicleStore: VehicleStore, Sendable {
-    private static let log = Logger(subsystem: "app.cairn.companion", category: "grdb-vehicles")
+    private static let log = Logger(subsystem: "app.bealach", category: "grdb-vehicles")
     private let db: BealachDatabase
-    private let selectedKey = "cairn.selectedVehicleID"
+    private let selectedKey = "bealach.selectedVehicleID"
 
     public init(db: BealachDatabase) {
         self.db = db

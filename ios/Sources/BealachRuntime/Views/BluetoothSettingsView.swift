@@ -34,7 +34,7 @@ public struct BluetoothSettingsView: View {
                     .frame(width: 40, height: 40)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Cairn Dongle")
+                    Text("Bealach Dongle")
                         .font(.body.weight(.medium))
                     Text(state.stage)
                         .font(.subheadline)
@@ -131,9 +131,9 @@ public struct BluetoothSettingsView: View {
     private var troubleshootingSection: some View {
         Section {
             checkRow("Bluetooth power", passed: bluetoothOn, failHint: "Turn on Bluetooth in Control Center or Settings.")
-            checkRow("Bluetooth permission", passed: bluetoothPermitted, failHint: "Go to Settings > Privacy > Bluetooth and allow Cairn Companion.")
+            checkRow("Bluetooth permission", passed: bluetoothPermitted, failHint: "Go to Settings > Privacy > Bluetooth and allow Bealach.")
             checkRow("Dongle in range", passed: dongleReachable, failHint: "Make sure the dongle is powered on and within range.")
-            checkRow("Bond valid", passed: bondValid, failHint: "The pairing keys are stale. Use Forget Dongle, then go to Settings > Bluetooth > Cairn > Forget This Device, and re-pair.")
+            checkRow("Bond valid", passed: bondValid, failHint: "The pairing keys are stale. Use Forget Dongle, then go to Settings > Bluetooth > Bealach > Forget This Device, and re-pair.")
             checkRow("Protocol compatible", passed: protocolOk, failHint: "The dongle firmware version is not compatible with this app. Update the firmware or the app.")
         } header: {
             Text("Troubleshooting")

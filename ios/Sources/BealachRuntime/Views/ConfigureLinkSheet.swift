@@ -148,7 +148,7 @@ struct ConfigureLinkSheet: View {
                 if let der = link.caCertificateDER { try PinnedCA.save(der: der) }
                 syncClient.lanURL = link.serverURL
                 if !link.tailnetURL.isEmpty { syncClient.tailnetURL = link.tailnetURL }
-                NotificationCenter.default.post(name: .cairnSetupChanged, object: nil)
+                NotificationCenter.default.post(name: .bealachSetupChanged, object: nil)
                 _ = try await DeviceEnrolment.enrol(
                     code: link.invitationCode, serverURL: link.serverURL,
                     tailnetURL: syncClient.tailnetURL, service: service

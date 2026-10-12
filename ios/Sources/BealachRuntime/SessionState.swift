@@ -261,9 +261,9 @@ public enum DeviceEnrolment {
     }
 }
 
-/// Notification posted when server setup changes. Stubbed for Bealach.
+/// Notification posted when device setup changes (e.g. enrolment).
 public extension Notification.Name {
-    static let cairnSetupChanged = Notification.Name("cairnSetupChanged")
+    static let bealachSetupChanged = Notification.Name("bealachSetupChanged")
 }
 
 // MARK: - Server admin stubs (not used in Bealach)

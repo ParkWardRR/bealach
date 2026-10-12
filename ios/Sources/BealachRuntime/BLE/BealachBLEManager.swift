@@ -13,9 +13,9 @@ import os
 public final class BealachBLEManager: NSObject {
     public enum SendResult: Sendable { case sent, notReady, backpressure }
 
-    private static let log = Logger(subsystem: "app.cairn.companion", category: "ble")
-    private static let restoreID = "app.cairn.companion.central"
-    private static let lastPeripheralKey = "cairn.lastPeripheralID"
+    private static let log = Logger(subsystem: "app.bealach", category: "ble")
+    private static let restoreID = "app.bealach.central"
+    private static let lastPeripheralKey = "bealach.lastPeripheralID"
     private static let streamingTimeout = LinkHealth.liveWindow
 
     private let state: SessionState

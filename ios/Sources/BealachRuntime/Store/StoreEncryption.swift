@@ -5,7 +5,7 @@ import CryptoKit
 import Foundation
 
 enum StoreEncryption {
-    private static let keychainTag = "app.cairn.companion.store-key"
+    private static let keychainTag = "app.bealach.store-key"
 
     static func loadOrCreateKey() throws -> SymmetricKey {
         if let existing = try loadKey() { return existing }

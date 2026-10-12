@@ -25,8 +25,8 @@ public final class OffloadController {
         case needsAttention(String)
     }
 
-    private static let log = Logger(subsystem: "app.cairn.companion", category: "offload")
-    private static let lastRunKey = "cairn.offload.lastRunAt"
+    private static let log = Logger(subsystem: "app.bealach", category: "offload")
+    private static let lastRunKey = "bealach.offload.lastRunAt"
     private static let retryInterval: Duration = .seconds(150)
     private static let maxRetries = 48   // about two hours of waiting for a drive to end
 

@@ -10,7 +10,7 @@ import os
 /// existing 30 s summary timer. All writes go through the store actor.
 @MainActor
 public final class DriveRecorder {
-    private static let log = Logger(subsystem: "app.cairn.companion", category: "recorder")
+    private static let log = Logger(subsystem: "app.bealach", category: "recorder")
     private let store: any DriveStore
     private let vehicleStore: any VehicleStore
     private var current: DriveSession?

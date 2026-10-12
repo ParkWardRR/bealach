@@ -8,7 +8,7 @@ import os
 /// JSON-per-drive persistence under Application Support. One file per session, plus a rebuildable index.
 /// All mutations are serialized through an actor so concurrent saves and deletes cannot race.
 public actor FileDriveStore: DriveStore {
-    private static let log = Logger(subsystem: "app.cairn.companion", category: "store")
+    private static let log = Logger(subsystem: "app.bealach", category: "store")
     private let root: URL
     private let indexURL: URL
     private let encoder: JSONEncoder = {

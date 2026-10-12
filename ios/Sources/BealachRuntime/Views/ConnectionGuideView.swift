@@ -10,7 +10,7 @@ struct ConnectionGuideView: View {
         NavigationStack {
             List {
                 Section("Getting Started") {
-                    step("1", "Power on the Cairn dongle")
+                    step("1", "Power on the Bealach dongle")
                     step("2", "Toggle **Auto-connect** on in this app")
                     step("3", "Enter the 6-digit passkey when iOS prompts")
                     step("4", "Status shows **Streaming** once GPS data is flowing")
@@ -31,7 +31,7 @@ struct ConnectionGuideView: View {
 
                 Section("Re-pairing from Scratch") {
                     step("1", "Toggle **Auto-connect** off")
-                    step("2", "Open **Settings → Bluetooth → Cairn → Forget This Device**")
+                    step("2", "Open **Settings → Bluetooth → Bealach → Forget This Device**")
                     step("3", "Power-cycle the dongle")
                     step("4", "Toggle **Auto-connect** back on and enter the passkey")
                 }
@@ -48,7 +48,7 @@ struct ConnectionGuideView: View {
                     trouble("No data after connecting",
                             "The dongle may still be acquiring a GPS fix after a cold start. Wait 30–60 s for satellites.")
                     trouble("Location permission",
-                            "The app needs \"Always\" location access to stream GPS when the screen is locked. Check Settings → Cairn → Location.")
+                            "The app needs \"Always\" location access to stream GPS when the screen is locked. Check Settings → Bealach → Location.")
                 } header: {
                     Text("Troubleshooting")
                 }

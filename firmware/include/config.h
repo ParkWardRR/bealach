@@ -1,12 +1,11 @@
 /* Provenance: cairn-esp32-device-firmware @ ead3532, include/config.h
- * Renamed bealach_* → bealach_* for Bealach. Wire format markers unchanged. */
+ * Adapted for Bealach: BLE-only, no server, no Wi-Fi/LTE uplinks. */
 
 /*
  * Build-time configuration, with placeholders when secrets.h is absent.
  *
  * The repository is public, so every value here is either a placeholder or a
- * policy constant. Real hostnames, credentials and the pinned server key live
- * in src/secrets.h, which is gitignored.
+ * policy constant. The BLE passkey lives in secrets.h, which is gitignored.
  */
 
 #ifndef BEALACH_CONFIG_H
@@ -17,86 +16,17 @@
 #endif
 
 /*
- * The phone over BLE is the everyday path, and the only one that needs nothing
- * from this file (contracts/ble/v1/offload.md). Since the uplink schedule entered
- * the production build, Wi-Fi mTLS and LTE are compiled in too, so the device
- * does hold transport credentials: an SSID and PSK, a server address, a CA, a
- * client certificate and its key. Every one of them has a fail-closed default
- * below, because this header's promise is that the project builds without a
- * secrets.h at all — a fresh clone and CI both rely on it.
+ * Bealach is BLE-only: the phone over BLE is the only transport path
+ * (contracts/ble/v1/offload.md). There are no Wi-Fi, LTE, or server uplinks.
  *
- * Pinned server enrolment public key (X25519, 32 bytes, hex). The device seals
- * its storage root to this key, so the all-zero placeholder makes it REFUSE to
- * produce an enrolment blob rather than seal to a key nobody holds. Get the real
- * value from `cairn-server -print-enroll-key` and put it in secrets.h.
+ * The owner phone's enrolment key and ack-signing key are exchanged over BLE
+ * at enrolment time and stored in NVS, not compiled in. The all-zero defaults
+ * below mean "not enrolled": the device records but cannot offload or prune
+ * until an owner enrols it.
  */
-#ifndef BEALACH_SERVER_ENROLL_PUBKEY_HEX
-#define BEALACH_SERVER_ENROLL_PUBKEY_HEX \
-    "0000000000000000000000000000000000000000000000000000000000000000"
-#endif
-
-/*
- * An all-zero key verifies nothing, so an unconfigured device hands bundles
- * off but never prunes. That is the correct failure direction: a full card loses nothing,
- * while a wrongly authorized prune loses a trip permanently.
- */
-#ifndef BEALACH_SERVER_RECEIPT_KEY_HEX
-#define BEALACH_SERVER_RECEIPT_KEY_HEX \
-    "0000000000000000000000000000000000000000000000000000000000000000"
-#endif
-
-/*
- * ── transport credentials ─────────────────────────────────────────────────────
- *
- * BEALACH_WIFI_UPLINK and BEALACH_LTE_UPLINK are both on in the production build, so
- * wifi_link.cpp and lte_link.cpp need these to compile. Real values belong in
- * secrets.h, which is gitignored; the repository is public, so nothing real may
- * appear here.
- *
- * Every default fails closed, in the same direction as the receipt key above: an
- * unconfigured device cannot reach a server and cannot verify one, so a bundle
- * stays on the card. A full card loses nothing; an upload to an unverified peer
- * would.
- *
- *   - An empty CA cannot be parsed, so TLS verification cannot succeed.
- *   - An empty client certificate and key cannot satisfy an mTLS handshake.
- *   - `.invalid` is reserved by RFC 2606 and never resolves.
- *   - Port 0 is not a connectable port.
- *   - No network is named `cairn-unconfigured`.
- *
- * So the defaults are not merely placeholders that compile: each one makes the
- * path it belongs to refuse rather than reach somewhere unintended.
- */
-#ifndef BEALACH_WIFI_SSID
-#define BEALACH_WIFI_SSID "cairn-unconfigured"
-#endif
-#ifndef BEALACH_WIFI_PSK
-#define BEALACH_WIFI_PSK ""
-#endif
-#ifndef BEALACH_SERVER_HOST
-#define BEALACH_SERVER_HOST "cairn.invalid"
-#endif
-#ifndef BEALACH_SERVER_PORT
-#define BEALACH_SERVER_PORT 0
-#endif
-#ifndef BEALACH_LTE_SERVER_HOST
-#define BEALACH_LTE_SERVER_HOST "cairn.invalid"
-#endif
-#ifndef BEALACH_LTE_SERVER_PORT
-#define BEALACH_LTE_SERVER_PORT 0
-#endif
-#ifndef BEALACH_SERVER_CA_PEM
-#define BEALACH_SERVER_CA_PEM ""
-#endif
-#ifndef BEALACH_CLIENT_CERT_PEM
-#define BEALACH_CLIENT_CERT_PEM ""
-#endif
-#ifndef BEALACH_CLIENT_KEY_PEM
-#define BEALACH_CLIENT_KEY_PEM ""
-#endif
 
 #ifndef BEALACH_FIRMWARE_VERSION
-#define BEALACH_FIRMWARE_VERSION "cairn-v2.0.0-dev"
+#define BEALACH_FIRMWARE_VERSION "bealach-v0.1.0-dev"
 #endif
 
 /*
@@ -363,7 +293,7 @@
 #ifndef BEALACH_BLE_COMPANION
 #define BEALACH_BLE_COMPANION 0
 #endif
-#define BEALACH_BLE_NAME "Cairn"
+#define BEALACH_BLE_NAME "Bealach"
 #ifndef BEALACH_PHONE_GNSS_STALE_MS
 #define BEALACH_PHONE_GNSS_STALE_MS 3000
 #endif
@@ -371,7 +301,7 @@
 /* ── hand-off policy ──────────────────────────────────────────────────────── */
 
 /*
- * Recount sealed-but-unreceipted bundles only while stopped. It is cheap, but
+ * Recount sealed-but-unacked bundles only while stopped. It is cheap, but
  * the card is shared with capture and nothing about this is time-critical.
  */
 #define BEALACH_PENDING_MIN_IDLE_MS 10000
@@ -382,26 +312,14 @@
  */
 #define BEALACH_PENDING_REFRESH_MS 60000
 
-/* ── uplink schedule ──────────────────────────────────────────────────────── */
-
-/*
- * How long a Wi-Fi slot may last.
- *
- * Measured rather than guessed, which the uplink module's own notes asked for
- * (issue #19). Cellular moves about 3 KB/s on this hardware and Wi-Fi rather
- * more, so a typical ~230 KB bundle needs on the order of 80 seconds over the
- * slower path. A slot shorter than that would abort every bundle it started
- * and make progress only through resume, which is wasteful when the device is
- * parked anyway. Four minutes leaves room for a handful.
- */
-#define BEALACH_UPLINK_SLOT_MAX_MS 240000u
+/* ── time observations ───────────────────────────────────────────────────── */
 
 /*
  * How often a source that has the time repeats its observation.
  *
  * Two minutes: often enough that a trip carries a series rather than a single
- * point -- which is what makes drift visible and lets a consumer compare sources
- * -- and rare enough that it costs 16 bytes per source per two minutes against a
+ * point — which is what makes drift visible and lets a consumer compare sources
+ * — and rare enough that it costs 16 bytes per source per two minutes against a
  * bundle measured in megabytes. The first observation from each source is always
  * posted immediately, because on a cold start that is the moment the trip becomes
  * datable at all.
@@ -411,74 +329,10 @@
 /*
  * The earliest wall clock any source is allowed to claim: 2020-01-01T00:00:00Z.
  *
- * Checked once, where an observation is turned into the bundle's time basis,
- * rather than three times in three source drivers that can drift apart. Every
- * clock on this device can lie in a way that parses:
- *
- *   - the SIM7600 answers AT+CCLK? with its build default in 1980 before the
- *     network has told it anything
- *   - a GNSS receiver can report a date before it has a fix, and the two-digit
- *     year means yy=00 reads as a perfectly valid 2000-01-01
- *   - a phone with no clock, or a malformed 8-byte write, is whatever those
- *     bytes happen to say
- *
  * A plausible wrong date is worse than an admitted absence, because it becomes
  * the basis every sample in the bundle is timed against and nothing downstream
  * can tell. DEGRADED_TIME and a 1970 date are at least honest.
  */
 #define BEALACH_TIME_PLAUSIBLE_FLOOR_MS 1577836800000ULL
-
-/* Associating is bounded separately: a network that is not there should cost
- * seconds, not the whole slot. */
-#define BEALACH_UPLINK_ASSOCIATE_MS 25000u
-
-/*
- * An LTE send is given longer than a Wi-Fi slot because the link is slower and
- * the attach alone can take 20 s from cold.
- *
- * Sized on measurement, not estimate. The 2026-10-07 test drive sealed a
- * 1,295,714-byte bundle and it took 386 s to deliver over cellular — 3.35 KB/s,
- * 0.23% protocol overhead. The previous 300 s limit was therefore below the cost
- * of one real bundle: the slot aborted mid-transfer every time, and progress came
- * only through resume, which pays the attach again for nothing.
- *
- * 15 minutes covers the attach plus roughly 2.5 MB, so a bundle from an ordinary
- * drive finishes inside one slot. Anything larger still completes across slots —
- * the abort is checked between chunks, so it is always resume-safe — but that is
- * now the exception rather than every single transfer.
- */
-#define BEALACH_UPLINK_LTE_LIMIT_MS 900000u
-
-/* Bundles attempted per slot. Bounded so one enormous backlog cannot hold the
- * radio for an unbounded time; the rest wait for the next parked session. */
-#define BEALACH_UPLINK_BUNDLES_PER_SLOT 4u
-
-/*
- * How long after a trip ends before cellular is considered.
- *
- * The point of waiting is that the phone usually appears first — it is free,
- * and BLE is already up — so paying for cellular immediately would spend the
- * owner's data on bundles that were about to leave for nothing.
- */
-#define BEALACH_UPLINK_LTE_AFTER_TRIP_MS 600000u
-
-/*
- * Supply floor for radio work, in millivolts.
- *
- * A resting car battery sits near 12.4 V. This is below that and well above
- * the point where starting becomes doubtful: the device must never be the
- * reason a car will not start, but it also must not refuse to upload on a
- * perfectly healthy battery.
- */
-#define BEALACH_UPLINK_BATTERY_FLOOR_MV 11800u
-
-/*
- * Accelerometer RMS, in milli-g, that aborts a transfer in progress.
- *
- * Above the noise floor measured on this unit (under 2 mg RMS at rest, per
- * docs/flashing-and-testing.md) by a wide margin, so a passing lorry does not
- * cancel an upload, while a car actually being driven away does.
- */
-#define BEALACH_UPLINK_ABORT_RMS_MG 60u
 
 #endif /* BEALACH_CONFIG_H */

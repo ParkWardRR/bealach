@@ -3,7 +3,7 @@
 
 import SwiftUI
 
-/// The Cairn logo: a dashboard gauge arc with a navigation-arrow needle. Drawn in SwiftUI so it
+/// The Bealach logo: a dashboard gauge arc with a navigation-arrow needle. Drawn in SwiftUI so it
 /// stays sharp at any size; matches the app icon.
 struct BealachMark: View {
     /// Icon background, for placing the mark on a tile.

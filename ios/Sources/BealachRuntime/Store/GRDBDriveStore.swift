@@ -8,7 +8,7 @@ import GRDB
 import os
 
 public final class GRDBDriveStore: DriveStore, Sendable {
-    private static let log = Logger(subsystem: "app.cairn.companion", category: "grdb-store")
+    private static let log = Logger(subsystem: "app.bealach", category: "grdb-store")
     private static let maxDrivesPerVehicle = 200
     private let db: BealachDatabase
 
