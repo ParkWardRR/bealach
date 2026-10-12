@@ -40,6 +40,7 @@ public struct SettingsView: View {
             Form {
                 enrolmentSection
                 deviceSection
+                diagnosticsSection
                 fuelSection
                 bluetoothSection
                 if let offload {
@@ -150,6 +151,30 @@ public struct SettingsView: View {
                         Text("Device")
                             .font(.body)
                         Text("Firmware, identity, boot timing")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Diagnostics
+
+    @ViewBuilder
+    private var diagnosticsSection: some View {
+        Section {
+            NavigationLink {
+                DiagnosticsView(session: session)
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "waveform.path.ecg")
+                        .font(.body)
+                        .foregroundStyle(.orange)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Diagnostics")
+                            .font(.body)
+                        Text("OBD snapshots, safety gates, standby journal")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
