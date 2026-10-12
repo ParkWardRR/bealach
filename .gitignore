@@ -7,6 +7,12 @@ build/
 # Go
 **/vendor/
 
+# Swift Package Manager
+ios/.build/
+
+# Nimbalyst workspace
+.nimbalyst/
+
 # Editors / OS
 .DS_Store
 *.swp

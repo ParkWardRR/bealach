@@ -3,7 +3,7 @@
 # CI is local-only by design (no GitHub Actions, no paid hosted runners).
 # Everything goes through ci/check.sh; see ci/README.md.
 
-.PHONY: help ci ci-linux links local-ci-policy tools-go harvest-rust clean
+.PHONY: help ci ci-linux links local-ci-policy tools-go harvest-rust firmware-host clean
 
 help:
 	@sed -n '3,8p' Makefile
@@ -28,6 +28,9 @@ tools-go:
 
 harvest-rust:
 	@ci/check.sh harvest-rust
+
+firmware-host:
+	@ci/check.sh firmware-host
 
 clean:
 	rm -rf build/ci harvest/firmware/tools/enginegen/target

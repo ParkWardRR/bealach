@@ -66,6 +66,10 @@ check_harvest_rust() {
     --manifest-path "$ROOT/harvest/firmware/tools/enginegen/Cargo.toml"
 }
 
+check_firmware_host() {
+  (cd "$ROOT/firmware/test/host" && make clean && make)
+}
+
 check_mermaid() {
   command -v mmdc >/dev/null 2>&1 || return 2
   mkdir -p "$ROOT/build/ci"
@@ -93,6 +97,7 @@ if [ -z "$ONLY" ] || [ "$ONLY" = "links" ]; then run "links" check_links; fi
 if [ -z "$ONLY" ] || [ "$ONLY" = "local-ci-policy" ]; then run "local-ci-policy" check_local_ci_policy; fi
 if [ -z "$ONLY" ] || [ "$ONLY" = "tools-go" ]; then run "tools-go" check_tools_go; fi
 if [ -z "$ONLY" ] || [ "$ONLY" = "harvest-rust" ]; then run "harvest-rust" check_harvest_rust; fi
+if [ -z "$ONLY" ] || [ "$ONLY" = "firmware-host" ]; then run "firmware-host" check_firmware_host; fi
 if [ -z "$ONLY" ]; then maybe_mermaid; fi
 
 note ""
