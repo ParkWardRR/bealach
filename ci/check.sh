@@ -71,8 +71,20 @@ check_firmware_host() {
 }
 
 check_ios() {
-  command -v swift >/dev/null 2>&1 || { note "swift not installed"; return 1; }
+  command -v swift >/dev/null 2>&1 || return 2
   (cd "$ROOT/ios" && swift build && swift test)
+}
+
+maybe_ios() {
+  check_ios
+  rc=$?
+  if [ "$rc" -eq 0 ]; then
+    PASS="$PASS ios"
+  elif [ "$rc" -eq 2 ]; then
+    skip "ios" "swift not on PATH (macOS only)"
+  else
+    FAIL="$FAIL ios"
+  fi
 }
 
 check_mermaid() {
@@ -103,7 +115,7 @@ if [ -z "$ONLY" ] || [ "$ONLY" = "local-ci-policy" ]; then run "local-ci-policy"
 if [ -z "$ONLY" ] || [ "$ONLY" = "tools-go" ]; then run "tools-go" check_tools_go; fi
 if [ -z "$ONLY" ] || [ "$ONLY" = "harvest-rust" ]; then run "harvest-rust" check_harvest_rust; fi
 if [ -z "$ONLY" ] || [ "$ONLY" = "firmware-host" ]; then run "firmware-host" check_firmware_host; fi
-if [ -z "$ONLY" ] || [ "$ONLY" = "ios" ]; then run "ios" check_ios; fi
+if [ -z "$ONLY" ] || [ "$ONLY" = "ios" ]; then maybe_ios; fi
 if [ -z "$ONLY" ]; then maybe_mermaid; fi
 
 note ""
