@@ -136,7 +136,7 @@ extension Data {
     @Test func structuralScanValidSegment() throws {
         let dir = vectorsRoot.appendingPathComponent("valid-minimal")
         let segmentData = try Data(contentsOf: dir.appendingPathComponent("segment.bin"))
-        let result = try verifier.structuralScan(segmentData: segmentData)
+        let result = try scanLock.withLock { try verifier.structuralScan(segmentData: segmentData) }
         #expect(result.frames == 10)
         #expect(result.stop == BEALACH_STOP_EOF)
         #expect(result.discarded_tail_bytes == 0)
@@ -147,7 +147,7 @@ extension Data {
     @Test func structuralScanTornTail() throws {
         let dir = vectorsRoot.appendingPathComponent("torn-tail-mid-frame")
         let segmentData = try Data(contentsOf: dir.appendingPathComponent("segment.bin"))
-        let result = try verifier.structuralScan(segmentData: segmentData)
+        let result = try scanLock.withLock { try verifier.structuralScan(segmentData: segmentData) }
         #expect(result.stop == BEALACH_STOP_TORN_TAIL)
         #expect(result.discarded_tail_bytes > 0)
     }
@@ -157,7 +157,7 @@ extension Data {
     @Test func keyedScanValidSegment() throws {
         let dir = vectorsRoot.appendingPathComponent("valid-minimal")
         let segmentData = try Data(contentsOf: dir.appendingPathComponent("segment.bin"))
-        let result = try verifier.keyedScan(segmentData: segmentData, rootKey: rootKey)
+        let result = try scanLock.withLock { try verifier.keyedScan(segmentData: segmentData, rootKey: rootKey) }
         #expect(result.frames == 10)
         #expect(result.keyed)
         #expect(result.stop == BEALACH_STOP_EOF)
@@ -168,12 +168,14 @@ extension Data {
         let segmentData = try Data(contentsOf: dir.appendingPathComponent("segment.bin"))
         let wrongKey = Data(repeating: 0xBB, count: 32)
 
-        #expect {
-            try verifier.keyedScan(segmentData: segmentData, rootKey: wrongKey)
-        } throws: { error in
-            guard let failure = error as? VerificationFailure else { return false }
-            if case .aeadAuthenticationFailed = failure { return true }
-            return false
+        try scanLock.withLock {
+            #expect {
+                try verifier.keyedScan(segmentData: segmentData, rootKey: wrongKey)
+            } throws: { error in
+                guard let failure = error as? VerificationFailure else { return false }
+                if case .aeadAuthenticationFailed = failure { return true }
+                return false
+            }
         }
     }
 
@@ -191,7 +193,7 @@ extension Data {
     @Test func structuralScanChainBreak() throws {
         let dir = vectorsRoot.appendingPathComponent("chain-break-spliced")
         let segmentData = try Data(contentsOf: dir.appendingPathComponent("segment.bin"))
-        let result = try verifier.structuralScan(segmentData: segmentData)
+        let result = try scanLock.withLock { try verifier.structuralScan(segmentData: segmentData) }
         #expect(result.stop == BEALACH_STOP_CHAIN_BREAK)
     }
 
@@ -200,7 +202,7 @@ extension Data {
     @Test func structuralScanBadFrameCRC() throws {
         let dir = vectorsRoot.appendingPathComponent("bad-frame-crc")
         let segmentData = try Data(contentsOf: dir.appendingPathComponent("segment.bin"))
-        let result = try verifier.structuralScan(segmentData: segmentData)
+        let result = try scanLock.withLock { try verifier.structuralScan(segmentData: segmentData) }
         #expect(result.stop == BEALACH_STOP_CORRUPT_FRAME)
     }
 }
