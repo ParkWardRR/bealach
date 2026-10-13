@@ -20,8 +20,12 @@ targets:
     platform: iOS
     sources:
       - Sources
-    resources:
-      - Resources
+      - path: Resources
+        type: group
+        buildPhase: resources
+        excludes:
+          - Info.plist
+          - Bealach.entitlements
     dependencies:
       - package: BealachPackage
         product: BealachRuntime
