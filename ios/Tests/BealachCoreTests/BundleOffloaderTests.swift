@@ -379,6 +379,41 @@ private func run(
         #expect(phases.contains(.reading(chunk: 3, of: 3)))
         #expect(phases.last == .returningReceipt)
     }
+
+    // C4: wrong-chunk substitution — digest mismatch detected by sink
+    @Test func aCorruptChunkOnTheDongleIsDetectedBySHAAndNothingIsDeleted() async throws {
+        let a = FakeBundle(seed: 1, size: 5000)
+        let dongle = FakeDongle(bundles: [a]), sink = FakeSink()
+        dongle.corruptBundles.insert(a.id.hex)
+
+        let report = try await run(dongle, sink)
+
+        #expect(sink.storedBundles.isEmpty, "corrupt bundle must not be stored")
+        #expect(dongle.pruned.isEmpty, "corrupt bundle must not be pruned from dongle")
+        for result in report.results {
+            #expect(result.outcome != .done(.verifiedAndPruned), "corrupt bundle must not report success")
+        }
+    }
+
+    // B7: app terminated mid-transfer — persistent progress; resume works
+    @Test func aResumedRunSkipsAlreadyStoredBundles() async throws {
+        let a = FakeBundle(seed: 1, size: 100), b = FakeBundle(seed: 2, size: 200)
+        let sink = FakeSink()
+
+        // First run: both complete
+        let dongle1 = FakeDongle(bundles: [a, b])
+        let report1 = try await run(dongle1, sink)
+        #expect(report1.completed == 2)
+        #expect(sink.storedBundles.count == 2)
+
+        // Second run: same bundles still on a fresh dongle (simulates app kill before receipts sent)
+        let dongle2 = FakeDongle(bundles: [a, b])
+        let report2 = try await run(dongle2, sink)
+
+        // The sink already has them, so it returns nil receipt → alreadyReceipted
+        #expect(report2.results.allSatisfy { $0.outcome == .alreadyReceipted })
+        #expect(sink.storedBundles.count == 2, "no duplicates")
+    }
 }
 
 private final class ProgressLog: @unchecked Sendable {

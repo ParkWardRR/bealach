@@ -49,6 +49,49 @@ import Testing
         let decoded = try JSONDecoder().decode(Tombstone.self, from: data)
         #expect(decoded == tombstone)
     }
+
+    // T7: Interrupted deletion — resumable bookkeeping; failed ≠ deleted
+    @Test func deletingPhaseIsNotTerminal() {
+        var intent = DeletionIntent(bundleID: "b1", contentRoot: "root1", store: .sd)
+        intent.phase = .deleting
+        #expect(!intent.isTerminal, ".deleting is resumable, not terminal")
+    }
+
+    @Test func interruptedDeletionCanBeRetried() {
+        var intent = DeletionIntent(bundleID: "b1", contentRoot: "root1", store: .ios)
+        intent.phase = .deleting
+        // On resume after crash, an interrupted .deleting can go back to .toDelete
+        intent.phase = .toDelete
+        #expect(intent.phase == .toDelete)
+        #expect(!intent.isTerminal)
+    }
+
+    @Test func interruptedDeletionCanFail() {
+        var intent = DeletionIntent(bundleID: "b1", contentRoot: "root1", store: .sd)
+        intent.phase = .deleting
+        intent.phase = .failed
+        #expect(intent.isTerminal)
+        #expect(intent.phase != .deleted, "failed ≠ deleted")
+    }
+
+    @Test func deletingStateSurvivesRoundTrip() throws {
+        var intent = DeletionIntent(bundleID: "b1", contentRoot: "root1", store: .sd, actor: .reclaimPolicy)
+        intent.phase = .deleting
+        let data = try JSONEncoder().encode(intent)
+        let decoded = try JSONDecoder().decode(DeletionIntent.self, from: data)
+        #expect(decoded.phase == .deleting)
+        #expect(!decoded.isTerminal)
+    }
+
+    @Test func failedAndDeletedAreDistinctTerminals() {
+        var failed = DeletionIntent(bundleID: "b1", contentRoot: "root1", store: .ios)
+        failed.phase = .failed
+        var deleted = DeletionIntent(bundleID: "b2", contentRoot: "root2", store: .ios)
+        deleted.phase = .deleted
+        #expect(failed.isTerminal)
+        #expect(deleted.isTerminal)
+        #expect(failed.phase != deleted.phase)
+    }
 }
 
 @Suite struct ReconciliationSnapshotTests {
