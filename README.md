@@ -1,9 +1,9 @@
 # Bealach
 
 [![License: Blue Oak 1.0.0](https://img.shields.io/badge/license-Blue%20Oak%201.0.0-2ea44f)](LICENSE)
-[![Status: documentation-first](https://img.shields.io/badge/status-documentation--first-d4a017)](docs/implementation-plan.md)
-[![Phase 0: foundations](https://img.shields.io/badge/phase-0%20foundations-d4a017)](docs/implementation-plan.md)
-[![Validation: not hardware-validated](https://img.shields.io/badge/validation-not%20hardware--validated-e8833a)](docs/acceptance-tests.md)
+[![Status: TestFlight](https://img.shields.io/badge/status-TestFlight-34c759)](https://appstoreconnect.apple.com)
+[![Phase 1-3: in progress](https://img.shields.io/badge/phase-1--3%20in%20progress-1f6feb)](ROADMAP.md)
+[![Validation: simulator tested](https://img.shields.io/badge/validation-simulator%20tested-d4a017)](docs/acceptance-tests.md)
 [![CI: local only](https://img.shields.io/badge/CI-local%20only-1f6feb)](ci/README.md)
 [![GitHub Actions: not used](https://img.shields.io/badge/GitHub%20Actions-not%20used-6e40c9?logo=githubactions&logoColor=white)](ci/README.md)
 
@@ -42,14 +42,27 @@ truth; the phone holds a verified local mirror and is the final verifier and sto
 
 ---
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/01-drive-tab.png" width="200" alt="Onboarding">&nbsp;&nbsp;
+  <img src="docs/screenshots/02-drive-tab.png" width="200" alt="Drive tab">&nbsp;&nbsp;
+  <img src="docs/screenshots/03-trips-tab.png" width="200" alt="Trips tab">&nbsp;&nbsp;
+  <img src="docs/screenshots/04-garage-tab.png" width="200" alt="Garage tab">&nbsp;&nbsp;
+  <img src="docs/screenshots/05-settings-tab.png" width="200" alt="Settings tab">
+</p>
+
+*From left: onboarding, Drive (connection + telemetry), Trips, Garage (vehicle management), Settings (dongle enrolment, diagnostics, storage).*
+
 ## Status
 
-**Phase 0 complete — foundations in place. No product code has been migrated
-yet, and nothing has been hardware-validated under the Bealach name.** Contracts
-are frozen, all blocking questions resolved, test vectors imported, and dev
-tooling runs against them. Product tree scaffolds (`firmware/`, `ios/`) are
-ready for Phase 1 migration. Claims below marked *proposed* are targets, not
-measurements. Migration from Cairn is planned and itemised in
+**Phases 1-3 in progress.** Core firmware libraries (recording format, BLE
+framing, crypto) and the full iOS app are migrated and building. The iOS app is
+on TestFlight (`app.bealach.ios`, v0.1.0). Contracts are frozen, acceptance tests
+cover the software-testable matrix, and dev tooling + CI run against golden
+vectors. Hardware validation is pending.
+
+Migration from Cairn is tracked in
 [docs/migration-from-cairn.md](docs/migration-from-cairn.md); until a component is
 carried over and tested here, it is not part of Bealach.
 
@@ -174,6 +187,10 @@ README.md                          this file
 ROADMAP.md                         step-by-step execution roadmap (phases, tracks, gates)
 LICENSE                            Blue Oak Model License 1.0.0
 Makefile                           make ci — the local CI entry point
+app/                               Xcode app target (xcodegen), icons, entitlements
+  project.yml                      xcodegen spec → Bealach.xcodeproj
+  Sources/BealachApp.swift         app entry point wiring all dependencies
+  Resources/                       Info.plist, assets, entitlements
 ci/                                local-only check scripts, Linux container
   check.sh                         runs every check
   links.py                         documentation link integrity
