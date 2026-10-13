@@ -86,7 +86,7 @@ license for every carried file.
 | `lib/cairn_power/` (standby/wake policy, drive confirmation) | **reuse/adapt** | Vehicle-safety/parked-drain policy start point; re-tune with measurements | host tests + parked-drain measurement procedure |
 | `lib/cairn_devinfo/` | **reuse/adapt** | Device screen: firmware build, capabilities, boot timing | `test/host/devinfo_test.c` |
 | `lib/cairn_prov/` (provisioning store) | **adapt** | Becomes owner-phone enrolment: pin phone key, ownership reset | `test/host/prov_test.c` |
-| `lib/cairn_log/`, `lib/cairn_format/`, `lib/cairn_config/` | **reuse/adapt** | Logging and binary format helpers; config becomes phone-provisioned settings (sealed to device key) instead of server-sealed | `test/host/config_test.c`, `log_host.c` |
+| `lib/cairn_log/`, `lib/cairn_format/`, `lib/cairn_config/` | **reuse/adapt** | Logging and binary format helpers; config becomes phone-provisioned settings (sealed to device key) instead of server-issued config arriving via iOS over BLE or the uplink | `test/host/config_test.c`, `log_host.c` |
 | `lib/cairn_intake/`, `test/host/intake_test.c` | **adapt** | Cairn's “authorise a bundle before decrypting” checks (assignment, counter) map to mirror-import validation on the phone and on-device sanity checks | intake tests |
 | `lib/cairn_digest/`, `lib/cairn_usage/`, `lib/cairn_uplink/`, `lib/cairn_modem/`, `lib/cairn_ota/` | **exclude** | LTE/Wi-Fi/server paths. No cellular, no uplink, no server-enrolled OTA in Bealach's scope | — |
 | `src/` capture path (sensor tasks, OBD polling, trip policy, sealing) | **adapt** | Keep structure; must fix Cairn #37-class blocking (OBD on its own task with bounded time), stamp engine profile (#39), keep UTC basis (#38) | `test/host/` suite + hardware validation |
@@ -139,10 +139,11 @@ own upstream license; record it separately.
    (P-256 signed requests, bearer tokens). Bealach enrolment is an explicit BLE
    setup flow (AccessorySetupKit-assisted) with identity verification (compare
    fingerprints out of band) and an ownership reset path. No account, no network.
-5. **Configuration comes from the phone.** Cairn's sealed config receiver applied
-   server-issued settings. Bealach settings (sampling, retention, transfer) are
-   written by the owner phone over the authenticated link, sealed to the device
-   key, and validated against the same allowlists.
+5. **Configuration source.** Cairn gets config from the server (sealed to the
+   device key) and via the iOS app over BLE. Bealach gets it from the phone over
+   BLE: settings (sampling, retention, transfer) are written by the owner phone
+   over the authenticated link, sealed to the device key, and validated against
+   the same allowlists — no server issues them.
 6. **No uplink stack.** LTE modem, Wi-Fi, uplink manager, digest, usage
    accounting are excluded. This also moots Cairn's residual-credentials finding
    (firmware #6): Bealach never provisions network credentials onto the dongle.
